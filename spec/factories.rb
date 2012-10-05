@@ -7,4 +7,8 @@ FactoryGirl.define do
     f.name "best caregory"
     f.association :dictionary
   end
+  
+  factory :parameter_type, :class => Discerner::ParameterType do |f|
+    f.name "some type"
+  end
 end
