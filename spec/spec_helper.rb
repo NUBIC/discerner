@@ -1,13 +1,20 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= "test"
-require File.expand_path("../../spec/dummy/config/environment", __FILE__)
+
+begin
+  require File.expand_path("../../spec/dummy/config/environment", __FILE__)
+rescue LoadError
+  puts "ERROR: You must `bundle exec rake discerner:dummy_app` to run specs"
+end
+
 require "rspec/rails"
 require "database_cleaner"
 require "shoulda"
 require "factory_girl"
-   FactoryGirl.find_definitions
 
-ENGINE_RAILS_ROOT=File.join(File.dirname(__FILE__), "../")
+FactoryGirl.find_definitions
+
+ENGINE_RAILS_ROOT = File.join(File.dirname(__FILE__), "../")
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
