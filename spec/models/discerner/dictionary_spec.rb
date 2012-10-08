@@ -7,9 +7,16 @@ describe Discerner::Dictionary do
     dictionary.should be_valid
   end
   
+  it "validates that dictionary has a name" do
+    c = Discerner::Dictionary.new()
+    c.should_not be_valid
+    c.errors.full_messages.should include 'Name can\'t be blank'
+  end
+  
   it "validates uniqueness of name for not-deleted records" do
     d = Discerner::Dictionary.new(:name => dictionary.name)
     d.should_not be_valid
+    d.errors.full_messages.should include 'Name for dictionary has already been taken'
   end
   
   it "allows to reuse name if record has been deleted" do

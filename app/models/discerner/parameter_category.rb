@@ -1,7 +1,9 @@
 module Discerner
   class ParameterCategory < ActiveRecord::Base
     belongs_to      :dictionary
-    validates       :name, :presence => true, :uniqueness => { :scope => [:dictionary_id, :deleted_at]}
+    has_many        :parameters
+    validates       :name, :presence => true, :uniqueness => { :scope => [:dictionary_id, :deleted_at], :message => "for parameter category has already been taken"}
+    validates       :dictionary, :presence => true
     attr_accessible :deleted_at, :dictionary, :dictionary_id, :name
   end
 end

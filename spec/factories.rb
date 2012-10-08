@@ -11,4 +11,11 @@ FactoryGirl.define do
   factory :parameter_type, :class => Discerner::ParameterType do |f|
     f.name "some type"
   end
+  
+  factory :parameter, :class => Discerner::Parameter do |f|
+    f.name "some parameter"
+    f.database_name "some parameter"
+    f.association :parameter_category
+    f.association :parameter_type
+  end
 end

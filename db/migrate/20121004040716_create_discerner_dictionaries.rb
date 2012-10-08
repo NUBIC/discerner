@@ -1,7 +1,7 @@
 class CreateDiscernerDictionaries < ActiveRecord::Migration
   def change
     create_table :discerner_dictionaries do |t|
-      t.string :name
+      t.string :name, :null => false
       t.datetime :deleted_at
 
       t.timestamps
