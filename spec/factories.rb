@@ -29,4 +29,9 @@ FactoryGirl.define do
     f.database_name 'some_value'
     f.association :parameter
   end
+  
+  factory :search, :class => Discerner::Search do |f|
+    f.name 'some search'
+    f.username 'me'
+  end
 end
