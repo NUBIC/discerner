@@ -23,4 +23,10 @@ FactoryGirl.define do
     f.symbol '>'
     f.text 'is greater than'
   end
+
+  factory :parameter_value, :class => Discerner::ParameterValue do |f|
+    f.name 'some value'
+    f.database_name 'some_value'
+    f.association :parameter
+  end
 end

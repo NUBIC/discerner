@@ -13,12 +13,18 @@ describe Discerner::Parameter do
     p.errors.full_messages.should include 'Name can\'t be blank'
   end
   
-  it "validates that parameter belongs to a parameter_group" do
+  it "validates that parameter belongs to a parameter category" do
     p = Discerner::Parameter.new()
     p.should_not be_valid
     p.errors.full_messages.should include 'Parameter category can\'t be blank'
   end
   
+  it "validates that parameter has a parameter type" do
+    p = Discerner::Parameter.new()
+    p.should_not be_valid
+    p.errors.full_messages.should include 'Parameter type can\'t be blank'
+  end
+   
   it "validates uniqueness of database_name for not-deleted records" do
     p = Discerner::Parameter.new(:name => 'new parameter',
       :database_name => parameter.database_name, 
@@ -51,13 +57,4 @@ describe Discerner::Parameter do
     d.deleted_at = Time.now
     d.should be_valid
   end
-
-  it "allows to access parameter category" do
-    parameter.should respond_to :parameter_category
-  end
-
-  it "allows to access parameter type" do
-    parameter.should respond_to :parameter_type
-  end
-
 end
