@@ -18,4 +18,9 @@ FactoryGirl.define do
     f.association :parameter_category
     f.association :parameter_type
   end
+  
+  factory :operator, :class => Discerner::Operator do |f|
+    f.symbol '>'
+    f.text 'is greater than'
+  end
 end

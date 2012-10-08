@@ -30,4 +30,8 @@ describe Discerner::ParameterType do
     d.deleted_at = Time.now
     d.should be_valid
   end
+  
+  it "allows to access matching operators" do
+    parameter_type.should respond_to :operators
+  end
 end
