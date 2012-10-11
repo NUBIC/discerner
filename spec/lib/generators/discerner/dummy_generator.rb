@@ -31,9 +31,9 @@ module Discerner
     end
 
     def test_dummy_config
-      inject_into_file "#{dummy_path}/config/routes.rb",
-        "\nmount Discerner::Engine, :at => '/discerner'\n",
-        :after => "Dummy::Application.routes.draw do\n"
+      template "boot.rb", "#{dummy_path}/config/boot.rb", :force => true
+      template "application.rb", "#{dummy_path}/config/application.rb", :force => true
+      template "routes.rb", "#{dummy_path}/config/routes.rb", :force => true
     end
 
     def test_dummy_clean
@@ -54,11 +54,18 @@ module Discerner
     end
     
     protected
-
       def dummy_path
         'spec/dummy'
       end
+      
+      def lib_name
+        'discerner'
+      end
 
+      def module_name
+        'Dummy'
+      end
+      
       def application_definition
         @application_definition ||= begin
           dummy_application_path = File.expand_path("#{dummy_path}/config/application.rb", destination_root)
@@ -71,7 +78,7 @@ module Discerner
       alias :store_application_definition! :application_definition
 
       def gemfile_path
-        '../../../../Gemfile'
+        '../../Gemfile'
       end
       
       def remove_directory_if_exists(path)
