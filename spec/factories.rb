@@ -34,4 +34,10 @@ FactoryGirl.define do
     f.name 'some search'
     f.username 'me'
   end
+  
+  factory :search_parameter, :class => Discerner::SearchParameter do |f|
+    f.association :search
+    f.association :parameter
+    f.display_order 1
+  end
 end
