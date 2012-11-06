@@ -28,12 +28,12 @@ describe Discerner::ParameterValue do
     p.errors.full_messages.should include 'Database name for parameter value has already been taken'
   end
   
-  it "allows to reuse database_name if record has been deleted" do
+  it "does not allow to reuse database_name if record has been deleted" do
     d = Discerner::ParameterValue.new(:name => 'new parameter value', 
       :database_name => parameter_value.database_name, 
       :parameter => parameter_value.parameter,
       :deleted_at => Time.now)
-    d.should be_valid
+    d.should_not be_valid
     
     Factory.create(:parameter_value, :name => 'deleted parameter value', 
       :database_name => 'deleted_parameter_value',
@@ -43,9 +43,9 @@ describe Discerner::ParameterValue do
     d = Discerner::ParameterValue.new(:name => 'deleted parameter', 
       :database_name => 'deleted_parameter_value',
       :parameter => parameter_value.parameter)
-    d.should be_valid
+    d.should_not be_valid
     
     d.deleted_at = Time.now
-    d.should be_valid
+    d.should_not be_valid
   end
 end
