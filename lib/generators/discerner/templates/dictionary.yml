@@ -1,0 +1,53 @@
+---
+- :group:
+    :name: Demographic criteria
+    :parameters:
+      - :name: Age at case collection date
+        :parameter_type: integer
+        :database_name: age_at_case_collect
+      - :name: Age based on current date
+        :parameter_type: integer
+        :database_name: age_based_on_current_date
+      - :name: Date of birth
+        :parameter_type: date
+        :database_name: birth_dt_tm
+      - :name: Ethnic group
+        :parameter_type: list
+        :database_name: ethnic_grp
+        :parameter_values:
+          - :name: Hispanic or Latino
+          - :name: NOT Hispanic or Latino
+          - :name: Unable to answer
+          - :name: Declined to answer
+      - :name: Gender
+        :parameter_type: list
+        :database_name: sex
+        :parameter_values:
+          - :name: Male
+          - :name: Female
+          - :name: Indeterminent
+          - :name: Unknown
+          - :name: Unspecified
+      - :name: Race
+        :parameter_type: list
+        :database_name: race
+        :parameter_values:
+          - :name: American Indian or Alaska Native
+          - :name: Asian
+          - :name: Black or African American
+          - :name: Hispanic or Latino
+          - :name: Native Hawaiian or Other Pacific Islander
+          - :name: White or Caucasian
+          - :name: Other
+          - :name: Declined to answer
+          - :name: Unable to answer
+- :group:
+    :name: Case criteria
+    :parameters:
+      - :name: Accession date
+        :parameter_type: date
+        :database_name: accessioned_dt_tm
+      - :name: Text search diagnosis
+        :parameter_type: text
+        :database_name: case_specimen_diagnosis
+

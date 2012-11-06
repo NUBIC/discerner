@@ -1,7 +1,13 @@
 module Discerner
   class Dictionary < ActiveRecord::Base
     has_many        :parameter_categories
-    validates       :name, :presence => true, :uniqueness => {:scope => :deleted_at, :message => "for dictionary has already been taken"}
+    validates       :name, :presence => true, :uniqueness => {:message => "for dictionary has already been taken"}
     attr_accessible :name, :deleted_at
+  
+    scope :not_deleted, where(:deleted_at => nil)
+  
+    def is_deleted?
+      not deleted_at.blank?
+    end
   end
 end

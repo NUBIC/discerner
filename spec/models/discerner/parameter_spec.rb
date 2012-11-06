@@ -57,4 +57,12 @@ describe Discerner::Parameter do
     d.deleted_at = Time.now
     d.should be_valid
   end
+
+  it "allows to access parameter values if exist" do
+    parameter_value = Factory.create(:parameter_value, :parameter => parameter)
+    
+    parameter = Discerner::Parameter.last
+    parameter.parameter_values.length.should == 1
+    parameter.parameter_values.first.id.should == parameter_value.id
+  end
 end
