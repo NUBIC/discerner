@@ -6,7 +6,7 @@ module Discerner
   
     scope :not_deleted, where(:deleted_at => nil)
   
-    def is_deleted?
+    def deleted?
       not deleted_at.blank?
     end
   end

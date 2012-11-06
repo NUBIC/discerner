@@ -4,5 +4,9 @@ module Discerner
     has_many        :search_parameter_values
     validates       :symbol, :presence => true, :uniqueness => {:scope => :deleted_at, :message => "for operator has already been taken"}
     attr_accessible :binary, :deleted_at, :symbol, :text
+    
+    def deleted?
+      not deleted_at.blank?
+    end
   end
 end

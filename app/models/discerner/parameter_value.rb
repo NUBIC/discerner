@@ -5,5 +5,9 @@ module Discerner
     validates       :name, :parameter, :presence => true
     validates       :database_name, :presence => true, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
     attr_accessible :database_name, :deleted_at, :name, :parameter, :parameter_id
+    
+    def deleted?
+      not deleted_at.blank?
+    end
   end
 end

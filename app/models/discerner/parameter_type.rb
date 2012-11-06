@@ -5,5 +5,9 @@ module Discerner
     
     validates       :name, :presence => true, :uniqueness => {:message => "for parameter type has already been taken"}
     attr_accessible :deleted_at, :name
+    
+    def deleted?
+      not deleted_at.blank?
+    end
   end
 end

@@ -5,5 +5,9 @@ module Discerner
     validates       :name, :presence => true, :uniqueness => { :scope => :dictionary_id, :message => "for parameter category has already been taken"}
     validates       :dictionary, :presence => true
     attr_accessible :deleted_at, :dictionary, :dictionary_id, :name
+    
+    def deleted?
+      not deleted_at.blank?
+    end
   end
 end

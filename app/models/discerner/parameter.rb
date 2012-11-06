@@ -7,14 +7,8 @@ module Discerner
     validates       :database_name, :uniqueness => true
     attr_accessible :database_name, :deleted_at, :name, :parameter_category, :parameter_category_id, :parameter_type, :parameter_type_id
     
-    def find_or_create_parameter_value(name)
-      parameter_value = parameter_values.where(:name => name).first
-      unless parameter_value
-        parameter_value = parameter_values.build(:name => name)
-        parameter_value.created_at = Time.now
-      end
-      parameter_value.save
-      parameter_value
+    def deleted?
+      not deleted_at.blank?
     end
   end
 end
