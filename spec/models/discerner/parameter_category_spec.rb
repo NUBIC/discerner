@@ -25,16 +25,16 @@ describe Discerner::ParameterCategory do
     c.errors.full_messages.should include 'Name for parameter category has already been taken'
   end
   
-  it "allows to reuse name if record has been deleted" do
+  it "does not allow to reuse name if record has been deleted" do
     c = Discerner::ParameterCategory.new(:name => parameter_category.name, :dictionary => parameter_category.dictionary, :deleted_at => Time.now)
-    c.should be_valid
+    c.should_not be_valid
     
     Factory.create(:parameter_category, :name => 'deleted parameter_category', :dictionary => parameter_category.dictionary, :deleted_at => Time.now)
     d = Discerner::ParameterCategory.new(:name => 'deleted parameter_category', :dictionary => parameter_category.dictionary)
-    d.should be_valid
+    d.should_not be_valid
     
     d.deleted_at = Time.now
-    d.should be_valid
+    d.should_not be_valid
   end
   
   it "allows to reuse name from different dictionary" do
