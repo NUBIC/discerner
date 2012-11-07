@@ -1,0 +1,72 @@
+---
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+        - :name: Demographic criteria
+          :parameters:
+            - :name: Age at case collection date
+              :parameter_type: integer
+              :database_name: age_at_case_collect
+            - :name: Age based on current date
+              :parameter_type: integer
+              :database_name: age_based_on_current_date
+            - :name: Date of birth
+              :parameter_type: date
+              :database_name: birth_dt_tm
+            - :name: Ethnic group
+              :parameter_type: list
+              :database_name: ethnic_grp
+              :parameter_values:
+                - :name: Hispanic or Latino
+                  :database_name: hisp_or_latino
+                - :name: NOT Hispanic or Latino
+                  :database_name: not_hisp_or_latino
+                - :name: Unable to answer
+                  :database_name: unknown
+                - :name: Declined to answer
+                  :database_name: declined
+            - :name: Gender
+              :parameter_type: list
+              :database_name: sex
+              :parameter_values:
+                - :name: Male
+                  :database_name: male
+                - :name: Female
+                  :database_name: female
+                - :name: Indeterminent
+                  :database_name: indeterminent
+                - :name: Unknown
+                  :database_name: unknown
+                - :name: Unspecified
+                  :database_name: uncpecified
+            - :name: Race
+              :parameter_type: list
+              :database_name: race
+              :parameter_values:
+                - :database_name: American Indian or Alaska Native
+                - :database_name: Asian
+                - :database_name: Black or African American
+                - :database_name: Hispanic or Latino
+                - :database_name: Native Hawaiian or Other Pacific Islander
+                - :database_name: White or Caucasian
+                - :database_name: Other
+                - :database_name: Declined to answer
+                - :database_name: Unable to answer
+        - :name: Case criteria
+          :parameters:
+            - :name: Accession date
+              :parameter_type: date
+              :database_name: accessioned_dt_tm
+            - :name: Text search diagnosis
+              :parameter_type: text
+              :database_name: case_specimen_diagnosis
+  - :name: Deleted dictionary
+    :deleted: true
+    :parameter_categories: 
+      - :name: Deleted category A
+        :deleted: true
+        :parameters:
+          - :name: "Deleted date parameter"
+            :database_name: deleted_date
+            :parameter_type: date
+            :deleted: true

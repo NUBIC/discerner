@@ -1,59 +1,44 @@
 ---
-- :operator:
-    :symbol: '='
+:operators:
+  - :symbol: '='
     :text: is equal to
     :parameter_types:
       - integer
       - date
-
-- :operator:
-    :symbol: '!='
+  - :symbol: '!='
     :text: is not equal to
     :parameter_types:
       - integer
       - date
-
-- :operator:
-    :symbol: '<'
+  - :symbol: '<'
     :text: is less than
     :parameter_types:
       - integer
       - date
-
-- :operator:
-    :symbol: '>'
+  - :symbol: '>'
     :text: is greater than
     :parameter_types:
       - integer
       - date
-
-- :operator:
-    :symbol: between
+  - :symbol: between
     :text: is in the range
     :binary: true
     :parameter_types:
       - integer
       - date
-
-- :operator:
-    :symbol: in
+  - :symbol: in
     :text: is one of
     :parameter_types:
       - list
-
-- :operator:
-    :symbol: not in
+  - :symbol: not in
     :text: is not one of
     :parameter_types:
       - list
-
-- :operator:
-    :symbol: contains
+  - :symbol: contains
     :text: is like
     :parameter_types:
       - text
-- :operator:
-    :symbol: not contains
+  - :symbol: not contains
     :text: is not like
     :parameter_types:
       - text

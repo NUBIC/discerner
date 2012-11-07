@@ -11,7 +11,7 @@ module Discerner
     
     def sample_dictionary
       empty_directory "#{Discerner::Engine.paths['lib']}/setup"
-      copy_file "dictionary.yml", "#{Discerner::Engine.paths['lib']}/setup/dictionary.yml"
+      copy_file "dictionaries.yml", "#{Discerner::Engine.paths['lib']}/setup/dictionaries.yml"
     end
   end
 end

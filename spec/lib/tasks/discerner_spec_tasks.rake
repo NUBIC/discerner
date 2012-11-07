@@ -13,9 +13,10 @@ namespace :discerner do
 
     task :migrate_dummy_app do
       puts "Setting up dummy database..."
+      generator_tasks = 'rails generate discerner:install'
       task_params = [%Q{ bundle exec rake -f spec/dummy/Rakefile discerner:install:migrations }]
       task_params << %Q{ db:drop db:create db:migrate db:seed db:test:prepare }
-
+      system generator_tasks
       system task_params.join(' ')
     end
 

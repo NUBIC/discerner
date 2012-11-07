@@ -19,16 +19,16 @@ describe Discerner::Operator do
     d.errors.full_messages.should include 'Symbol for operator has already been taken'
   end
   
-  it "allows to reuse symbol if record has been deleted" do
+  it "do not allow to reuse symbol if record has been deleted" do
     d = Discerner::Operator.new(:symbol => operator.symbol, :deleted_at => Time.now)
-    d.should be_valid
+    d.should_not be_valid
     
     Factory.create(:operator, :symbol => '<', :deleted_at => Time.now)
     d = Discerner::Operator.new(:symbol => '<')
-    d.should be_valid
+    d.should_not be_valid
     
     d.deleted_at = Time.now
-    d.should be_valid
+    d.should_not be_valid
   end
   
   it "allows to access matching parameter types" do

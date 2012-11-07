@@ -4,7 +4,7 @@ ENV["RAILS_ENV"] ||= "test"
 begin
   require File.expand_path("../../spec/dummy/config/environment", __FILE__)
 rescue LoadError
-  puts "ERROR: You must `bundle exec rake discerner:dummy_app` to run specs"
+  puts "ERROR: You must execute `bundle exec rake discerner:setup:dummy_app` to run specs"
 end
 
 require "rspec/rails"
