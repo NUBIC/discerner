@@ -6,6 +6,8 @@ module Discerner
     validates       :dictionary, :presence => true
     attr_accessible :deleted_at, :dictionary, :dictionary_id, :name
     
+    scope :not_deleted, where(:deleted_at => nil)
+    
     def deleted?
       not deleted_at.blank?
     end
