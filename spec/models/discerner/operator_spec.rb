@@ -34,4 +34,9 @@ describe Discerner::Operator do
   it "allows to access matching parameter types" do
     operator.should respond_to :parameter_types
   end
+  
+  it "detects if record has been marked as deleted" do
+    operator.deleted_at = Time.now
+    operator.should be_deleted
+  end
 end

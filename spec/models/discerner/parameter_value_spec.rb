@@ -48,4 +48,9 @@ describe Discerner::ParameterValue do
     d.deleted_at = Time.now
     d.should_not be_valid
   end
+  
+  it "detects if record has been marked as deleted" do
+    parameter_value.deleted_at = Time.now
+    parameter_value.should be_deleted
+  end
 end

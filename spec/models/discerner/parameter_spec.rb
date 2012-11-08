@@ -65,4 +65,9 @@ describe Discerner::Parameter do
     parameter.parameter_values.length.should == 1
     parameter.parameter_values.first.id.should == parameter_value.id
   end
+  
+  it "detects if record has been marked as deleted" do
+    parameter.deleted_at = Time.now
+    parameter.should be_deleted
+  end
 end

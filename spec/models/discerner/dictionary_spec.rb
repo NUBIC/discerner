@@ -34,4 +34,9 @@ describe Discerner::Dictionary do
   it "allows to access parameter_categories for dictionary" do
     dictionary.should respond_to :parameter_categories
   end
+  
+  it "detects if record has been marked as deleted" do
+    dictionary.deleted_at = Time.now
+    dictionary.should be_deleted
+  end
 end
