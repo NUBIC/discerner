@@ -1,7 +1,6 @@
 module Discerner
   class Search < ActiveRecord::Base
     has_many  :search_parameters
-    validates :username, :presence => true
     validate  :check_search_parameters
 
     accepts_nested_attributes_for :search_parameters, :allow_destroy => true,

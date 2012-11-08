@@ -12,12 +12,6 @@ describe Discerner::Search do
     search.should be_valid
   end
   
-  it "validates that search has a username" do
-    c = Discerner::Search.new()
-    c.should_not be_valid
-    c.errors.full_messages.should include 'Username can\'t be blank'
-  end
-  
   it "validates that search has at least one search parameter" do
     s = Discerner::Search.new()
     s.should_not be_valid
@@ -29,5 +23,11 @@ describe Discerner::Search do
     s.should be_valid
     s.save
     s.should have(1).search_parameters
+  end
+  
+  it "does not force that search has a username" do
+    c = Discerner::Search.new(:search_parameters_attributes => { "0" => { :parameter => Discerner::Parameter.last}})
+    c.should be_valid
+    c.errors.full_messages.should_not include 'Username can\'t be blank'
   end
 end
