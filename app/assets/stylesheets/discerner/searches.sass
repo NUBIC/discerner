@@ -1,0 +1,134 @@
+div#discerner-search-form
+  :border 1px solid #D1DAE3
+  :width 1110px
+
+  table
+    :margin-bottom 0
+    
+  table.records tr
+    :border none
+    
+  .ui-widget
+    :font-size 1em !important
+    
+  .fields td
+    :vertical-align top
+    :border-bottom 1px solid lightgrey
+    :padding-top 0.5em
+    :padding-top 0.5em
+  
+  .buttons
+    :margin-bottom 1em
+    :margin-right 1em
+    :float right
+  
+  td.parameter_boolean_operator, td.parameter_values_boolean_operator, td.remove
+    :width 2em
+  
+  .parameter
+    :width 31em
+    
+    .categorized_autocompleter
+      :border 1px solid #CCCCCC
+      :position relative
+      
+      input.ui-autocomplete-input
+        :border none
+        :border-right 1px solid #CCCCCC
+        :padding-left 0.2em
+        :width 25em !important
+        
+      .div-criteria-popup
+        :width 51em
+        :border-style solid
+        :border-color #CCCCCC #999999 #999999 #CCCCCC
+        :border-width 1px 3px 3px 1px
+        :padding 0.1em 0.1em 1em 0.1em
+
+        .div-survey_section-list
+          :overflow auto
+          
+          .parameter_category
+            :padding-bottom 5px
+            :padding-left 5px
+            :padding-right 5px
+            :padding-top 15px
+            :clear both
+            
+            .parameter_category_name
+              :font-weight bold
+              :margin-bottom 0
+              :margin-left 0
+              :margin-right 0
+              :margin-top 0
+              :padding-bottom 0
+              :padding-left 0
+              :padding-right 0
+              :padding-top 0
+            
+            .column
+              :float left
+              :margin-right 5px
+              :width 16em
+              
+              .criteria
+                :margin-bottom 3px
+                :margin-left 0
+                :margin-right 0
+                :margin-top 3px
+                a
+                  :text-decoration none
+
+      .selection_disabled
+        :color #cccccc
+
+  td.parameter_values
+    table
+      :margin-bottom 0
+      :width auto
+      
+      td
+        :border none
+        :padding-top 0
+    
+    .records 
+      input[type="text"]
+        :width 14em
+      td.operator, td.value, td.additional_value
+        :width 6em
+        
+      td.operator select
+        :width 10em
+        :margin-top 0
+        :padding-top 0
+      
+      input.ui-autocomplete-input
+        :border 1px solid #CCCCCC
+        :border-radius 0px
+        :padding-left 0.25em
+      
+      button.ui-widget, input.ui-autocomplete-input
+        :font-size 13px !important
+      
+      button
+        :border-left-width 0
+        :background-color #FFFFFF
+        :background-image none
+        :border-radius 0px
+        :margin-top 0 !important
+        :padding-top 0 !important
+        :padding-bottom 0 !important
+
+  div.name
+    :margin 1em 0.5em
+    :height 2em
+    
+    form
+      :display inline
+      :width 10em
+      
+      a.button, input.button
+        :margin 0 !important
+      
+      input[type="text"]
+        :width 30em
