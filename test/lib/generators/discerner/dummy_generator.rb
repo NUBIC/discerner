@@ -55,7 +55,7 @@ module Discerner
     
     protected
       def dummy_path
-        'spec/dummy'
+        'test/dummy'
       end
       
       def lib_name

@@ -12,7 +12,7 @@ describe Discerner::Parser do
   end
   
   it "parses dictionaries" do
-    file = 'spec/dummy/lib/setup/dictionaries.yml'
+    file = 'test/dummy/lib/setup/dictionaries.yml'
     parser = Discerner::Parser.new(:trace => true)
     parser.parse_dictionaries(File.read(file))
     
@@ -44,7 +44,7 @@ describe Discerner::Parser do
   end
     
   it "restores soft deleted dictionaries if they are not marked as deleted in the dictionary definition" do
-    file = 'spec/dummy/lib/setup/dictionaries.yml'
+    file = 'test/dummy/lib/setup/dictionaries.yml'
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
     
@@ -61,7 +61,7 @@ describe Discerner::Parser do
   end
   
   it "restores soft deleted parameter categories if they are not marked as deleted in the dictionary definition" do
-    file = 'spec/dummy/lib/setup/dictionaries.yml'
+    file = 'test/dummy/lib/setup/dictionaries.yml'
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
     
@@ -81,7 +81,7 @@ describe Discerner::Parser do
   end
   
   it "restores soft deleted parameters if they are not marked as deleted in the dictionary definition" do
-    file = 'spec/dummy/lib/setup/dictionaries.yml'
+    file = 'test/dummy/lib/setup/dictionaries.yml'
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
     
