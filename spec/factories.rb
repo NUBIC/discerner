@@ -32,7 +32,6 @@ FactoryGirl.define do
   
   factory :search, :class => Discerner::Search do |f|
     f.name 'some search'
-    f.username 'me'
   end
   
   factory :search_parameter, :class => Discerner::SearchParameter do |f|

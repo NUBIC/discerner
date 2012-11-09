@@ -1,0 +1,26 @@
+!!! Strict
+%html{:lang => "en"}
+  %head
+    %meta{'http-equiv' => "content-type", :content => "text/html;charset=UTF-8"}
+    %link{ :rel=>"icon", :type=>"image/gif", :href=>"/images/favicon.gif"}
+    
+    = stylesheet_link_tag 'discerner/application', :media => 'screen, projection'
+    /[if lt IE 8]
+      = stylesheet_link_tag 'discerner/ie.css', :media => 'screen, projection'
+    = javascript_include_tag 'discerner/application'
+    = csrf_meta_tag
+    = yield :head
+    
+  %body{:class=>'discerner'}
+    #container
+      #masthead
+        = yield :masthead
+      #wrapper
+        - flash.each do |message_type, message|
+          %div{ :class => "message", :id => message_type }
+            = h(message)
+        #content
+          = yield
+      #footer
+        = yield :footer
+
