@@ -12,7 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require discerner/jquery/jquery-ui.min
-//= require discerner/jquery/jquery-ui-1.8.16.custom.min
+//= require discerner/jquery/jquery-ui-1.9.1.custom.min
 //= require discerner/jquery/jquery.blockUI
 //= require_tree .
