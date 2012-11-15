@@ -60,6 +60,38 @@
             - :name: Text search diagnosis
               :parameter_type: text
               :database_name: case_specimen_diagnosis
+  
+  - :name: Librarian dictionary
+    :parameter_categories: 
+      - :name: By author
+        :parameters:
+          - :name: "Last name"
+            :database_name: autor_last_name
+            :parameter_type: text
+          - :name: "First name"
+            :database_name: autor_first_name
+            :parameter_type: text
+          - :name: "Country"
+            :database_name: country
+            :parameter_type: text
+      - :name: Book criteria
+        :parameters:
+          - :name: "Type"
+            :database_name: type
+            :parameter_type: list
+            :parameter_values:
+              - :database_name: book
+              - :database_name: journal
+              - :database_name: article
+              - :database_name: electronic journal
+              
+          - :name: "Title"
+            :database_name: title
+            :parameter_type: text
+          - :name: "Keyword"
+            :database_name: text
+            :parameter_type: text
+
   - :name: Deleted dictionary
     :deleted: true
     :parameter_categories: 

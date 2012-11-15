@@ -1,7 +1,10 @@
-div#discerner-search-form
+div#discerner_search_form
   :border 1px solid #D1DAE3
   :width 1110px
 
+  form#search, table.search_parameters
+    :clear both
+    
   table
     :margin-bottom 0
     
@@ -119,10 +122,12 @@ div#discerner-search-form
         :padding-top 0 !important
         :padding-bottom 0 !important
 
-  div.name
+  div.discerner_search_name, div.discerner_search_dictionary
     :margin 1em 0.5em
     :height 2em
-    
+    :float left
+  
+  div.discerner_search_name  
     form
       :display inline
       :width 10em

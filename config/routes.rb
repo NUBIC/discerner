@@ -1,3 +1,9 @@
 Discerner::Engine.routes.draw do
-  resources :searches
+  root :to => "searches#new"
+  resources :searches do
+    member do
+      get :rename
+    end
+  end
+  resources :parameters
 end

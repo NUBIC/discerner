@@ -17,7 +17,7 @@ describe Discerner::Parser do
     parser.parse_dictionaries(File.read(file))
     
     Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 2
+    Discerner::Dictionary.all.length.should == 3
     
     dictionary = Discerner::Dictionary.find_by_name('Sample dictionary')
     dictionary.should_not be_blank
@@ -30,7 +30,7 @@ describe Discerner::Parser do
     dictionary.parameter_categories.last.should have(2).parameters
     dictionary.parameter_categories.last.should_not be_deleted
     
-    Discerner::Parameter.all.count.should == 9
+    Discerner::Parameter.all.count.should == 15
     
     dictionary = Discerner::Dictionary.find_by_name('Deleted dictionary')
     dictionary.should be_deleted
@@ -40,7 +40,7 @@ describe Discerner::Parser do
     dictionary.parameter_categories.first.should have(1).parameters
     dictionary.parameter_categories.first.parameters.first.should be_deleted    
     
-    Discerner::ParameterValue.all.length.should == 18
+    Discerner::ParameterValue.all.length.should == 22
   end
     
   it "restores soft deleted dictionaries if they are not marked as deleted in the dictionary definition" do

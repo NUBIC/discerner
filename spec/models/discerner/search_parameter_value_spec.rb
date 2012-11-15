@@ -12,7 +12,7 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.should be_valid
   end
   
-  it "allows to access matching search parameter" do
+  it "allows to access matching search criteria" do
     search_parameter_value.should respond_to :search_parameter
   end
 end

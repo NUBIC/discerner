@@ -1,0 +1,18 @@
+%table{ :class => 'records' }
+  %thead
+    %tr
+      %th Name
+      %th Last updated on
+      %th
+  %tbody
+    - @searches.each do |search|
+      %tr{:class=>"#{cycle('odd_record','even_record')}"}
+        %td
+          - if search.name.blank?
+            [No name specified]
+          - else
+            = search.name
+        %td
+          = search.updated_at
+        %td
+          = link_to 'Open', edit_search_path(search), { :class => 'show_link icon_link' }

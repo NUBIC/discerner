@@ -1,0 +1,41 @@
+- search_parameter_id = nested_record_id(f, :search_parameter)
+%tr{ :id => "#{search_parameter_id}", :class => "search_parameter fields" }
+  %td.parameter_boolean_operator
+    %span
+  %td.parameter
+    %div{:class => 'ui-widget categorized_autocompleter'}
+      = f.hidden_field :display_order
+      = f.select(:parameter_id, @parameters.map {|q| [q.name, q.id, {:class => q.parameter_type.name}]}, { :include_blank => true },{ :class => 'parameters_combobox_autocompleter' })
+      %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
+        Select
+      .div-criteria-popup{ :style => "display: none;"}
+        .div-survey_section-list
+          - @parameter_categories.each do |parameter_category|
+            = div_for parameter_category, :class => "question_category #{parameter_category.dictionary.css_class_name}" do
+              %p{ :class => 'parameter_category_name' }
+                = parameter_category.name
+              - items = parameter_category.parameters.not_deleted.all.map(&:name)
+              - unless items.empty?
+                - (0...items.size).each do |i|
+                  - unless items[i].nil?
+                    .column
+                      .criteria
+                        = link_to items[i], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[i]}"
+        .div-instruction-bar
+  %td.remove
+    = link_to_remove_fields 'Remove', f, :search_parameters
+  %td.parameter_values
+    .search_parameter_values
+      %table{ :class => 'records' }
+        %tbody.nested_records_search_parameter_values
+          = f.fields_for :search_parameter_values, f.object.search_parameter_values.order(:display_order) do |search_parameter_value_form|
+            = render :partial => 'search_parameter_value_fields', :locals => { :f => search_parameter_value_form }
+      %span{ :class => 'add_header'}
+        = link_to_add_fields "Add selection", :search_parameter_values, {:style => "display:none;"}
+:javascript
+  $(function () {
+    var searchParameterValuesTemplate = '#{generate_nested_attributes_template(f, :search_parameter_values, "search_parameter_value")}',
+      container = $('##{search_parameter_id}'),
+      parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}'),
+      searchParameterUI = new Discerner.SearchParameter.UI({ container: container, searchParameterValuesTemplate: searchParameterValuesTemplate, parametersUrl: parametersUrl });
+  });

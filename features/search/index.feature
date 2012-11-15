@@ -2,7 +2,7 @@ Feature: Viewing existing searches
   A user should be able view existing searches
 
   Scenario: Vieving existing searches
-    Given search dictionary is loaded
+    Given search dictionaries are loaded
     And search "best search ever" exists
     And search "another search" exists
     When I go to the searches page
@@ -11,7 +11,7 @@ Feature: Viewing existing searches
 
   @javascript
   Scenario: Filtering existing searches
-    Given search dictionary is loaded
+    Given search dictionaries are loaded
     And search "best search ever" exists
     And search "another search" exists
     When I go to the searches page

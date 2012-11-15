@@ -9,5 +9,9 @@ module Discerner
     def deleted?
       not deleted_at.blank?
     end
+    
+    def css_class_name
+      "dictionary_#{name.downcase.gsub(/\s/,'_')}"
+    end
   end
 end

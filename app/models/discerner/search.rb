@@ -10,7 +10,7 @@ module Discerner
     
     def check_search_parameters
       if self.search_parameters.size < 1 || self.search_parameters.all?{|search_parameter| search_parameter.marked_for_destruction? }
-        errors.add(:base,"Search should have at least one search parameter.")
+        errors.add(:base,"Search should have at least one search criteria.")
       end
     end
   end

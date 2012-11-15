@@ -3,34 +3,73 @@
 
 Discerner.Search.UI = function (config) {
   var parametersUrl = new Discerner.Url(config.parametersUrl),
-    setupParameters = function () {
-      var search_parameters = $('.search_parameters').find('.nested_records_search_parameters tr.search_parameter'),
-          display_orders = search_parameters.find('input:not([name*="search_parameter_values_attributes"])[name$="[display_order]"]'),
-          i = 0;
+      dictionarySelector = $('.discerner_search_dictionary select#dictionary'),
+      dictionaryContainer = $('.discerner_search_dictionary span'),
+      selectedDictionaryOption = $(dictionarySelector).find('option:selected:last'),
+      dictionary_class_name,
+      setupParameters = function () {
+        var search_parameters = $('.search_parameters').find('.nested_records_search_parameters tr.search_parameter'),
+            display_orders = search_parameters.find('input:not([name*="search_parameter_values_attributes"])[name$="[display_order]"]'),
+            i = 0;
           
-      search_parameters.filter(':visible:not(:first)').find('.parameter_boolean_operator span').html('AND');
-      $(".parameters_combobox_autocompleter").combobox({watermark:'a question'});
-  
-      // get max display order
-      $.each(display_orders, function(){
-        var val = parseInt($(this).val());
-        if (val >= i) { i = val }
-      });
-      // assign display order to search predicates without it
-      $.each(display_orders, function(){
-        if ($(this).val().length == 0) {
-          i = i + 1
-          $(this).val(i);
+        search_parameters.filter(':visible:not(:first)').find('.parameter_boolean_operator span').html('AND');
+        $(".parameters_combobox_autocompleter").combobox({watermark:'a question'});
+        
+        // get max display order
+        $.each(display_orders, function(){
+          var val = parseInt($(this).val());
+          if (val >= i) { i = val }
+        });
+        
+        // assign display order to search predicates without it
+        $.each(display_orders, function(){
+          if ($(this).val().length == 0) {
+            i = i + 1
+            $(this).val(i);
+          }
+        })
+        
+        // hide parameter options that do not belong to selected dictionary
+        if (dictionarySelector.length > 0){
+          dictionary_class_name = selectedDictionaryOption.attr('class')
+        } else {
+          dictionary_class_name = dictionaryContainer.attr('class');
         }
-      })
-    },
-    searchParametersNestedAttributesForm = new NestedAttributes({
-        container: $('.search_parameters'),
-        association: 'search_parameters',
-        content: config.searchParametersTemplate,
-        addHandler: setupParameters,
-        caller: this
-    });
+        
+        $.each($('div.parameter_category'), function(){
+          if ($(this).hasClass(dictionary_class_name)) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+        
+        toggleAddParameters();
+      },
+      searchParametersNestedAttributesForm = new NestedAttributes({
+          container: $('.search_parameters'),
+          association: 'search_parameters',
+          content: config.searchParametersTemplate,
+          addHandler: setupParameters,
+          caller: this
+      });
+    
+  var toggleAddParameters = function() {
+    selectedDictionaryOption = $(dictionarySelector).find('option:selected:last');
+    if (dictionarySelector.length > 0 && selectedDictionaryOption.length == 0 || selectedDictionaryOption.val() == '') {
+      $('a.add_search_parameters').hide();
+      $('span.discerner_dictionary_required_message').show();
+    } else {
+      $('a.add_search_parameters').show();
+      $('span.discerner_dictionary_required_message').hide();
+    }
+  }
+  
+  // handle dictionary selection change
+  $(dictionarySelector).bind('change', function(){
+    $('a.delete_search_parameters').trigger('click');
+    toggleAddParameters()
+  })
 
   // handle criteria autocompleter button click
   $('.categorized_autocompleter_link').live('click',  function () {
@@ -81,7 +120,10 @@ Discerner.Search.UI = function (config) {
       add_button = $(predicate).find('a.add_search_parameter_values');
       
     $(predicate).find('.nested_records_search_parameter_values .search_parameter_value .delete_search_parameter_values').click();
-    if ($(selected_option).hasClass('list')){
+    if ($(selected_option).length == 0 || $(selected_option).val() == ''){
+      $(add_button).hide();
+    }
+    else if ($(selected_option).hasClass('list')){
       $($(predicate).find('.tmp_link')).remove();
       
       $.get(parametersUrl.sub({ question_id: this.value }), function (data) {
@@ -94,12 +136,13 @@ Discerner.Search.UI = function (config) {
        });
      });
     } else {
+      $(add_button).show();
       $(add_button).click();
     }
   });
   
   // block UI on form submit
-  $('#discerner-search-form form, #results form').bind('submit', function(){
+  $('#discerner_search_form form, #results form').bind('submit', function(){
     $.blockUI({ 
         title:    'Loading ... ', 
         message:  '<p>Please be patient</p>',
@@ -110,11 +153,8 @@ Discerner.Search.UI = function (config) {
         theme: true
     });
   });
-  
-  setupParameters();
-  
-  $(".datepicker").live('mouseover',
-  function() {
+    
+  $(".datepicker").live('mouseover', function() {
     $(this).datepicker({
       altFormat: 'yy-mm-dd',
       dateFormat: 'yy-mm-dd',
@@ -124,21 +164,23 @@ Discerner.Search.UI = function (config) {
       });
   });
 
-  $('#discerner-search-form .name .edit a').bind('click', function(){
-    $(this).closest('span.edit').hide();
-    $(this).closest('span.edit').siblings('span.name').hide();
+  $('#discerner_search_form .discerner_search_name_edit a').bind('click', function(){
+    $(this).closest('span.discerner_search_name_edit').hide();
+    $(this).closest('span.discerner_search_name_edit').siblings('span.discerner_search_name').hide();
     $(this).closest('div').append($('<span>')
       .load(config.renameUrl + ' form')
-      .addClass('name-edit'));
+      .addClass('name_edit'));
     return false;
   });
   
-  $('#discerner-search-form .name a.cancel').live('click', function() {
-    $('span.name-edit').siblings('span.name').show();
-    $('span.name-edit').siblings('span.edit').show();
-    $('span.name-edit').remove();
+  $('#discerner_search_form .discerner_search_name a.cancel').live('click', function() {
+    $('span.name_edit').siblings('span.discerner_search_name').show();
+    $('span.name_edit').siblings('span.discerner_search_name_edit').show();
+    $('span.name_edit').remove();
     $("#messages").html('');
     return false;
   });
+  
+  setupParameters();
 };
 

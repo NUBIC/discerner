@@ -1,0 +1,5 @@
+- if object.errors.any?
+  %div{ :id => "error", :class => "message"}
+    - object.errors.full_messages.each do |msg|
+      = msg
+      %br

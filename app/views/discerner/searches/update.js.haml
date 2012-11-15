@@ -1,0 +1,7 @@
+- if @search.errors.any?
+  $("#messages").html("#{escape_javascript(render :partial => 'shared/error_messages', :locals => {:object => @search})}")
+- else
+  $("#messages").html('')
+  $('span.name_edit').siblings('span.discerner_search_name').html("#{@search.name || '[No name specified]'}").show();
+  $('span.name_edit').siblings('span.discerner_search_name_edit').show();
+  $('span.name_edit').remove();

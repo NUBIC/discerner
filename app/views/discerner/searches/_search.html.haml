@@ -1,0 +1,61 @@
+- if @search.persisted?    
+  #messages
+  %div.discerner_search_name
+    %b Search name:
+    %span.discerner_search_name
+      = @search.name || '[No name specified]'
+    %span.discerner_search_name_edit
+      = link_to 'Edit', '#', :class => "edit_link icon_link"
+      
+  %div.discerner_search_dictionary
+    - dictionary = @search.search_parameters.first.parameter.parameter_category.dictionary
+    %b Dictionary:
+    %span{ :class => "#{dictionary.css_class_name}"}
+      #{dictionary.name}
+
+= form_for @search, :html => { :id => 'search' } do |f|
+  = f.hidden_field :username, :value => user_for_discerner.username unless user_for_discerner.blank?
+  - @searchParametersTemplate = generate_nested_attributes_template(f, :search_parameters, 'search_parameter')
+  - unless @search.persisted?   
+    %div.discerner_search_name
+      = f.label :name, "Search name"
+      = f.text_field :name
+        
+    %div.discerner_search_dictionary
+      = label_tag "dictionary", "Dictionary"
+      = select_tag "dictionary", options_for_select(dictionary_options), :include_blank => true
+
+  %table{ :class => 'records search_parameters' }
+    %thead
+      %tr
+        %th.criteria{ :colspan => "3" }
+          Criteria
+        %th.selections{ :colspan => "2" }
+          Selections
+        %th
+    %tbody.nested_records_search_parameters
+      = f.fields_for :search_parameters, f.object.search_parameters.order(:display_order) do |search_parameter|
+        = render :partial => 'search_parameter_fields', :locals => { :f => search_parameter }      
+    %tfoot
+      %tr
+        %td{ :colspan => '3', :class => 'add_search_parameters_link' }
+          = link_to_add_fields "Add criteria", :search_parameters
+          %span.discerner_dictionary_required_message
+            Select dictionary in order to add search criteria
+
+  .buttons
+    = submit_tag 'Search'
+    = link_to 'Clear', new_search_path
+
+:javascript
+  $(function () {
+    var searchParametersTemplate = '#{@searchParametersTemplate}',
+    parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}'),
+    renameUrl = '#{@search.persisted? ? rename_search_path(@search) : ""}',
+    yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}'
+    searchUI = new Discerner.Search.UI({ 
+      searchParametersTemplate: searchParametersTemplate, 
+      parametersUrl: parametersUrl, 
+      yearRange: yearRange,
+      renameUrl: renameUrl })
+  });

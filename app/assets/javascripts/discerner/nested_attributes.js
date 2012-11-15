@@ -15,7 +15,7 @@ NestedAttributes = function (config) {
   }
 
   $(this.config.container).find("input, select, textarea").focus(function () {
-    this.select();
+    $(this).select();
   });
 
   if (this.config.remove) {
