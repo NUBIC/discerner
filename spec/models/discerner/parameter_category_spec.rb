@@ -10,7 +10,7 @@ describe Discerner::ParameterCategory do
   it "validates that category belongs to a dictionary" do
     c = Discerner::ParameterCategory.new(:name => parameter_category.name)
     c.should_not be_valid
-    c.errors.full_messages.should include 'Dictionary can\'t be blank'
+    c.errors.full_messages.should include 'Dictionary for parameter category can\'t be blank'
   end
   
   it "validates that category has a name" do

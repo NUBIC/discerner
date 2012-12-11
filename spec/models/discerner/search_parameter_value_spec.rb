@@ -4,6 +4,7 @@ describe Discerner::SearchParameterValue do
   let!(:search_parameter_value) { 
     s = Factory.build(:search)
     s.search_parameters << Factory.build(:search_parameter, :search => s)
+    s.dictionary = Discerner::Dictionary.last
     s.save!
     Factory.build(:search_parameter_value, :search_parameter => s.search_parameters.first)
   }

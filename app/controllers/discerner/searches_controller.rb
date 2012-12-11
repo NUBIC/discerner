@@ -4,8 +4,8 @@ module Discerner
   class SearchesController < ApplicationController
     include ApplicationHelper
     
+    before_filter :load_search,     :only => [:edit, :update, :rename]
     before_filter :load_parameters, :except => :index
-    before_filter :load_search, :only => [:edit, :update, :rename]
     
     def new
       @search = Discerner::Search.new
@@ -13,7 +13,7 @@ module Discerner
     end
     
     def create
-      @search = Search.new(params[:search])
+      @search = Discerner::Search.new(params[:search])
       respond_to do |format|
         if @search.save
           format.html { redirect_to(edit_search_path(@search)) }
@@ -41,9 +41,9 @@ module Discerner
     
     def index
       if user_for_discerner.blank?
-        searches = Search.where(:username => nil)
+        searches = Discerner::Search.where(:username => nil)
       else
-        searches = Search.where(:username => user_for_discerner.username)
+        searches = Discerner::Search.where(:username => user_for_discerner.username)
       end
       
       if params[:query].blank?
@@ -55,13 +55,18 @@ module Discerner
 
     private
       def load_parameters
-        @parameters = Discerner::Parameter.not_deleted.all
-        @parameter_categories = Discerner::ParameterCategory.not_deleted.all
         @dictionaries = Discerner::Dictionary.not_deleted.all
+        if @search && @search.persisted?
+          @parameter_categories = Discerner::ParameterCategory.not_deleted.where(:dictionary_id => @search.dictionary_id).all
+          @parameters = Discerner::Parameter.not_deleted.where(:parameter_category_id => @parameter_categories.map{ |c| c.id})
+        else
+          @parameter_categories = Discerner::ParameterCategory.not_deleted.all
+          @parameters = Discerner::Parameter.not_deleted.all
+        end
       end
       
       def load_search
-        @search = Search.find(params[:id])
+        @search = Discerner::Search.find(params[:id])
       end
   end
 end

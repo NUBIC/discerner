@@ -3,7 +3,7 @@
 
 Discerner.Search.UI = function (config) {
   var parametersUrl = new Discerner.Url(config.parametersUrl),
-      dictionarySelector = $('.discerner_search_dictionary select#dictionary'),
+      dictionarySelector = $('.discerner_search_dictionary select#search_dictionary_id'),
       dictionaryContainer = $('.discerner_search_dictionary span'),
       selectedDictionaryOption = $(dictionarySelector).find('option:selected:last'),
       dictionary_class_name,
@@ -32,18 +32,15 @@ Discerner.Search.UI = function (config) {
         // hide parameter options that do not belong to selected dictionary
         if (dictionarySelector.length > 0){
           dictionary_class_name = selectedDictionaryOption.attr('class')
-        } else {
-          dictionary_class_name = dictionaryContainer.attr('class');
-        }
-        
-        $.each($('div.parameter_category'), function(){
-          if ($(this).hasClass(dictionary_class_name)) {
-            $(this).show();
-          } else {
-            $(this).hide();
-          }
-        });
-        
+          $.each($('div.parameter_category'), function(){
+            if ($(this).hasClass(dictionary_class_name)) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          })
+        };
+    
         toggleAddParameters();
       },
       searchParametersNestedAttributesForm = new NestedAttributes({

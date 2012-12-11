@@ -1,6 +1,6 @@
 Feature: Viewing existing searches
   A user should be able to create a new search
-
+  
   @javascript
   Scenario: It should not allow to add search criteria until dictionary is selected
     Given search dictionaries are loaded

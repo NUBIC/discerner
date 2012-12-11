@@ -8,10 +8,9 @@
       = link_to 'Edit', '#', :class => "edit_link icon_link"
       
   %div.discerner_search_dictionary
-    - dictionary = @search.search_parameters.first.parameter.parameter_category.dictionary
     %b Dictionary:
-    %span{ :class => "#{dictionary.css_class_name}"}
-      #{dictionary.name}
+    %span{ :class => "#{@search.dictionary.css_class_name}"}
+      #{@search.dictionary.name}
 
 = form_for @search, :html => { :id => 'search' } do |f|
   = f.hidden_field :username, :value => user_for_discerner.username unless user_for_discerner.blank?
@@ -22,8 +21,8 @@
       = f.text_field :name
         
     %div.discerner_search_dictionary
-      = label_tag "dictionary", "Dictionary"
-      = select_tag "dictionary", options_for_select(dictionary_options), :include_blank => true
+      = f.label :dictionary_id
+      = f.select :dictionary_id, dictionary_options, :include_blank => true
 
   %table{ :class => 'records search_parameters' }
     %thead
