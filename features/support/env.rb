@@ -3,12 +3,13 @@
 # newer version of cucumber-rails. Consider adding your own code to a new file 
 # instead of editing this one. Cucumber will automatically load all features/**/*.rb
 # files.
+require 'ansi/code'
 ENV["RAILS_ENV"] ||= "test"
 
 begin
   require File.expand_path("../../../test/dummy/config/environment.rb", __FILE__)
 rescue LoadError
-  puts "ERROR: You must execute `bundle exec rake discerner:test:dummy_app` to run cucumber features"
+  puts ANSI.red{ "ERROR: You must execute `bundle exec rake discerner:test:dummy_app` to run cucumber features"}
 end
 
 ENV["RAILS_ROOT"] ||= File.dirname(__FILE__) + "../../../test/dummy"
