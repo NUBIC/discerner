@@ -79,10 +79,16 @@ When /^I enter additional value "([^\"]*)" within the (first|last) search criter
   }
 end
 
-Then /^the (first|last) search criteria should be "([^\"]*)"$/ do |position, value|
-  steps %Q{
-    Then ".parameters_combobox_autocompleter" in the #{position} ".search_parameter" should have "#{value}" selected
-  }
+Then /^the (first|last) search criteria should(?: (not))? be "([^\"]*)"$/ do |position, negation, value|
+  if negation.blank?
+    steps %Q{
+      Then ".parameters_combobox_autocompleter" in the #{position} ".search_parameter" should have "#{value}" selected
+    }
+  else
+    steps %Q{
+      Then ".parameters_combobox_autocompleter" in the #{position} ".search_parameter" should not have "#{value}" selected
+    }
+  end
 end
 
 Then /^the (first|last) search criteria selection value should be "([^\"]*)"$/ do |position, value|
@@ -97,5 +103,8 @@ Then /^the (first|last) search criteria selection additional value should be "([
   }
 end
 
+Then /^the search should have (\d+) criteria$/ do |count|
+  all("tr.search_parameter", :visible => true).count.should == count.to_i
+end
 
   

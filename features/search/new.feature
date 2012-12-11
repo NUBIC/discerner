@@ -207,3 +207,32 @@ Feature: Viewing existing searches
     And the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
     
+  @javascript
+  Scenario: It should not allow to add multiple search criteria with same parameter other than for text parameters
+    Given search dictionaries are loaded
+    And search operators are loaded
+    When I go to the new search page 
+    And I select dictionary "Sample dictionary"
+    And I add "Age at case collection date" search criteria
+    Then the search should have 1 criteria
+    
+    When I follow "Add criteria"
+    When I open criteria dropdown
+    And I follow "Age at case collection date" within the last ".search_parameter"
+    Then the element ".div-criteria-popup" should be visible
+    And the last search criteria should not be "Age at case collection date"
+    
+  @javascript
+  Scenario: It should allow to add multiple search criteria with same text parameter
+    Given search dictionaries are loaded
+    And search operators are loaded
+    When I go to the new search page 
+    And I select dictionary "Sample dictionary"
+    And I add "Text search diagnosis" search criteria
+    Then the search should have 1 criteria
+
+    When I follow "Add criteria"
+    When I open criteria dropdown
+    And I follow "Text search diagnosis" within the last ".search_parameter"
+    Then the element ".div-criteria-popup" should not be visible
+    And the last search criteria should be "Text search diagnosis"
