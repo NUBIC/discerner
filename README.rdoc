@@ -4,7 +4,4 @@ This project rocks and uses MIT-LICENSE.
 Setup:
 
 rails generate discerner:install
-rake discerner:install:migrations
-rake db:migrate
-rake discerner:setup:operators
-rake discerner:setup:dictionaries
+rake discerner:setup:dictionaries FILE=lib/setup/dictionaries.yml
