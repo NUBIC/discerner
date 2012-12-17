@@ -1,4 +1,2 @@
-module Discerner
-  class ApplicationController < ActionController::Base
-  end
+class Discerner::ApplicationController < ApplicationController
 end

@@ -1,7 +1,5 @@
-require_dependency "discerner/application_controller"
-
 module Discerner
-  class ParametersController < ApplicationController
+  class ParametersController < Discerner::ApplicationController
     before_filter :load_parameter
     
     def show

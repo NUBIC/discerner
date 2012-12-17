@@ -1,7 +1,5 @@
-require_dependency "discerner/application_controller"
-
 module Discerner
-  class SearchesController < ApplicationController
+  class SearchesController < Discerner::ApplicationController
     include ApplicationHelper
     
     before_filter :load_search,     :only => [:edit, :update, :rename]
@@ -24,7 +22,17 @@ module Discerner
     end
     
     def edit
-      render :new
+      dictionary_model_name = @search.dictionary.parameterized_name.camelize
+      dictionary_model = dictionary_model_name.safe_constantize
+      if dictionary_model
+        if not dictionary_model.respond_to?('search')
+          flash[:error] = "Model '#{dictionary_model_name}' does not have 'search' method. You need to implement it to be able to run search on this dictionary"
+        else
+         dictionary_model.search(@search)
+        end
+      else
+        flash[:error] = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run search on this dictionary"
+      end
     end
     
     def update
@@ -40,10 +48,10 @@ module Discerner
     end
     
     def index
-      if user_for_discerner.blank?
+      if discerner_user.blank?
         searches = Discerner::Search.where(:username => nil)
       else
-        searches = Discerner::Search.where(:username => user_for_discerner.username)
+        searches = Discerner::Search.where(:username => discerner_user.username)
       end
       
       if params[:query].blank?

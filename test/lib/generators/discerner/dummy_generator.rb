@@ -33,7 +33,6 @@ module Discerner
     def test_dummy_config
       template "boot.rb", "#{dummy_path}/config/boot.rb", :force => true
       template "application.rb", "#{dummy_path}/config/application.rb", :force => true
-      template "routes.rb", "#{dummy_path}/config/routes.rb", :force => true
     end
 
     def test_dummy_clean

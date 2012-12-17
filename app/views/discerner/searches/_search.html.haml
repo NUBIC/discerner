@@ -13,7 +13,7 @@
       #{@search.dictionary.name}
 
 = form_for @search, :html => { :id => 'search' } do |f|
-  = f.hidden_field :username, :value => user_for_discerner.username unless user_for_discerner.blank?
+  = f.hidden_field :username, :value => discerner_user.username unless discerner_user.blank?
   - @searchParametersTemplate = generate_nested_attributes_template(f, :search_parameters, 'search_parameter')
   - unless @search.persisted?   
     %div.discerner_search_name

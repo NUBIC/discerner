@@ -11,7 +11,11 @@ module Discerner
     end
     
     def css_class_name
-      "dictionary_#{name.downcase.gsub(/\s/,'_')}"
+      "dictionary_#{parameterized_name}"
+    end
+    
+    def parameterized_name
+      name.parameterize.underscore
     end
   end
 end

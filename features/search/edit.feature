@@ -14,6 +14,12 @@ Feature: Viewing existing searches
     And the element ".discerner_dictionary_required_message" should not be visible
     
   @javascript
+  Scenario: It should render results template
+    Given I create search with name "Awesome search"
+    When I am on the search edit page
+    Then I should see "Results for search on the `Sample dictionary` dictionary can be added here"
+  
+  @javascript
   Scenario: It should allow to rename the saved search
     Given I create search with name "Awesome search" 
     When I am on the search edit page

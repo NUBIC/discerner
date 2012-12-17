@@ -2,5 +2,6 @@
   = render 'discerner/shared/error_messages', :object => @search
   #discerner_search_form
     = render :partial => 'search'
-  #discerner_resultsresults
-    = render :partial => 'results'
+  - if @search.persisted?
+    #discerner_results
+      = render :partial => discerner_results_partial

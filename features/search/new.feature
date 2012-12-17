@@ -14,6 +14,11 @@ Feature: Viewing existing searches
     Then the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
 
+  Scenario: It should not render results template for a new search
+    Given search dictionaries are loaded
+    When I go to the new search page 
+    Then I should not see "Results for search on the `Sample dictionary` dictionary can be added here"
+  
   @javascript
   Scenario: It should allow to add search criteria if dictionary is selected
     Given search dictionaries are loaded

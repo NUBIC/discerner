@@ -57,13 +57,5 @@ module Discerner
       Discerner::Dictionary.not_deleted.map{|d| [d.name, d.id, {:class => d.css_class_name}]}
     end
     
-    # Returns the user who is responsible for any changes that occur.
-    # By default this calls `current_user` and returns the result.
-    # 
-    # Override this method in your controller to call a different
-    # method, e.g. `current_person`, or anything you like.
-    def user_for_discerner
-      current_user rescue nil
-    end
   end
 end
