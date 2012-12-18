@@ -10,7 +10,6 @@ Gem::Specification.new do |s|
   s.version     = Discerner::VERSION
   s.authors     = ["Michael Gurley, Yulia Bushmanova"]
   s.email       = ["m-gurley@northwestern.edu, y.bushmanova@gmail.com"]
-  s.homepage    = "TODO"
   s.summary     = "Rails engine that provides dictionary-based search functionality for SQLServer datamart-based applications"
   s.description = "Rails engine that provides dictionary-based search functionality for SQLServer datamart-based applications"
 
