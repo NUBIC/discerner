@@ -78,7 +78,7 @@
         :parameters:
           - :name: "Type"
             :database_name: type
-            :parameter_type: list
+            :parameter_type: combobox
             :parameter_values:
               - :database_name: book
               - :database_name: journal
