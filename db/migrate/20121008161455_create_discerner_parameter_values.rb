@@ -8,6 +8,6 @@ class CreateDiscernerParameterValues < ActiveRecord::Migration
 
       t.timestamps
     end
-    add_index :discerner_parameter_values, [:database_name, :deleted_at], :unique => true, :name => 'index_discerner_parameter_values'
+    add_index :discerner_parameter_values, [:database_name, :parameter_id, :deleted_at], :unique => true, :name => 'index_discerner_parameter_values'
   end
 end
