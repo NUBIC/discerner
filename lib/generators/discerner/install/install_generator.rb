@@ -80,10 +80,10 @@ module Discerner
       output += "-- The engine was mounted in your config/routes.rb file using this line:
         mount Discerner::Engine, :at => \"/\""
       output += "\nIf you want to change where the searches are located, just change the \"/searches\" path at the end of this line to whatever you want."
-      output += "--  Sample search dictionary was copied into lib/setup. If you want to try it out, run `rails generate discerner:dictionary lib/setup/dictionaries.yml`. This will:\n"
-      output += "-- parse dictionary definitions into the database."
-      output += "-- create corresponsing classes"
-      output += "-- create corresponsing views for results display"
+      output += "\n--  Sample search dictionary was copied into lib/setup. If you want to try it out, run `rails generate discerner:dictionary lib/setup/dictionaries.yml`. This will:\n"
+      output += "\n-- parse dictionary definitions from lib/setup/dictionaries.yml into the database."
+      output += "\n-- create corresponsing classes"
+      output += "\n-- create corresponsing views for results display"
       puts output
     end
   end
