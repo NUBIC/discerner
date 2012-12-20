@@ -47,7 +47,7 @@ module Discerner
             
             ## find or initialize parameters
             parameters_from_file.each do |parameter_from_file|
-              parameter = Discerner::Parameter.where(:database_name => parameter_from_file[:database_name]).first_or_initialize
+              parameter = Discerner::Parameter.where(:database_name => parameter_from_file[:database_name].to_s).first_or_initialize
               if parameter.new_record? 
                 notification_message "creating parameter '#{parameter_from_file[:name]}'"
                 parameter.created_at = Time.now
@@ -61,22 +61,22 @@ module Discerner
               parameter.name                  = parameter_from_file[:name]
               parameter.deleted_at            = parameter_from_file[:deleted].blank? ? nil : Time.now
               parameter.parameter_category_id = parameter_category.id
-              return error_message "Parameter #{parameter_from_file[:database_name]} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
+              return error_message "Parameter #{parameter_from_file[:database_name].to_s} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
               
               ## find or initialize parameter values
               unless parameter_from_file[:parameter_values].blank?
                 parameter_from_file[:parameter_values].each do |parameter_value_from_file|
-                  parameter_value = Discerner::ParameterValue.where(:database_name => parameter_value_from_file[:database_name], :parameter_id => parameter.id).first_or_initialize
+                  parameter_value = Discerner::ParameterValue.where(:database_name => parameter_value_from_file[:database_name].to_s, :parameter_id => parameter.id).first_or_initialize
                   if parameter_value.new_record? 
-                    notification_message "creating parameter value '#{parameter_value_from_file[:database_name]}'"
+                    notification_message "creating parameter value '#{parameter_value_from_file[:database_name].to_s}'"
                     parameter_value.created_at = Time.now
                   else 
-                    notification_message "parameter value '#{parameter_value_from_file[:database_name]}' already exists"
+                    notification_message "parameter value '#{parameter_value_from_file[:database_name].to_s}' already exists"
                     parameter_value.updated_at = Time.now
                   end
-                  parameter_value.name = parameter_value_from_file[:name] || parameter_value_from_file[:database_name]
+                  parameter_value.name = parameter_value_from_file[:name] || parameter_value_from_file[:database_name].to_s
                   parameter_value.deleted_at = parameter_value_from_file[:deleted].blank? ? nil : Time.now
-                  return error_message "Parameter value #{parameter_value_from_file[:database_name]} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+                  return error_message "Parameter value #{parameter_value_from_file[:database_name].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
                 end
               end
               
