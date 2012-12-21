@@ -2,7 +2,7 @@ module Discerner
   class SearchesController < Discerner::ApplicationController
     include ApplicationHelper
     
-    before_filter :load_search,     :only => [:edit, :update, :rename]
+    before_filter :load_search,     :only => [:edit, :update, :rename, :destroy]
     before_filter :load_parameters, :except => :index
     
     def new
@@ -49,15 +49,23 @@ module Discerner
     
     def index
       if discerner_user.blank?
-        searches = Discerner::Search.where(:username => nil)
+        searches = Discerner::Search.not_deleted.where(:username => nil)
       else
-        searches = Discerner::Search.where(:username => discerner_user.username)
+        searches = Discerner::Search.not_deleted.where(:username => discerner_user.username)
       end
       
       if params[:query].blank?
         @searches = searches.all
       else
         @searches = searches.where('name like ?', '%' + params[:query] + '%')
+      end
+    end
+
+    def destroy
+      @search.deleted_at = Time.now
+      @search.save
+      respond_to do |format|
+        format.html { redirect_to searches_path }
       end
     end
 

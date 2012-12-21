@@ -302,6 +302,13 @@ When /^I enter "([^\"]*)" into "([^\"]*)" within(?: the (first|last))? "([^\"]*)
   }
 end
 
+When /^I confirm "([^"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
+  page.evaluate_script('window.confirm = function() { return true; }')
+  steps %Q{
+    When I follow "#{selector}" within the #{position} "#{scope_selector}"
+  }
+end
+
 def within_scope(locator)
   locator ? within(locator) { yield } : yield
 end

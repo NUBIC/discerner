@@ -24,5 +24,14 @@ Feature: Viewing existing searches
     Then I should not see "best search ever"
     And I should see "another search"
     
-    
+  @javascript
+  Scenario: Deleting searches
+    Given search dictionaries are loaded
+    And search "best search ever" exists
+    And search "another search" exists
+    When I go to the searches page
+    And I confirm "Delete" within the first "tr.odd_record" 
+    Then I should be on the searches page
+    And I should not see "best search ever"
+    And I should see "another search"
   

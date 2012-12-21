@@ -15,4 +15,5 @@
         %td
           = search.updated_at
         %td
-          = link_to 'Open', edit_search_path(search), { :class => 'show_link icon_link' }
+          = link_to 'Open', edit_search_path(search), :class => 'show_link icon_link'
+          = link_to 'Delete', search_path(search), :confirm => 'Are you sure?', :method => :delete, :class => "icon_link delete_link"
