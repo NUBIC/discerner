@@ -241,3 +241,22 @@ Feature: Viewing existing searches
     And I follow "Text search diagnosis" within the last ".search_parameter"
     Then the element ".div-criteria-popup" should not be visible
     And the last search criteria should be "Text search diagnosis"
+
+  @javascript
+  Scenario: It should pre-select search dictionary if there is only one available
+    Given search dictionaries are loaded
+    And ony "Sample dictionary" dictionary exists
+    When I go to the new search page 
+    Then I should see "Search name"
+    And I should see "Dictionary"
+    And I should see "Sample dictionary"
+    And the element ".add_search_parameters" should be visible
+    And the element ".discerner_dictionary_required_message" should not be visible
+    And I add "Gender" search criteria
+    And I wait 1 seconds
+    And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
+    When I press "Search"
+    Then I should be on the search edit page
+    And I should see "Dictionary"
+    And I should see "Sample dictionary"
+    

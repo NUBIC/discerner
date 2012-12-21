@@ -21,9 +21,15 @@
       = f.text_field :name
         
     %div.discerner_search_dictionary
-      = f.label :dictionary_id
-      = f.select :dictionary_id, dictionary_options, :include_blank => true
-
+      - if dictionary_options.length > 1
+        = f.label :dictionary_id
+        = f.select :dictionary_id, dictionary_options, :include_blank => true
+      - else
+        %b Dictionary:
+        = f.hidden_field :dictionary_id, :value => dictionary_options.last[1]
+        %span{ :class => "#{dictionary_options.last[2][:css_class_name]}"}
+          #{dictionary_options.last[0]}
+            
   %table{ :class => 'records search_parameters' }
     %thead
       %tr

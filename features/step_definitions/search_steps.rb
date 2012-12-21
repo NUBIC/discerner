@@ -108,4 +108,8 @@ Then /^the search should have (\d+) criteria$/ do |count|
   all("tr.search_parameter", :visible => true).count.should == count.to_i
 end
 
-  
+Given /^ony "([^\"]*)" dictionary exists$/ do |name|
+  dictionaries = Discerner::Dictionary.where("name not like ?", name)
+  dictionaries.each{|d| d.parameter_categories.destroy_all}
+  dictionaries.destroy_all
+end
