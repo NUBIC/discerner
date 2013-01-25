@@ -24,7 +24,7 @@ module Discerner
     end
     
     ## shameless steal from forem git://github.com/radar/forem.git
-    def add_discerner_user_helper
+    def add_discerner_user_method
       current_user_helper = options["current-user-helper"].presence ||
                             ask("What is the current_user helper called in your app? [current_user]").presence ||
                             'current_user if defined?(current_user)'
@@ -39,6 +39,31 @@ module Discerner
       inject_into_file("#{Rails.root}/app/controllers/application_controller.rb",
                        discerner_user_method,
                        :after => "ActionController::Base\n")
+    end
+    
+    def add_discerner_view_helpers
+      puts "Defining discerner view helpers inside ApplicationHelper..."
+
+      discerner_helper_methods = %Q{
+  def discerner_export_partial
+    "discerner/dictionaries/shared/export"
+  end
+    
+  def discerner_export_link
+    link_to "Export", export_search_path(@discerner_search), :class => "icon_link export_link"
+  end
+    
+  def export_discerner_results?
+    true
+  end
+    
+  def show_discerner_results?
+    true
+  end
+}
+      inject_into_file("#{Rails.root}/app/helpers/application_helper.rb",
+                       discerner_helper_methods,
+                       :after => "ApplicationHelper\n")
     end
     
     def run_migrations

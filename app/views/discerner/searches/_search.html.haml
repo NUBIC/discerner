@@ -1,21 +1,21 @@
-- if @search.persisted?    
+- if @discerner_search.persisted?    
   #messages
   %div.discerner_search_name
     %b Search name:
     %span.discerner_search_name
-      = @search.name || '[No name specified]'
+      = @discerner_search.name || '[No name specified]'
     %span.discerner_search_name_edit
       = link_to 'Edit', '#', :class => "edit_link icon_link"
       
   %div.discerner_search_dictionary
     %b Dictionary:
-    %span{ :class => "#{@search.dictionary.css_class_name}"}
-      #{@search.dictionary.name}
+    %span{ :class => "#{@discerner_search.dictionary.css_class_name}"}
+      #{@discerner_search.dictionary.name}
 
-= form_for @search, :html => { :id => 'search' } do |f|
+= form_for @discerner_search, :html => { :id => 'search' } do |f|
   = f.hidden_field :username, :value => discerner_user.username unless discerner_user.blank?
-  - @searchParametersTemplate = generate_nested_attributes_template(f, :search_parameters, 'search_parameter')
-  - unless @search.persisted?   
+  - @discerner_searchParametersTemplate = generate_nested_attributes_template(f, :search_parameters, 'search_parameter')
+  - unless @discerner_search.persisted?   
     %div.discerner_search_name
       = f.label :name, "Search name"
       = f.text_field :name
@@ -49,14 +49,14 @@
             Select dictionary in order to add search criteria
 
   .buttons
-    = submit_tag 'Search'
-    = link_to 'Clear', new_search_path
+    = submit_tag 'Search', :class => "button-discerner negative"
+    = link_to 'Clear', new_search_path, :class => "button-discerner negative"
 
 :javascript
   $(function () {
-    var searchParametersTemplate = '#{@searchParametersTemplate}',
+    var searchParametersTemplate = '#{@discerner_searchParametersTemplate}',
     parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}'),
-    renameUrl = '#{@search.persisted? ? rename_search_path(@search) : ""}',
+    renameUrl = '#{@discerner_search.persisted? ? rename_search_path(@discerner_search) : ""}',
     yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}'
     searchUI = new Discerner.Search.UI({ 
       searchParametersTemplate: searchParametersTemplate, 

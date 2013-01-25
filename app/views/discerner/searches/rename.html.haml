@@ -1,6 +1,6 @@
-= form_tag search_path(@search), :method => "PUT", :remote => :true do
-  = render 'discerner/shared/error_messages', :object => @search
-  = text_field_tag "search[name]", @search.name.strip
+= form_tag search_path(@discerner_search), :method => "PUT", :remote => :true do
+  = render 'discerner/shared/error_messages', :object => @discerner_search
+  = text_field_tag "search[name]", @discerner_search.name.strip
 
   = submit_tag 'Submit', :class => 'button positive'
-  = link_to 'Cancel', edit_search_path(@search), :class => 'button negative cancel'
+  = link_to 'Cancel', edit_search_path(@discerner_search), :class => 'button negative cancel'

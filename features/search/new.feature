@@ -13,6 +13,7 @@ Feature: Viewing existing searches
     When I select dictionary "Sample dictionary"
     Then the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
+    And I should not see "Export"
 
   Scenario: It should not render results template for a new search
     Given search dictionaries are loaded

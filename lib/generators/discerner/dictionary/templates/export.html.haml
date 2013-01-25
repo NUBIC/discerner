@@ -1,0 +1,30 @@
+#search_summary
+  %h4
+    %b Your search criteria:
+  
+  - @discerner_search.search_parameters.each do |sp|
+    %b #{sp.parameter.name}:
+    - sp.search_parameter_values.each do |spv|
+      - value = spv.parameter_value.blank? ? spv.value : spv.parameter_value.name 
+      - operator = spv.operator.text unless spv.operator.blank?
+      = "#{operator} #{value} #{spv.additional_value}"
+    %br
+.buttons
+  = link_to 'Back to search', edit_search_path(@discerner_search), :class => "button-discerner positive"
+
+%hr
+
+= form_for @discerner_search, :url => { :action => "export", :format => :csv}, :html => {:method => :get}  do |f|
+  - @discerner_search.dictionary.parameter_categories.sort{|a,b| a.parameters.length <=> b.parameters.length}.each do |c|
+    %div{ :style => "clear:both;"}
+      %br
+      %h4 
+        = c.name
+      - c.parameters.not_deleted.sort{|a,b| a.name <=> b.name}.each do |p|
+        %div{ :style => "float:left;width:27em;"}
+          - is_checked = @discerner_search.search_parameters.where(:parameter_id => p.id).blank? ? false : true
+          = check_box_tag p.name, p.name, is_checked
+          = p.name
+  .clear
+  .buttons
+    = f.submit 'Export', :class => "button-discerner positive"

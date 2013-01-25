@@ -26,8 +26,10 @@ module Discerner
 
       def create_dictionary_view(dictionary)
         @dictionary_name = dictionary.name
-        empty_directory "#{Discerner::Engine.paths['app/views']}/dictionaries/#{dictionary.parameterized_name}"
-        template "view.html.haml", "#{Discerner::Engine.paths['app/views']}/dictionaries/#{dictionary.parameterized_name}/_results.html.haml"
+        empty_directory "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/#{dictionary.parameterized_name}"
+        template "view.html.haml", "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/#{dictionary.parameterized_name}/_results.html.haml"
+        empty_directory "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/shared"
+        template "export.html.haml", "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/shared/_export.html.haml"
       end
   end
 end

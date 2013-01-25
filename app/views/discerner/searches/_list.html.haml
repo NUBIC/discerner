@@ -5,7 +5,7 @@
       %th Last updated on
       %th
   %tbody
-    - @searches.each do |search|
+    - @discerner_searches.each do |search|
       %tr{:class=>"#{cycle('odd_record','even_record')}"}
         %td
           - if search.name.blank?

@@ -1,7 +1,7 @@
 module Discerner
   module SearchesHelper
     def discerner_results_partial
-      "dictionaries/#{@search.dictionary.parameterized_name}/results"
+      "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/results"
     end
   end
 end
