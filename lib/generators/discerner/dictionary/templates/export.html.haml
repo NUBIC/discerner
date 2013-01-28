@@ -1,30 +1,45 @@
-#search_summary
-  %h4
+- parameter_categories =  @discerner_search.dictionary.parameter_categories.sort{|a,b| a.parameters.length <=> b.parameters.length}
+
+#discerner_search_summary
+  %h3
     %b Your search criteria:
-  
-  - @discerner_search.search_parameters.each do |sp|
-    %b #{sp.parameter.name}:
-    - sp.search_parameter_values.each do |spv|
-      - value = spv.parameter_value.blank? ? spv.value : spv.parameter_value.name 
-      - operator = spv.operator.text unless spv.operator.blank?
-      = "#{operator} #{value} #{spv.additional_value}"
-    %br
+
+  - parameter_categories.each do |c|
+    - unless @discerner_search.search_parameters.where(:parameter_id => c.parameters.map{|p| p.id}).blank?
+      %div{ :style => "float:left;width:27em;"}
+        %h4 
+          = c.name
+      
+        - @discerner_search.search_parameters.where(:parameter_id => c.parameters.map{|p| p.id}).each do |sp|
+          %b #{sp.parameter.name}:
+          - search_parameter_values = sp.parameter.parameter_type.name == 'list' ? sp.search_parameter_values.chosen : sp.search_parameter_values
+          - search_parameter_values.each do |spv|
+            - value = spv.parameter_value.blank? ? spv.value : spv.parameter_value.name 
+            - operator = spv.operator.text unless spv.operator.blank?
+            = "#{operator} #{value} #{spv.additional_value}"
+          %br
+.clear
 .buttons
   = link_to 'Back to search', edit_search_path(@discerner_search), :class => "button-discerner positive"
+.clear
 
 %hr
 
-= form_for @discerner_search, :url => { :action => "export", :format => :csv}, :html => {:method => :get}  do |f|
-  - @discerner_search.dictionary.parameter_categories.sort{|a,b| a.parameters.length <=> b.parameters.length}.each do |c|
-    %div{ :style => "clear:both;"}
-      %br
-      %h4 
-        = c.name
-      - c.parameters.not_deleted.sort{|a,b| a.name <=> b.name}.each do |p|
-        %div{ :style => "float:left;width:27em;"}
-          - is_checked = @discerner_search.search_parameters.where(:parameter_id => p.id).blank? ? false : true
-          = check_box_tag p.name, p.name, is_checked
-          = p.name
-  .clear
-  .buttons
-    = f.submit 'Export', :class => "button-discerner positive"
+#discerner_exportable_fields
+  %h3
+    %b Fields to be exported:
+    
+  = form_for @discerner_search, :url => { :action => "export", :format => :csv}, :html => {:method => :get}  do |f|
+    - parameter_categories.each do |c|
+      %div{ :style => "clear:both;"}
+        %br
+        %h4 
+          = c.name
+        - c.parameters.not_deleted.sort{|a,b| a.name <=> b.name}.each do |p|
+          %div{ :style => "float:left;width:27em;"}
+            - is_checked = @discerner_search.search_parameters.where(:parameter_id => p.id).blank? ? false : true
+            = check_box_tag p.name, p.name, is_checked
+            = p.name
+    .clear
+    .buttons
+      = f.submit 'Export', :class => "button-discerner positive"
