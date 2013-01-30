@@ -17,5 +17,9 @@ module Discerner
         errors.add(:base,"Search should have at least one search criteria.")
       end
     end
+    
+    def parameterized_name
+      name.blank? ? 'no_name_specified' : name.parameterize.underscore
+    end
   end
 end

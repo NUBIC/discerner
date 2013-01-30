@@ -85,7 +85,7 @@ module Discerner
         else
           format.html
           format.csv do
-            filename ="#{@discerner_search.name}_#{Date.today.strftime('%m_%d_%Y')}"
+            filename ="#{@discerner_search.parameterized_name}_#{Date.today.strftime('%m_%d_%Y')}"
             csv_data = dictionary_model.to_csv(@discerner_search, params)
             send_data csv_data,
               :type => 'text/csv; charset=iso-8859-1; header=present',

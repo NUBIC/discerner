@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :dictionary, :class => Discerner::Dictionary do |f|
-    f.name "best dictionary"
+    f.name "sample dictionary"
   end
   
   factory :parameter_category, :class => Discerner::ParameterCategory do |f|

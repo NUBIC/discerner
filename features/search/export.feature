@@ -14,4 +14,18 @@ Feature: Exporting results for existing searches
     And I should see "Gender: Female"
     And I should not see "Male"
     And I should not see "Unspecified"
-    And I should see "Date of birth: is equal to 2012-10-22 "
+    And I should see "Date of birth: is equal to 2012-10-22"
+
+  Scenario: It should return a CSV document named after search
+    Given search "Awesome search" exists
+    When I am on the search edit page
+    And I follow "Export"
+    And I press "Export"
+    Then I should receive a CSV file "awesome_search_"
+    
+  Scenario: It should allow to export unnamed searches
+    Given search "" exists
+    When I am on the search edit page
+    And I follow "Export"
+    And I press "Export"
+    Then I should receive a CSV file "no_name_specified_"

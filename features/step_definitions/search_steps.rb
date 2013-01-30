@@ -113,3 +113,11 @@ Given /^ony "([^\"]*)" dictionary exists$/ do |name|
   dictionaries.each{|d| d.parameter_categories.destroy_all}
   dictionaries.destroy_all
 end
+
+Then /^I should receive a CSV file(?: "([^\"]*)")?/ do |file|
+  result = page.response_headers['Content-Type'].should include("text/csv")
+  if result
+    result = page.response_headers['Content-Disposition'].should include(file)
+  end
+  result
+end
