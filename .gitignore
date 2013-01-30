@@ -3,3 +3,5 @@ log/*.log
 pkg/
 spec/dummy/
 *.DS_Store
+test/dummy/*
+.sass-cache/*
