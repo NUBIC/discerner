@@ -1,16 +1,26 @@
-#discerner_search
-  = render 'discerner/shared/error_messages', :object => @discerner_search
-  #discerner_search_form
-    = render :partial => 'search'
-  .clear
-  
-  - if @discerner_search.persisted?
-    - if export_discerner_results? && discerner_export_link
-      #discerner_export
-        = discerner_export_link
-        .clear
-        
-    - if show_discerner_results?
-      #discerner_results
-        = render :partial => discerner_results_partial
-        .clear
+= render 'discerner/shared/error_messages', :object => @discerner_search
+
+#discerner_search_form
+  = form_for @discerner_search, :html => { :id => 'search' } do |f|
+    = f.hidden_field :username, :value => discerner_user.username unless discerner_user.blank?
+    - @discernerSearchParametersTemplate = generate_nested_attributes_template(f, :search_parameters, 'search_parameter')
+    
+    = render :partial => 'form_header', :locals => { :f => f }
+    - unless enable_combined_searches?.blank?
+      = render :partial => 'form_combined_searches', :locals => { :f => f }
+    = render :partial => 'form_search_parameters', :locals => { :f => f }
+    
+    .buttons
+      = submit_tag 'Search', :class => "button-discerner negative"
+      = link_to 'Clear', new_search_path, :class => "button-discerner negative"
+
+.clear
+:javascript
+  $(function () { 
+    var yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}',
+    renameUrl = '#{@discerner_search.persisted? ? rename_search_path(@discerner_search) : ""}';
+    new Discerner.Search.UI({
+      yearRange: yearRange, 
+      renameUrl: renameUrl
+    })
+  });

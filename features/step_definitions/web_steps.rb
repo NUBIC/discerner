@@ -102,7 +102,7 @@ When /^(?:|I )attach the file "([^\"]*)" to "([^\"]*)"$/ do |path, field|
   attach_file(field, File.expand_path(path))
 end
 
-Then /^(?:|I )should see "([^\"]*)"$/ do |text|
+Then /^(?:|I )should see "(.+?)"$/ do |text|
   if page.respond_to? :should
     page.should have_content(text)
   else
@@ -269,7 +269,7 @@ end
 
 When /^I select "([^\"]*)" from "([^\"]*)" in(?: the (first|last))? "([^\"]*)"$/ do |value, selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    all(selector).each{ |e| e.select(value)} 
+    all(selector).each{|e| e.select(value)} 
   }
 end
 
@@ -302,10 +302,26 @@ When /^I enter "([^\"]*)" into "([^\"]*)" within(?: the (first|last))? "([^\"]*)
   }
 end
 
+When /^I press "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector| 
+  within_scope(get_scope(position, scope_selector)) {
+    steps %Q{
+      When I press "#{selector}"
+    }
+  }
+end
+
 When /^I confirm "([^"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   page.evaluate_script('window.confirm = function() { return true; }')
   steps %Q{
     When I follow "#{selector}" within the #{position} "#{scope_selector}"
+  }
+end
+
+When /^I fill in "([^\"]*)" autocompleter within(?: the (first|last))? "([^\"]*)" with "([^\"]*)"$/ do |selector, position, scope_selector, value|
+  within_scope(get_scope(position, scope_selector)) {
+    all(selector).each.each{|e| e.set(value)}
+    menuitem = '.ui-menu-item a:contains(\"' + value + '\")'
+    page.execute_script " $('#{menuitem}').trigger(\"mouseenter\").click();"
   }
 end
 

@@ -12,7 +12,6 @@ end
 
 Given /^search "([^\"]*)" exists$/ do |name|
   s = Factory.build(:search, :name => name)
-  s.dictionary = Factory.build(:dictionary)
   s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Discerner::Parameter.first)
   s.save!
 end
@@ -49,23 +48,36 @@ When /^I add "([^\"]*)" search criteria$/ do |value|
   }
 end
 
-Given /^I create search(?: with name "([^\"]*)")?$/ do |name|
+Given /^I create search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
+  dictionary ||= "Sample dictionary"
   steps %Q{
     Given search dictionaries are loaded
     And search operators are loaded
     When I go to the new search page
-    And I select dictionary "Sample dictionary"
+    And I select dictionary "#{dictionary}"
     And I fill in "Search name" with "#{name}"
-    And I add "Gender" search criteria
-    And I wait 1 seconds
-    And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
-    And I add "Date of birth" search criteria
-    And I focus on ".value input" within the last ".search_parameter"
-    And I select "Oct" from ".ui-datepicker-month" in the first ".ui-datepicker"
-    And I select "2012" from ".ui-datepicker-year" in the first ".ui-datepicker"
-    And I follow "22"
-    And I press "Search"
   }
+  if dictionary == "Sample dictionary"
+    set_sample_dictionary_search_parameters
+  else 
+    set_librarian_dictionary_search_parameters
+  end
+end
+
+Given /^I create combined search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
+  dictionary ||= "Sample dictionary"
+  steps %Q{
+    Given I create search for dictionary "#{dictionary}" with name "Awesome search" 
+    When I go to the new search page 
+    And I select dictionary "#{dictionary}"
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+  }
+  if dictionary == "Sample dictionary"
+    set_sample_dictionary_search_parameters
+  else 
+    set_librarian_dictionary_search_parameters
+  end
 end
 
 When /^I enter value "([^\"]*)" within the (first|last) search criteria$/ do |value, position| 
@@ -121,3 +133,37 @@ Then /^I should receive a CSV file(?: "([^\"]*)")?/ do |file|
   end
   result
 end
+
+When /^I add combined search$/ do
+  steps %Q{
+    When I follow "Add search"
+  }
+end
+
+When /^I open combined search dropdown$/ do
+  steps %Q{
+    When I press "Show All Items" within the last ".combined_search"
+  }
+end
+
+def set_sample_dictionary_search_parameters
+  steps %Q{
+    And I add "Gender" search criteria
+    And I wait 1 seconds
+    And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
+    And I add "Date of birth" search criteria
+    And I enter value "2012-10-22" within the last search criteria
+    And I press "Search"
+  }
+end
+
+def set_librarian_dictionary_search_parameters
+  steps %Q{
+    And I add "Title" search criteria
+    And I enter value "Best book ever" within the last search criteria
+    And I add "Keyword" search criteria
+    And I enter value "random word" within the last search criteria
+    And I press "Search"
+  }
+end
+  

@@ -60,6 +60,10 @@ module Discerner
   def show_discerner_results?
     true
   end
+  
+  def enable_combined_searches?
+    true
+  end
 }
       inject_into_file("#{Rails.root}/app/helpers/application_helper.rb",
                        discerner_helper_methods,

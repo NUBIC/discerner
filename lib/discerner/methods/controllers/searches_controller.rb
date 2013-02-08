@@ -4,12 +4,13 @@ module Discerner
       module SearchesController
         def self.included(base)
           base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :export]
-          base.send :before_filter, :load_parameters, :except => :index
+          base.send :before_filter, :load_combined_searches, :except => :index
         end
         
         def new
           @discerner_search = Discerner::Search.new
           @discerner_search.search_parameters.build()
+          @discerner_search.search_combinations.build()
         end
 
         def create
@@ -98,17 +99,6 @@ module Discerner
         end
 
         private
-          def load_parameters
-            @dictionaries = Discerner::Dictionary.not_deleted.all
-            if @discerner_search && @discerner_search.persisted?
-              @parameter_categories = Discerner::ParameterCategory.not_deleted.where(:dictionary_id => @discerner_search.dictionary_id).all
-              @parameters = Discerner::Parameter.not_deleted.where(:parameter_category_id => @parameter_categories.map{ |c| c.id})
-            else
-              @parameter_categories = Discerner::ParameterCategory.not_deleted.all
-              @parameters = Discerner::Parameter.not_deleted.all
-            end
-          end
-
           def load_search
             @discerner_search = Discerner::Search.find(params[:id])
           end
@@ -120,7 +110,15 @@ module Discerner
           def dictionary_model
             dictionary_model_name.safe_constantize
           end
-      end
+          
+          def load_combined_searches
+            if @discerner_search && @discerner_search.persisted?
+              @discerner_searches = Discerner::Search.not_deleted.where('id != ? and dictionary_id = ?', @discerner_search.id, @discerner_search.dictionary_id).all
+            else
+              @discerner_searches = Discerner::Search.not_deleted.all
+            end
+          end
+     end
     end
   end
 end

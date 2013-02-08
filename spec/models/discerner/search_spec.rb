@@ -9,6 +9,13 @@ describe Discerner::Search do
     s
   }
   
+  let!(:search_combination) { 
+    s = Factory.build(:search, :name => 'other search')
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Factory.build(:parameter, :database_name => 'other_parameter'))
+    s.save!
+    Discerner::SearchCombination.new(:search => search, :combined_search => s)
+  }
+  
   it "is valid with valid attributes" do
     search.should be_valid
   end
@@ -38,4 +45,11 @@ describe Discerner::Search do
     s.should be_valid
     s.errors.full_messages.should_not include 'Username can\'t be blank'
   end
+  
+  it "allows to access combined searches" do
+    c = search_combination
+    c.save!
+    search.reload.combined_searches.length.should == 1
+  end
+  
 end

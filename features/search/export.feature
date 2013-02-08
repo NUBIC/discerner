@@ -2,19 +2,30 @@ Feature: Exporting results for existing searches
   A user should be able to export search results
 
   @javascript
-  Scenario: In should allow to export search results
+  Scenario: It should show export link
     Given I create search with name "Awesome search" 
     When I am on the search edit page
     Then I should see "Export"
-    
     When I follow "Export"
+    Then I should be on the search export page
+
+  @javascript
+  Scenario: It should show search parameters summary
+    Given I create search with name "Awesome search" 
+    When I am on the search export page
     Then I should see "Case criteria"
     And the "Date of birth" checkbox should be checked
     And the "Gender" checkbox should be checked
-    And I should see "Gender: Female"
+    And I should see "Gender: "Female""
     And I should not see "Male"
     And I should not see "Unspecified"
-    And I should see "Date of birth: is equal to 2012-10-22"
+    And I should see "Date of birth: is equal to "2012-10-22""
+
+  @javascript
+  Scenario: It should show combined searches summary
+    Given I create combined search with name "Awesome combined search" 
+    When I am on the search export page
+    Then I should see "Awesome search"
 
   Scenario: It should return a CSV document named after search
     Given search "Awesome search" exists
@@ -22,10 +33,11 @@ Feature: Exporting results for existing searches
     And I follow "Export"
     And I press "Export"
     Then I should receive a CSV file "awesome_search_"
-    
+
   Scenario: It should allow to export unnamed searches
     Given search "" exists
     When I am on the search edit page
     And I follow "Export"
     And I press "Export"
     Then I should receive a CSV file "no_name_specified_"
+  

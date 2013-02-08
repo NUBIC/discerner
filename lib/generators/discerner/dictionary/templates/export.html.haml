@@ -1,22 +1,21 @@
-- parameter_categories =  @discerner_search.dictionary.parameter_categories.sort{|a,b| a.parameters.length <=> b.parameters.length}
+- parameter_categories =  parameter_categories(@discerner_search)
 
 #discerner_search_summary
-  %h3
-    %b Your search criteria:
-
-  - parameter_categories.each do |c|
-    - unless @discerner_search.search_parameters.where(:parameter_id => c.parameters.map{|p| p.id}).blank?
-      %div{ :style => "float:left;width:27em;"}
+  %h3 Your search criteria:
+    
+  %div
+    %b Included searches:
+    = @discerner_search.combined_searches.map{|cs| cs.name}.join(', ')
+    
+  - parameter_categories.each do |category|
+    - search_parameters = search_parameters(@discerner_search, category)
+    - unless search_parameters.blank?
+      %div.parameter_category_column
         %h4 
-          = c.name
-      
-        - @discerner_search.search_parameters.where(:parameter_id => c.parameters.map{|p| p.id}).each do |sp|
+          = category.name
+        - search_parameters.each do |sp|
           %b #{sp.parameter.name}:
-          - search_parameter_values = sp.parameter.parameter_type.name == 'list' ? sp.search_parameter_values.chosen : sp.search_parameter_values
-          - search_parameter_values.each do |spv|
-            - value = spv.parameter_value.blank? ? spv.value : spv.parameter_value.name 
-            - operator = spv.operator.text unless spv.operator.blank?
-            = "#{operator} #{value} #{spv.additional_value}"
+          = search_parameter_values(sp)
           %br
 .clear
 .buttons

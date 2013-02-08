@@ -1,0 +1,29 @@
+%table{ :class => 'records search_parameters' }
+  %thead
+    %tr
+      %th.parameter_boolean_operator
+      %th.parameter
+        Criteria
+      %th.remove
+      %th.parameter_values
+        Selections
+  %tbody.nested_records_search_parameters
+    = f.fields_for :search_parameters, f.object.search_parameters.order(:display_order) do |search_parameter|
+      = render :partial => 'search_parameter_fields', :locals => { :f => search_parameter }      
+  %tfoot
+    %tr
+      %td{ :colspan => '3', :class => 'add_search_parameters_link' }
+        = link_to_add_fields "Add criteria", :search_parameters
+.clear
+
+:javascript
+  $(function () {
+    var discernerSearchParametersTemplate = '#{@discernerSearchParametersTemplate}',
+    discernerSearchCombinationsTemplate = '#{@discernerSearchCombinationsTemplate}',
+    parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}');
+    
+    new Discerner.SearchParameter.UI({ 
+      searchParametersTemplate: discernerSearchParametersTemplate, 
+      parametersUrl: parametersUrl
+    });
+  });

@@ -1,2 +1,13 @@
-%br
-= render 'form'
+#discerner_search
+  %br
+  = render 'form'
+
+  - if export_discerner_results? && discerner_export_link
+    #discerner_export
+      = discerner_export_link
+      .clear
+    
+  - if show_discerner_results?
+    #discerner_results
+      = render :partial => discerner_results_partial
+      .clear

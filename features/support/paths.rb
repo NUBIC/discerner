@@ -20,6 +20,9 @@ module NavigationHelpers
     when /^the search edit page/
       "/searches/#{Discerner::Search.last.id}/edit"
       
+    when /^the search export page/
+      "/searches/#{Discerner::Search.last.id}/export"
+      
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #

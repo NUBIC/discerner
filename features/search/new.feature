@@ -19,15 +19,16 @@ Feature: Viewing existing searches
     Given search dictionaries are loaded
     When I go to the new search page 
     Then I should not see "Results for search on the `Sample dictionary` dictionary can be added here"
-  
+
   @javascript
   Scenario: It should allow to add search criteria if dictionary is selected
     Given search dictionaries are loaded
     When I go to the new search page 
     And I select dictionary "Sample dictionary"
     And I add search criteria
-    Then I should see "Select"
-    And I should see "Remove"
+    Then ".parameter" in the first ".search_parameter" should contain "Select"
+    And ".remove" in the first ".search_parameter" should contain "Remove"
+    And ".parameter_boolean_operator" in the first ".search_parameter" should contain "where"
     
   @javascript
   Scenario: It should filter search criteria by selected dictionary
@@ -260,4 +261,57 @@ Feature: Viewing existing searches
     Then I should be on the search edit page
     And I should see "Dictionary"
     And I should see "Sample dictionary"
+
+  Scenario: It should notify user if there are no searches that can be combined
+    Given search dictionaries are loaded
+    When I go to the new search page 
+    Then I should see "No qualifying searches found"
     
+  @javascript
+  Scenario: It should not allow to add combined searches until dictionary is selected
+    Given I create search with name "Awesome search"
+    When I go to the new search page 
+    Then the element ".add_search_combinations" should not be visible
+    When I select dictionary "Sample dictionary"
+    Then the element ".add_search_combinations" should be visible
+
+  @javascript
+  Scenario: It should allow to add combined searches if dictionary is selected
+    Given I create search with name "Awesome search"
+    When I go to the new search page 
+    And I select dictionary "Sample dictionary"
+    And I add combined search
+    Then ".combined_search_operator" in the first ".search_combination" should contain "restrict to"
+    And ".remove" in the first ".search_parameter" should contain "Remove"
+
+  @javascript
+  Scenario: It should filter combined searches by selected dictionary
+    Given I create search for dictionary "Sample dictionary" with name "Awesome search"
+    And I create search for dictionary "Librarian dictionary" with name "Book search"
+    
+    When I go to the new search page 
+    And I select dictionary "Sample dictionary"
+    And I add combined search
+    And I open combined search dropdown
+    Then ".combined_search select" in the first ".search_combination" should have options "Awesome search"
+    And ".combined_search select" in the first ".search_combination" should not have options "Book search"
+
+    When I select dictionary "Librarian dictionary"
+    And I add combined search
+    And I open combined search dropdown
+    Then ".combined_search select" in the first ".search_combination" should not have options "Awesome search"
+    And ".combined_search select" in the first ".search_combination" should have options "Book search"
+
+  @javascript
+  Scenario: It should allow to select combined search from the list
+    Given I create search with name "Awesome search"
+    And I create search with name "Another search"
+    When I go to the new search page 
+    And I select dictionary "Sample dictionary"
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I add "Gender" search criteria
+    And I press "Search"
+    Then ".combined_search select" in the first ".search_combination" should have "Awesome search" selected
+    And ".combined_search select" in the first ".search_combination" should not have "Another search" selected
+

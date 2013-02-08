@@ -5,7 +5,7 @@ FactoryGirl.define do
   
   factory :parameter_category, :class => Discerner::ParameterCategory do |f|
     f.name "best caregory"
-    f.association :dictionary
+    f.after_build { |s| s.dictionary = Discerner::Dictionary.last || Factory(:dictionary) }
   end
   
   factory :parameter_type, :class => Discerner::ParameterType do |f|
@@ -15,8 +15,8 @@ FactoryGirl.define do
   factory :parameter, :class => Discerner::Parameter do |f|
     f.name "some parameter"
     f.database_name "some parameter"
-    f.association :parameter_category
-    f.association :parameter_type
+    f.after_build { |s| s.parameter_category = Discerner::ParameterCategory.last || Factory(:parameter_category) }
+    f.after_build { |s| s.parameter_type = Discerner::ParameterType.last || Factory(:parameter_type) }
   end
   
   factory :operator, :class => Discerner::Operator do |f|
@@ -32,6 +32,7 @@ FactoryGirl.define do
   
   factory :search, :class => Discerner::Search do |f|
     f.name 'some search'
+    f.after_build { |s| s.dictionary = Discerner::Dictionary.last || Factory(:dictionary) }
   end
   
   factory :search_parameter, :class => Discerner::SearchParameter do |f|

@@ -1,0 +1,36 @@
+#discerner_search_header
+  - if @discerner_search.persisted?    
+    #messages
+    .discerner_search_name
+      %b Search name:
+      %span.discerner_search_name
+        = @discerner_search.name || '[No name specified]'
+      %span.discerner_search_name_edit
+        = link_to 'Edit', '#', :class => "edit_link icon_link"
+
+    .discerner_search_dictionary
+      %b Dictionary:
+      %span{ :class => "#{@discerner_search.dictionary.css_class_name}"}
+        #{@discerner_search.dictionary.name}
+
+  - else
+    %div.discerner_search_name
+      = f.label :name, "Search name"
+      = f.text_field :name
+
+    %div.discerner_search_dictionary
+      - if dictionary_options.length > 1
+        = f.label :dictionary_id
+        = f.select :dictionary_id, dictionary_options, :include_blank => true
+      - else
+        %b Dictionary:
+        = f.hidden_field :dictionary_id, :value => dictionary_options.last[1]
+        %span{ :class => "#{dictionary_options.last[2][:css_class_name]}"}
+          #{dictionary_options.last[0]}
+        
+        
+  .discerner_dictionary_required_message
+    %span
+      Select dictionary in order to add search criteria
+
+.clear

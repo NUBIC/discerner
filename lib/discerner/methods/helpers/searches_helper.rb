@@ -62,6 +62,50 @@ module Discerner
         def dictionary_options
           Discerner::Dictionary.not_deleted.map{|d| [d.name, d.id, {:class => d.css_class_name}]}
         end
+        
+        def parameter_options(search=nil)
+          parameters(search).map {|q| [q.name, q.id, {:class => q.parameter_type.name}]}
+        end
+        
+        def combined_searches_options
+          @discerner_searches.map {|s| [s.name, s.id, {:class => s.dictionary.css_class_name}]}
+        end
+        
+        def parameter_categories(search=nil)
+          if search.blank? || !search.persisted?
+            Discerner::ParameterCategory.not_deleted.all
+          else
+            Discerner::ParameterCategory.not_deleted.where(:dictionary_id => search.dictionary_id).all.sort{|a,b| a.parameters.length <=> b.parameters.length}
+          end
+        end
+        
+        def parameters(search=nil)
+          if search.blank? || !search.persisted?
+            Discerner::Parameter.not_deleted.all
+          else
+            Discerner::Parameter.not_deleted.where(:parameter_category_id => parameter_categories(search).map{ |c| c.id})
+          end
+        end
+        
+        def search_parameters(search, category=nil)
+          return if search.blank?
+          if category.blank?
+            search.search_parameters
+          else
+            search.search_parameters.where(:parameter_id => category.parameters.map{|p| p.id}) unless category.parameters.blank?
+          end
+        end
+        
+        def search_parameter_values(search_parameter)
+          search_parameter_values = search_parameter.parameter.parameter_type.name == 'list' ? search_parameter.search_parameter_values.chosen : search_parameter.search_parameter_values
+          display_values = []
+          search_parameter_values.each do |spv|
+            value = spv.parameter_value.blank? ? spv.value : spv.parameter_value.name 
+            operator = spv.operator.text unless spv.operator.blank?
+            display_values << "#{operator} \"#{value}\" #{spv.additional_value}"
+          end
+          display_values.join(' or ')
+        end
       end
     end
   end

@@ -42,3 +42,12 @@
     :text: is not like
     :parameter_types:
       - text
+  - :symbol: include
+    :text: include
+    :parameter_types:
+      - search
+  - :symbol: exclude
+    :text: exclude
+    :parameter_types:
+      - search
+      
