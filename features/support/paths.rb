@@ -21,7 +21,7 @@ module NavigationHelpers
       "/searches/#{Discerner::Search.last.id}/edit"
       
     when /^the search export page/
-      "/searches/#{Discerner::Search.last.id}/export"
+      "/searches/#{Discerner::Search.last.id}/export_parameters"
       
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

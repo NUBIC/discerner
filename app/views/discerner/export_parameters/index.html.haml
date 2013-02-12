@@ -1,0 +1,47 @@
+#discerner_search
+  - parameter_categories =  parameter_categories(@discerner_search)
+
+  #discerner_search_summary
+    %h3 Your search criteria:
+    
+    %div
+      %b Included searches:
+      = @discerner_search.combined_searches.map{|cs| cs.name}.join(', ')
+    
+    - parameter_categories.each do |category|
+      - search_parameters = search_parameters(@discerner_search, category)
+      - unless search_parameters.blank?
+        %div.parameter_category_column
+          %h4 
+            = category.name
+          - search_parameters.each do |sp|
+            %b #{sp.parameter.name}:
+            = search_parameter_values(sp)
+            %br
+  .clear
+  .buttons
+    = link_to 'Back to search', edit_search_path(@discerner_search), :class => "button-discerner positive"
+  .clear
+
+  %hr
+
+  #discerner_exportable_fields
+    %h3
+      %b Fields to be exported:
+      
+    = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
+      - parameter_categories.each do |c|
+        %div{ :style => "clear:both;"}
+          %br
+          %h4 
+            = c.name
+          - c.parameters.not_deleted.sort{|a,b| a.name <=> b.name}.each do |p|
+            %div{ :style => "float:left;width:27em;"}
+              - selected_parameters = @discerner_search.export_parameters
+              - selected_parameters = @discerner_search.search_parameters if selected_parameters.empty?
+              - is_checked = selected_parameters.where(:parameter_id => p.id).blank? ? false : true
+              = check_box_tag "parameter_ids[]", p.id, is_checked, :id => "parameter_ids_#{p.id}"
+              = label_tag "parameter_ids_#{p.id}", p.name
+      .clear
+      .buttons
+        = submit_tag 'Export', :class => "button-discerner positive"

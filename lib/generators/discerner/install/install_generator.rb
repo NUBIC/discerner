@@ -45,14 +45,6 @@ module Discerner
       puts "Defining discerner view helpers inside ApplicationHelper..."
 
       discerner_helper_methods = %Q{
-  def discerner_export_partial
-    "discerner/dictionaries/shared/export"
-  end
-    
-  def discerner_export_link
-    link_to "Export", export_search_path(@discerner_search), :class => "icon_link export_link"
-  end
-    
   def export_discerner_results?
     true
   end

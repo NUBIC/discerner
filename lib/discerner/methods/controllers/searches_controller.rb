@@ -3,7 +3,7 @@ module Discerner
     module Controllers
       module SearchesController
         def self.included(base)
-          base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :export]
+          base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :show]
           base.send :before_filter, :load_combined_searches, :except => :index
         end
         
@@ -70,8 +70,8 @@ module Discerner
             format.html { redirect_to searches_path }
           end
         end
-
-        def export
+        
+        def show
           if dictionary_model
             if not dictionary_model.respond_to?('to_csv')
               error_message = "Model '#{dictionary_model_name}' does not have 'to_csv' method. You need to implement it to be able to run export on this dictionary"

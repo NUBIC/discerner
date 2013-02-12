@@ -40,4 +40,16 @@ Feature: Exporting results for existing searches
     And I follow "Export"
     And I press "Export"
     Then I should receive a CSV file "no_name_specified_"
-  
+
+  @javascript
+  Scenario: It should allow to change and save export parameters 
+    Given I create search with name "Awesome search" 
+    When I am on the search export page
+    And I uncheck "Date of birth"
+    And I check "Ethnic group"
+    And I press "Export"
+    And I follow "Back to search"
+    And I follow "Export"
+    Then the "Date of birth" checkbox should not be checked
+    And the "Gender" checkbox should be checked
+    And the "Ethnic group" checkbox should be checked

@@ -8,6 +8,7 @@ module Discerner
           base.send :has_many, :search_parameters
           base.send :has_many, :search_combinations
           base.send :has_many, :combined_searches, :through => :search_combinations
+          base.send :has_many, :export_parameters
           
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))

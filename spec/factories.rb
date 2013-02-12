@@ -41,6 +41,11 @@ FactoryGirl.define do
     f.display_order 1
   end
   
+  factory :export_parameter, :class => Discerner::ExportParameter do |f|
+    f.association :search
+    f.association :parameter
+  end
+  
   factory :search_parameter_value, :class => Discerner::SearchParameterValue do |f|
     f.association :search_parameter
     f.association :operator

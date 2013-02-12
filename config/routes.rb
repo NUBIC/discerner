@@ -2,7 +2,11 @@ Discerner::Engine.routes.draw do
   resources :searches do
     member do
       get :rename
-      get :export
+      resources :export_parameters, :only => :index do
+        collection do
+          post :assign
+        end
+      end
     end
   end
   resources :parameters

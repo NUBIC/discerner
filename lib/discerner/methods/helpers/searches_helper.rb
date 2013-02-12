@@ -106,6 +106,10 @@ module Discerner
           end
           display_values.join(' or ')
         end
+        
+        def discerner_export_link
+          link_to "Export", export_parameters_path(@discerner_search), :class => "icon_link export_link"
+        end
       end
     end
   end
