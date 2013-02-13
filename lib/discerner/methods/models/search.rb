@@ -12,6 +12,7 @@ module Discerner
           
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
+          base.send(:scope, :by_user, lambda{|username| base.not_deleted.where(:username => username)})
           
           # Validations
           @@validations_already_included ||= nil
@@ -48,7 +49,6 @@ module Discerner
             errors.add(:base,"Search should have at least one search criteria.")
           end
         end
-
         
         def display_name
           name.blank? ? "[No name specified]" : name
@@ -58,6 +58,20 @@ module Discerner
           display_name.parameterize.underscore
         end
         
+        def traverse
+          return unless combined_searches.any?
+          searches = []
+          combined_searches.each do |s|
+            searches << s
+            nested_searches = s.traverse
+            searches << nested_searches unless nested_searches.blank?
+          end
+          searches
+        end
+        
+        def nested_searches
+          nested_searches = traverse || []
+          nested_searches.flatten.compact
         end
       end
     end

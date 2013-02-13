@@ -50,11 +50,7 @@ module Discerner
         end
 
         def index
-          if discerner_user.blank?
-            searches = Discerner::Search.not_deleted.where(:username => nil)
-          else
-            searches = Discerner::Search.not_deleted.where(:username => discerner_user.username)
-          end
+          searches = available_searches
 
           if params[:query].blank?
             @discerner_searches = searches.all
@@ -112,11 +108,18 @@ module Discerner
           end
           
           def load_combined_searches
+            discerner_searches = available_searches
             if @discerner_search && @discerner_search.persisted?
-              @discerner_searches = Discerner::Search.not_deleted.where('id != ? and dictionary_id = ?', @discerner_search.id, @discerner_search.dictionary_id).all
-            else
-              @discerner_searches = Discerner::Search.not_deleted.all
+              discerner_searches = discerner_searches.
+              where('id != ? and dictionary_id = ?', @discerner_search.id, @discerner_search.dictionary_id).
+              reject{|s| s.nested_searches.include?(@discerner_search)}
             end
+            @discerner_searches = discerner_searches
+          end
+          
+          def available_searches
+            username = discerner_user.username unless discerner_user.blank?
+            Discerner::Search.by_user(username)
           end
      end
     end

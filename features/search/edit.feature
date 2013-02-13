@@ -81,3 +81,33 @@ Feature: Viewing existing searches
     And the last search criteria selection value should be "2012-10-22"
     And the element ".additional_value" in the last ".search_parameter_value" should not be visible 
     And ".operator select" in the last ".search_parameter_value" should have "is equal to" selected
+    
+  @javascript
+  Scenario: It should allow to add and remove combined search from the list
+    Given I create search with name "Awesome search"
+    And I create search with name "Another search"
+
+    When I go to the search edit page
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I add "Gender" search criteria
+    And I press "Search"
+    Then ".combined_search select" in the first ".search_combination" should have "Awesome search" selected
+    And ".combined_search select" in the first ".search_combination" should not have "Another search" selected
+
+  @javascript
+  Scenario: It should not allow to combine in searches that use the search
+    Given I create search with name "Awesome search"
+    And I create search with name "Another search"
+     And I create search with name "One more search"
+    When I go to the search "Another search" edit page
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I add "Gender" search criteria
+    And I press "Search"
+    And I go to the search "Awesome search" edit page
+    And I add combined search
+    And I open combined search dropdown
+    Then ".combined_search select" in the first ".search_combination" should not have options "Another search"
+    And ".combined_search select" in the first ".search_combination" should have options "One more search"
+
