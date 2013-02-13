@@ -17,8 +17,8 @@ class AddSearchColumnsToDiscernerParameters < ActiveRecord::Migration
       p.save!
     end
     
-    remove_column :discerner_parameters, :database_name
     remove_index :discerner_parameters, :name => 'index_discerner_parameters'
+    remove_column :discerner_parameters, :database_name
     add_index :discerner_parameters, [:search_model, :search_attribute, :parameter_category_id, :deleted_at], :unique => true, :name => 'index_discerner_parameters'
   end
   
@@ -29,10 +29,10 @@ class AddSearchColumnsToDiscernerParameters < ActiveRecord::Migration
       p.database_name = p.search_attribute
       p.save!
     end
-    
+
+    remove_index :discerner_parameters, :name => 'index_discerner_parameters'    
     remove_column :discerner_parameters, :search_model
     remove_column :discerner_parameters, :search_attribute
-    remove_index :discerner_parameters, :name => 'index_discerner_parameters'
     add_index :discerner_parameters, [:database_name, :deleted_at], :unique => true, :name => 'index_discerner_parameters' 
   end
 end
