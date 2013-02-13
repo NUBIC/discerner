@@ -30,6 +30,10 @@ module Discerner
         def deleted?
           not deleted_at.blank?
         end
+        
+        def parameterized_name
+          name.parameterize.underscore
+        end
       end
     end
   end

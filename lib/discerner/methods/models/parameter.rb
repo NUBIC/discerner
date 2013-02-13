@@ -14,13 +14,13 @@ module Discerner
           #Validations
           @@validations_already_included ||= nil
           unless @@validations_already_included
-            base.send :validates, :name, :database_name, :parameter_category, :parameter_type, :presence => true
-            base.send :validates, :database_name, :uniqueness => true
+            base.send :validates, :name, :search_model, :search_attribute, :parameter_category, :parameter_type, :presence => true
+            base.send :validates, :search_attribute, :uniqueness => { :scope => [:search_model, :parameter_category_id], :message => "for parameter category and model has already been taken"}
             @@validations_already_included = true
           end
           
           # Whitelisting attributes
-          base.send :attr_accessible, :database_name, :deleted_at, :name, :parameter_category, :parameter_category_id, :parameter_type, :parameter_type_id
+          base.send :attr_accessible, :deleted_at, :name, :parameter_category, :parameter_category_id, :parameter_type, :parameter_type_id, :search_model, :search_attribute
         end
         
         # Instance Methods

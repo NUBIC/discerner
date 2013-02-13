@@ -36,7 +36,7 @@ module Discerner
               notification_message "creating parameter category '#{parameter_category_from_file[:name]}'"
               parameter_category.created_at = Time.now
             else 
-              notification_message "parameter category '#{parameter_category_from_file[:name]}' already exists and will be updated"
+              notification_message "parameter category '#{parameter_category.name}' already exists and will be updated"
               parameter_category.updated_at = Time.now
             end
             parameter_category.deleted_at = parameter_category_from_file[:deleted].blank? ? nil : Time.now
@@ -47,12 +47,19 @@ module Discerner
             
             ## find or initialize parameters
             parameters_from_file.each do |parameter_from_file|
-              parameter = Discerner::Parameter.where(:database_name => parameter_from_file[:database_name].to_s).first_or_initialize
+              search_identifiers = parameter_from_file[:search]
+              
+              if search_identifiers.blank? || search_identifiers[:model].blank? || search_identifiers[:attribute].blank?
+                return error_message "Parameter search mapping is not defined, add\n:source:\n\t:model: ModelName\n\t:attribute: string to '#{parameter_from_file[:name]}' definition"
+              end
+              
+              parameter = Discerner::Parameter.where(:search_model => search_identifiers[:model].to_s, :search_attribute => search_identifiers[:attribute].to_s, :parameter_category_id => parameter_category.id).first_or_initialize
+              
               if parameter.new_record? 
                 notification_message "creating parameter '#{parameter_from_file[:name]}'"
                 parameter.created_at = Time.now
               else 
-                notification_message "parameter '#{parameter_from_file[:name]}' already exists and will be updated"
+                notification_message "parameter '#{parameter.name}' already exists and will be updated"
                 parameter.updated_at = Time.now
               end
               return error_message 'Parameter type is not defined in file' if parameter_from_file[:parameter_type].blank?
@@ -61,7 +68,7 @@ module Discerner
               parameter.name                  = parameter_from_file[:name]
               parameter.deleted_at            = parameter_from_file[:deleted].blank? ? nil : Time.now
               parameter.parameter_category_id = parameter_category.id
-              return error_message "Parameter #{parameter_from_file[:database_name].to_s} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
+              return error_message "Parameter #{parameter_from_file[:name].to_s} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
               
               ## find or initialize parameter values
               unless parameter_from_file[:parameter_values].blank?
