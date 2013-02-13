@@ -8,10 +8,7 @@
     - @discerner_searches.each do |search|
       %tr{:class=>"#{cycle('odd_record','even_record')}"}
         %td
-          - if search.name.blank?
-            [No name specified]
-          - else
-            = search.name
+          = search.display_name
         %td
           = search.updated_at
         %td

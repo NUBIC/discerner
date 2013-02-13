@@ -4,7 +4,7 @@
     .discerner_search_name
       %b Search name:
       %span.discerner_search_name
-        = @discerner_search.name || '[No name specified]'
+        = @discerner_search.display_name
       %span.discerner_search_name_edit
         = link_to 'Edit', '#', :class => "edit_link icon_link"
 

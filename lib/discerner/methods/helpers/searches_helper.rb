@@ -66,9 +66,9 @@ module Discerner
         def parameter_options(search=nil)
           parameters(search).map {|q| [q.name, q.id, {:class => q.parameter_type.name}]}
         end
-        
+            
         def combined_searches_options
-          @discerner_searches.map {|s| [s.name, s.id, {:class => s.dictionary.css_class_name}]}
+          @discerner_searches.map {|s| [s.display_name, s.id, {:class => s.dictionary.css_class_name}]}
         end
         
         def parameter_categories(search=nil)

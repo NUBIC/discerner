@@ -49,8 +49,15 @@ module Discerner
           end
         end
 
+        
+        def display_name
+          name.blank? ? "[No name specified]" : name
+        end
+        
         def parameterized_name
-          name.blank? ? 'no_name_specified' : name.parameterize.underscore
+          display_name.parameterize.underscore
+        end
+        
         end
       end
     end
