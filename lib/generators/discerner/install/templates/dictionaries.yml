@@ -13,8 +13,8 @@
 #               :model: string                                        # name of the model to be used for searching
 #               :attribute: string                                    # name of the model attribute to be used for searching
 #             :parameter_values:                                      # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
-#               - :name: string                                       # used for display, if not provided, 'database_name' will be used instead
-#                 :database_name: string                              # has to be unique within parameter, intendend to be used as a database value while searching
+#               - :name: string                                       # used for display, if not provided, 'search_value' will be used instead
+#                 :search_value: string                              # has to be unique within parameter, intendend to be used as a database value while searching
 #                 :deleted: boolean                                   # optional, used to mark parameter value as deleted
 #             :source:
 #               :model: string                                        # source model to be used to load parameter values
@@ -49,13 +49,13 @@
               :attribute: ethnic_grp
             :parameter_values:
               - :name: Hispanic or Latino
-                :database_name: hisp_or_latino
+                :search_value: hisp_or_latino
               - :name: NOT Hispanic or Latino
-                :database_name: not_hisp_or_latino
+                :search_value: not_hisp_or_latino
               - :name: Unable to answer
-                :database_name: unknown
+                :search_value: unknown
               - :name: Declined to answer
-                :database_name: declined
+                :search_value: declined
           - :name: Gender
             :parameter_type: list
             :search:
@@ -63,30 +63,30 @@
               :attribute: sex
             :parameter_values:
               - :name: Male
-                :database_name: male
+                :search_value: male
               - :name: Female
-                :database_name: female
+                :search_value: female
               - :name: Indeterminent
-                :database_name: indeterminent
+                :search_value: indeterminent
               - :name: Unknown
-                :database_name: unknown
+                :search_value: unknown
               - :name: Unspecified
-                :database_name: uncpecified
+                :search_value: uncpecified
           - :name: Race
             :parameter_type: list
             :search:
               :model: Patient
               :attribute: race
             :parameter_values:
-              - :database_name: American Indian or Alaska Native
-              - :database_name: Asian
-              - :database_name: Black or African American
-              - :database_name: Hispanic or Latino
-              - :database_name: Native Hawaiian or Other Pacific Islander
-              - :database_name: White or Caucasian
-              - :database_name: Other
-              - :database_name: Declined to answer
-              - :database_name: Unable to answer
+              - :search_value: American Indian or Alaska Native
+              - :search_value: Asian
+              - :search_value: Black or African American
+              - :search_value: Hispanic or Latino
+              - :search_value: Native Hawaiian or Other Pacific Islander
+              - :search_value: White or Caucasian
+              - :search_value: Other
+              - :search_value: Declined to answer
+              - :search_value: Unable to answer
         
       - :name: Case criteria
         :parameters:
@@ -128,10 +128,10 @@
               :attribute: type
             :parameter_type: combobox
             :parameter_values:
-              - :database_name: book
-              - :database_name: journal
-              - :database_name: article
-              - :database_name: electronic journal
+              - :search_value: book
+              - :search_value: journal
+              - :search_value: article
+              - :search_value: electronic journal
           - :name: "Title"
             :search:
               :model: Book

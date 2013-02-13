@@ -27,7 +27,7 @@ FactoryGirl.define do
 
   factory :parameter_value, :class => Discerner::ParameterValue do |f|
     f.name 'some value'
-    f.database_name 'some_value'
+    f.search_value 'some_value'
     f.association :parameter
   end
   

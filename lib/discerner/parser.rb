@@ -73,17 +73,17 @@ module Discerner
               ## find or initialize parameter values
               unless parameter_from_file[:parameter_values].blank?
                 parameter_from_file[:parameter_values].each do |parameter_value_from_file|
-                  parameter_value = Discerner::ParameterValue.where(:database_name => parameter_value_from_file[:database_name].to_s, :parameter_id => parameter.id).first_or_initialize
+                  parameter_value = Discerner::ParameterValue.where(:search_value => parameter_value_from_file[:search_value].to_s, :parameter_id => parameter.id).first_or_initialize
                   if parameter_value.new_record? 
-                    notification_message "creating parameter value '#{parameter_value_from_file[:database_name].to_s}'"
+                    notification_message "creating parameter value '#{parameter_value_from_file[:search_value].to_s}'"
                     parameter_value.created_at = Time.now
                   else 
-                    notification_message "parameter value '#{parameter_value_from_file[:database_name].to_s}' already exists"
+                    notification_message "parameter value '#{parameter_value_from_file[:search_value].to_s}' already exists"
                     parameter_value.updated_at = Time.now
                   end
-                  parameter_value.name = parameter_value_from_file[:name] || parameter_value_from_file[:database_name].to_s
+                  parameter_value.name = parameter_value_from_file[:name] || parameter_value_from_file[:search_value].to_s
                   parameter_value.deleted_at = parameter_value_from_file[:deleted].blank? ? nil : Time.now
-                  return error_message "Parameter value #{parameter_value_from_file[:database_name].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+                  return error_message "Parameter value #{parameter_value_from_file[:search_value].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
                 end
               end
               
@@ -99,7 +99,7 @@ module Discerner
                 model.all.each do |row|
                   value = row.send(source[:attribute])
                   unless value.blank?
-                    parameter_value = Discerner::ParameterValue.find_or_initialize(:database_name => value, :parameter => parameter)
+                    parameter_value = Discerner::ParameterValue.find_or_initialize(:search_value => value, :parameter => parameter)
                     if parameter_value.new_record? 
                       notification_message "Creating parameter value '#{value}'"
                       parameter_value.created_at = Time.now
