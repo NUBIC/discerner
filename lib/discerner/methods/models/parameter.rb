@@ -10,6 +10,7 @@ module Discerner
           
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
+          base.send(:scope, :searchable, base.where(:searchable => true))
           
           #Validations
           @@validations_already_included ||= nil

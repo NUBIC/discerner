@@ -29,6 +29,16 @@ Feature: Viewing existing searches
     Then ".parameter" in the first ".search_parameter" should contain "Select"
     And ".remove" in the first ".search_parameter" should contain "Remove"
     And ".parameter_boolean_operator" in the first ".search_parameter" should contain "where"
+
+  @javascript
+  Scenario: It should display only serchable parameters
+    Given search dictionaries are loaded
+    When I go to the new search page 
+    And I select dictionary "Sample dictionary"
+    And I add search criteria
+    And I open criteria dropdown
+    Then ".parameter select" in the first ".search_parameter" should have options "Age at case collection date, Ethnic group, Gender, Race, Text search diagnosis"
+    And ".parameter select" in the first ".search_parameter" should not have options "Accession date"
     
   @javascript
   Scenario: It should filter search criteria by selected dictionary

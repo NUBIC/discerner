@@ -1,36 +1,16 @@
 #discerner_search
-  - parameter_categories =  parameter_categories(@discerner_search)
-
-  #discerner_search_summary
-    %h3 Your search criteria:
-    
-    %div
-      %b Included searches:
-      = @discerner_search.combined_searches.map{|cs| cs.name}.join(', ')
-    
-    - parameter_categories.each do |category|
-      - search_parameters = search_parameters(@discerner_search, category)
-      - unless search_parameters.blank?
-        %div.parameter_category_column
-          %h4 
-            = category.name
-          - search_parameters.each do |sp|
-            %b #{sp.parameter.name}:
-            = search_parameter_values(sp)
-            %br
-  .clear
+  = render 'discerner/searches/summary'
   .buttons
     = link_to 'Back to search', edit_search_path(@discerner_search), :class => "button-discerner positive"
   .clear
-
-  %hr
+    %hr
 
   #discerner_exportable_fields
     %h3
       %b Fields to be exported:
       
     = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
-      - parameter_categories.each do |c|
+      - exportable_parameter_categories(@discerner_search).each do |c|
         %div{ :style => "clear:both;"}
           %br
           %h4 

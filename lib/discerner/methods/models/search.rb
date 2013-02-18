@@ -73,6 +73,10 @@ module Discerner
           nested_searches = traverse || []
           nested_searches.flatten.compact
         end
+        
+        def parameter_categories
+          search_parameters.map{|p| p.parameter.parameter_category unless p.parameter.blank?}.uniq
+        end
       end
     end
   end

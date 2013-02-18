@@ -36,6 +36,10 @@ module Discerner
         def parameterized_name
           name.parameterize.underscore
         end
+        
+        def searchable_categories
+          parameter_categories.searchable
+        end
       end
     end
   end

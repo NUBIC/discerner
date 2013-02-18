@@ -12,7 +12,8 @@ end
 
 Given /^search "([^\"]*)" exists$/ do |name|
   s = Factory.build(:search, :name => name)
-  s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Discerner::Parameter.first)
+  p = Discerner::Parameter.last || Factory.build(:parameter)
+  s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => p)
   s.save!
 end
 

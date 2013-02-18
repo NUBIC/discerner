@@ -8,6 +8,7 @@
 #         :parameters:
 #           - :name: string                                           # used for display
 #             :parameter_type: integer/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#             :searchable: boolean                                    # if defined, parameter will be used to construct queris, otherwise parameter will be used for  exporting only
 #             :deleted: boolean                                       # optional, used to mark parameter as deleted
 #             :search:                                                # parameter search model and attribute combination has to be unique within the category
 #               :model: string                                        # name of the model to be used for searching
@@ -20,7 +21,6 @@
 #               :model: string                                        # source model to be used to load parameter values
 #               :attribute: string                                    # attribute/method in the source model to be used to load parameter values
 
-
 ---
 :dictionaries:
   - :name: Sample dictionary
@@ -29,20 +29,24 @@
         :parameters:
           - :name: Age at case collection date
             :parameter_type: integer
+            :searchable: true
             :search:
               :model: Patient
               :attribute: age_at_case_collect
           - :name: Age based on current date
             :parameter_type: integer
+            :searchable: true
             :search:
               :model: Patient
               :attribute: age_based_on_current_date
           - :name: Date of birth
             :parameter_type: date
+            :searchable: true
             :search:
               :model: Patient
               :attribute: birth_dt_tm
           - :name: Ethnic group
+            :searchable: true
             :parameter_type: list
             :search:
               :model: Patient
@@ -57,6 +61,7 @@
               - :name: Declined to answer
                 :search_value: declined
           - :name: Gender
+            :searchable: true
             :parameter_type: list
             :search:
               :model: Patient
@@ -73,6 +78,7 @@
               - :name: Unspecified
                 :search_value: uncpecified
           - :name: Race
+            :searchable: true
             :parameter_type: list
             :search:
               :model: Patient
@@ -97,6 +103,7 @@
               :attribute: accessioned_dt_tm
           - :name: Text search diagnosis
             :parameter_type: text
+            :searchable: true
             :search:
               :model: Case
               :attribute: case_specimen_diagnosis
@@ -133,11 +140,13 @@
               - :search_value: article
               - :search_value: electronic journal
           - :name: "Title"
+            :searchable: true
             :search:
               :model: Book
               :attribute: title
             :parameter_type: text
           - :name: "Keyword"
+            :searchable: true
             :search:
               :model: Book
               :attribute: text

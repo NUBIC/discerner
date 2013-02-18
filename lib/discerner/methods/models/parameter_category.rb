@@ -9,6 +9,7 @@ module Discerner
           
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
+          base.send(:scope, :searchable, base.includes(:parameters).where('discerner_parameters.searchable' => true))
           
           #Validations
           @@validations_already_included ||= nil
@@ -33,6 +34,10 @@ module Discerner
         
         def parameterized_name
           name.parameterize.underscore
+        end
+        
+        def searchable_parameters
+          parameters.searchable
         end
       end
     end

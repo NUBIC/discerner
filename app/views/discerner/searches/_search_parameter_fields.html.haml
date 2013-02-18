@@ -6,16 +6,16 @@
   %td.parameter
     %div{:class => 'ui-widget categorized_autocompleter'}
       = f.hidden_field :display_order
-      = f.select(:parameter_id, parameter_options, { :include_blank => true },{ :class => 'parameters_combobox_autocompleter' })
+      = f.select(:parameter_id, searchable_parameters_options, { :include_blank => true },{ :class => 'parameters_combobox_autocompleter' })
       %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
         Select
       .div-criteria-popup{ :style => "display: none;"}
         .div-survey_section-list
-          - parameter_categories(@discerner_search).each do |parameter_category|
+          - searchable_parameter_categories(@discerner_search).each do |parameter_category|
             = div_for parameter_category, :class => "question_category #{parameter_category.dictionary.css_class_name}" do
               %p{ :class => 'parameter_category_name' }
                 = parameter_category.name
-              - items = parameter_category.parameters.not_deleted.all.map(&:name)
+              - items = parameter_category.parameters.searchable.not_deleted.all.map(&:name)
               - unless items.empty?
                 - (0...items.size).each do |i|
                   - unless items[i].nil?

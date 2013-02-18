@@ -23,7 +23,7 @@ module Discerner
             notification_message "dictionary '#{dictionary_from_file[:name]}' already exists and will be updated"
             dictionary.updated_at = Time.now
           end
-          dictionary.deleted_at = dictionary_from_file[:deleted].blank? ? nil : Time.now
+          dictionary.deleted_at = is_deleted?(dictionary_from_file[:deleted]) ? Time.now : nil
           return error_message 'Dictionary could not be saved:' unless dictionary.save
           
           parameter_categories_from_file = dictionary_from_file[:parameter_categories]
@@ -39,7 +39,7 @@ module Discerner
               notification_message "parameter category '#{parameter_category.name}' already exists and will be updated"
               parameter_category.updated_at = Time.now
             end
-            parameter_category.deleted_at = parameter_category_from_file[:deleted].blank? ? nil : Time.now
+            parameter_category.deleted_at = is_deleted?(parameter_category_from_file[:deleted]) ? Time.now : nil
             return error_message 'Parameter category could not be saved:' unless parameter_category.save
             
             parameters_from_file = parameter_category_from_file[:parameters]
@@ -66,7 +66,8 @@ module Discerner
               
               parameter.parameter_type        = find_or_initialize_parameter_type(parameter_from_file[:parameter_type])
               parameter.name                  = parameter_from_file[:name]
-              parameter.deleted_at            = parameter_from_file[:deleted].blank? ? nil : Time.now
+              parameter.deleted_at            = is_deleted?(parameter_from_file[:deleted]) ? Time.now : nil
+              parameter.searchable            = to_bool(parameter_from_file[:searchable])
               parameter.parameter_category_id = parameter_category.id
               return error_message "Parameter #{parameter_from_file[:name].to_s} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
               
@@ -82,7 +83,7 @@ module Discerner
                     parameter_value.updated_at = Time.now
                   end
                   parameter_value.name = parameter_value_from_file[:name] || parameter_value_from_file[:search_value].to_s
-                  parameter_value.deleted_at = parameter_value_from_file[:deleted].blank? ? nil : Time.now
+                  parameter_value.deleted_at = is_deleted?(parameter_value_from_file[:deleted]) ? Time.now : nil
                   return error_message "Parameter value #{parameter_value_from_file[:search_value].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
                 end
               end
@@ -173,6 +174,17 @@ module Discerner
     
     def notification_message(str)
       puts str unless self.options[:trace].blank?
+    end
+    
+    def to_bool(s)
+      return true if s == true || s =~ (/^(true|t|yes|y|1)$/i)
+      return false if s == false || s.blank? || s =~ (/^(false|f|no|n|0)$/i)
+      error_message("invalid value for Boolean: \"#{s}\"")
+    end
+    
+    def is_deleted?(param)
+      return false if param.blank?
+      to_bool(param)
     end
   end
 end
