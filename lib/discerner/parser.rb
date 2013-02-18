@@ -8,7 +8,6 @@ module Discerner
     
     def parse_dictionaries(str)
       hash_from_file = YAML.load(str)
-      
       dictionaries_from_file = hash_from_file[:dictionaries]
       return error_message 'No dictionaries detected in the file.' if dictionaries_from_file.blank?
 
@@ -74,43 +73,32 @@ module Discerner
               ## find or initialize parameter values
               unless parameter_from_file[:parameter_values].blank?
                 parameter_from_file[:parameter_values].each do |parameter_value_from_file|
-                  parameter_value = Discerner::ParameterValue.where(:search_value => parameter_value_from_file[:search_value].to_s, :parameter_id => parameter.id).first_or_initialize
-                  if parameter_value.new_record? 
-                    notification_message "creating parameter value '#{parameter_value_from_file[:search_value].to_s}'"
-                    parameter_value.created_at = Time.now
-                  else 
-                    notification_message "parameter value '#{parameter_value_from_file[:search_value].to_s}' already exists"
-                    parameter_value.updated_at = Time.now
-                  end
-                  parameter_value.name = parameter_value_from_file[:name] || parameter_value_from_file[:search_value].to_s
-                  parameter_value.deleted_at = is_deleted?(parameter_value_from_file[:deleted]) ? Time.now : nil
-                  return error_message "Parameter value #{parameter_value_from_file[:search_value].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+                  value = parameter_value_from_file[:search_value]
+                  find_or_create_parameter_value(parameter, value, parameter_value_from_file[:name]) unless value.blank?
                 end
               end
-              
+
               unless parameter_from_file[:source].blank?
                 source = parameter_from_file[:source]
-                return error_message "Model and attribute must be defined for parameter source" if source[:model].blank? || source[:attribute].blank?
-
-                model = source[:model].safe_constantize
+                return error_message "Model and attribute or method must be defined for parameter source" if source[:model].blank? || (source[:attribute].blank? && source[:method].blank?)
                 
-                return error_message "Model '#{source[:model]}' could not be found" if model.blank?
-                return error_message "Unknown attribute '#{source[:attribute]}' for model '#{source[:model]}'" if not model.respond_to?(source[:attribute])
+                model = source[:model].safe_constantize
 
-                model.all.each do |row|
-                  value = row.send(source[:attribute])
-                  unless value.blank?
-                    parameter_value = Discerner::ParameterValue.find_or_initialize(:search_value => value, :parameter => parameter)
-                    if parameter_value.new_record? 
-                      notification_message "Creating parameter value '#{value}'"
-                      parameter_value.created_at = Time.now
-                    else 
-                      notification_message "Parameter value '#{value}' already exists"
-                      parameter_value.updated_at = Time.now
-                    end
-                    
-                    parameter_value.name = value
-                    parameter.parameter_values << parameter_value
+                return error_message "Model '#{source[:model]}' could not be found" if model.blank?
+                return error_message "Only one source is allowed (attribute or method)" if !source[:attribute].blank? && !source[:method].blank?
+
+                unless source[:attribute].blank?
+                  model.all.each do |row|
+                    return error_message "Unknown attribute '#{source[:attribute]}' for model '#{source[:model]}'" if not row.respond_to?(source[:attribute])
+                    value = row.send(source[:attribute])
+                    find_or_create_parameter_value(parameter, value) unless value.blank?
+                  end
+                end
+                unless source[:method].blank? 
+                  return error_message "Unknown method '#{source[:method]}' for model '#{source[:model]}'" if not model.respond_to?(source[:method])
+                  
+                  model.send(source[:method]).each do |value|
+                    find_or_create_parameter_value(parameter, value) unless value.blank?
                   end
                 end
               end
@@ -167,6 +155,19 @@ module Discerner
       return parameter_type
     end
 
+    def find_or_create_parameter_value(parameter, value, name=nil)
+      parameter_value = Discerner::ParameterValue.where(:search_value => value.to_s, :parameter_id => parameter.id).first_or_initialize
+      if parameter_value.new_record? 
+        notification_message "Creating parameter value '#{value}'"
+        parameter_value.created_at = Time.now
+      else 
+        notification_message "Parameter value '#{value}' already exists"
+        parameter_value.updated_at = Time.now
+      end
+      parameter_value.name = name || value.to_s
+      return error_message "Parameter value #{parameter_value_from_file[:search_value].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+    end
+    
     def error_message(str)
       puts "ERROR: #{str}" unless self.options[:trace].blank?
       raise ActiveRecord::Rollback

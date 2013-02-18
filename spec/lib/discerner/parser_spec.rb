@@ -1,5 +1,21 @@
 require 'spec_helper'
 
+class Person
+  attr_accessor :gender
+  
+  def initialize(params={})
+    @gender = params[:gender]
+  end
+  
+  def self.all
+    [Person.new(:gender => 'Male'), Person.new(:gender => 'Female')]
+  end
+  
+  def self.ethnic_groups
+    ['Hispanic or Latino', 'NOT Hispanic or Latino']
+  end
+end
+
 describe Discerner::Parser do
   it "parses operators" do
     file = 'lib/setup/operators.yml'
@@ -42,6 +58,66 @@ describe Discerner::Parser do
     
     Discerner::ParameterValue.all.length.should == 22
   end
+  
+  it "parses parameters with source model and method" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :searchable: true
+            :parameter_type: list
+            :search:
+              :model: Patient
+              :attribute: ethnic_grp
+            :source:
+              :model: Person
+              :method: ethnic_groups
+}
+    parser.parse_dictionaries(dictionaries)
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Parameter.all.length.should == 1
+    p = Discerner::Parameter.last
+    p.name.should == 'Ethnic group'
+    p.parameter_values.length.should == 2
+    p.parameter_values.each do |pv|
+      ['Hispanic or Latino', 'NOT Hispanic or Latino'].should include(pv.name)
+    end
+  end
+  
+    it "parses parameters with source attribute and method" do
+      parser = Discerner::Parser.new()    
+      dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Gender
+            :searchable: true
+            :parameter_type: list
+            :search:
+              :model: Patient
+              :attribute: gender
+            :source:
+              :model: Person
+              :attribute: gender
+}
+      parser.parse_dictionaries(dictionaries)
+      Discerner::Dictionary.all.should_not be_empty
+      Discerner::Dictionary.all.length.should == 1
+      Discerner::Parameter.all.length.should == 1
+      p = Discerner::Parameter.last
+      p.name.should == 'Gender'
+      p.parameter_values.length.should == 2
+      p.parameter_values.each do |pv|
+        ['Male', 'Female'].should include(pv.name)
+      end
+    end
     
   it "restores soft deleted dictionaries if they are not marked as deleted in the dictionary definition" do
     file = 'test/dummy/lib/setup/dictionaries.yml'

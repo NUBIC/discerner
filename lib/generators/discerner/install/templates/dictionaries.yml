@@ -15,11 +15,12 @@
 #               :attribute: string                                    # name of the model attribute to be used for searching
 #             :parameter_values:                                      # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
 #               - :name: string                                       # used for display, if not provided, 'search_value' will be used instead
-#                 :search_value: string                              # has to be unique within parameter, intendend to be used as a database value while searching
+#                 :search_value: string                               # has to be unique within parameter, intendend to be used as a database value while searching
 #                 :deleted: boolean                                   # optional, used to mark parameter value as deleted
 #             :source:
 #               :model: string                                        # source model to be used to load parameter values
-#               :attribute: string                                    # attribute/method in the source model to be used to load parameter values
+#               :attribute: string                                    # attribute in the source model to be used to load parameter values
+#               :method: string                                       # method in the source model to be used to load parameter values
 
 ---
 :dictionaries:
