@@ -86,7 +86,7 @@ module Discerner
         end
 
         def searchable_parameters_options
-          searchable_parameters.map {|q| [q.name, q.id, {:class => q.parameter_type.name}]}
+          searchable_parameters.map {|p| [p.name, p.id, {:class => "#{p.parameter_type.name} #{'exclusive' if p.exclusive}"}]}
         end
 
         def exportable_parameter_categories(search=nil)

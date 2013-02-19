@@ -225,7 +225,7 @@ Feature: Viewing existing searches
     And the element ".discerner_dictionary_required_message" should not be visible
     
   @javascript
-  Scenario: It should not allow to add multiple search criteria with same parameter other than for text parameters
+  Scenario: It should not allow to add multiple search criteria with same exclusive parameter  
     Given search dictionaries are loaded
     And search operators are loaded
     When I go to the new search page 
@@ -240,7 +240,7 @@ Feature: Viewing existing searches
     And the last search criteria should not be "Age at case collection date"
     
   @javascript
-  Scenario: It should allow to add multiple search criteria with same text parameter
+  Scenario: It should allow to add multiple search criteria with same not exclusive parameter  
     Given search dictionaries are loaded
     And search operators are loaded
     When I go to the new search page 

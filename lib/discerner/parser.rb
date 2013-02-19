@@ -67,6 +67,7 @@ module Discerner
               parameter.name                  = parameter_from_file[:name]
               parameter.deleted_at            = is_deleted?(parameter_from_file[:deleted]) ? Time.now : nil
               parameter.searchable            = to_bool(parameter_from_file[:searchable])
+              parameter.exclusive             = parameter_from_file[:exclusive].nil? ? true : to_bool(parameter_from_file[:exclusive])
               parameter.parameter_category_id = parameter_category.id
               return error_message "Parameter #{parameter_from_file[:name].to_s} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
               
