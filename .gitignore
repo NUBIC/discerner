@@ -5,3 +5,4 @@ spec/dummy/
 *.DS_Store
 test/dummy/*
 .sass-cache/*
+chromedriver.log
