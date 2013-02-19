@@ -10,6 +10,7 @@
 #             :parameter_type: integer/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
 #             :searchable: boolean                                    # if defined, parameter will be used to construct queris, otherwise parameter will be used for  exporting only
 #             :deleted: boolean                                       # optional, used to mark parameter as deleted
+#             :exclusive: boolean                                     # defaults to true value, prevents parameters to be reused while constructing a search. Set to false to enable using a parameter multiple times 
 #             :search:                                                # parameter search model and attribute combination has to be unique within the category
 #               :model: string                                        # name of the model to be used for searching
 #               :attribute: string                                    # name of the model attribute to be used for searching
