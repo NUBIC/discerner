@@ -11,13 +11,15 @@ namespace :discerner do
       require File.expand_path('../../generators/discerner/dummy_generator', __FILE__)
 
       Discerner::DummyGenerator.start %w(--quiet)
+      migration_task  = %Q{bundle exec rake db:migrate}
+      system migration_task
     end
     
     task :generate_dummy_discerner do
       Dir.chdir('test/dummy') if File.exists?("test/dummy")
       
-      discerner_generator_task  = %Q{ rails generate discerner:install}
-      dictionary_generator_task = %Q{ rails generate discerner:dictionary lib/setup/dictionaries.yml}
+      discerner_generator_task  = %Q{rails generate discerner:install}
+      dictionary_generator_task = %Q{rails generate discerner:dictionary lib/setup/dictionaries.yml}
       task_params = [%Q{ bundle exec rake -f test/dummy/Rakefile db:test:prepare }]
       
       puts "Setting up Discerner ........."

@@ -1,21 +1,5 @@
 require 'spec_helper'
 
-class Person
-  attr_accessor :gender
-  
-  def initialize(params={})
-    @gender = params[:gender]
-  end
-  
-  def self.all
-    [Person.new(:gender => 'Male'), Person.new(:gender => 'Female')]
-  end
-  
-  def self.ethnic_groups
-    ['Hispanic or Latino', 'NOT Hispanic or Latino']
-  end
-end
-
 describe Discerner::Parser do
   it "parses operators" do
     file = 'lib/setup/operators.yml'
@@ -60,7 +44,7 @@ describe Discerner::Parser do
   end
   
   it "parses parameters with source model and method" do
-    parser = Discerner::Parser.new()    
+    parser = Discerner::Parser.new({:trace => true})    
     dictionaries = %Q{
 :dictionaries:
   - :name: Sample dictionary
@@ -90,7 +74,10 @@ describe Discerner::Parser do
   end
   
     it "parses parameters with source attribute and method" do
-      parser = Discerner::Parser.new()    
+      Person.create(:id=>1, :gender=>'Male')
+      Person.create(:id=>2, :gender=>'Female')
+      Person.create(:id=>3, :gender=>'Female')
+      parser = Discerner::Parser.new({:trace => true})    
       dictionaries = %Q{
 :dictionaries:
   - :name: Sample dictionary

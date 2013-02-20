@@ -36,6 +36,11 @@ module Discerner
       copy_file "application.html.erb", "#{dummy_path}/app/views/layouts/application.html.erb", :force => true
     end
 
+    def test_dummy_models
+      copy_file "person.rb", "#{dummy_path}/app/models/person.rb", :force => true
+      copy_file "create_people.rb", "#{dummy_path}/db/migrate/#{1.hour.ago.utc.strftime("%Y%m%d%H%M%S")}_create_people.rb", :force => true
+    end
+    
     def test_dummy_clean
       inside dummy_path do
         remove_file ".gitignore"

@@ -89,8 +89,8 @@ module Discerner
                 return error_message "Only one source is allowed (attribute or method)" if !source[:attribute].blank? && !source[:method].blank?
 
                 unless source[:attribute].blank?
-                  model.all.each do |row|
-                    return error_message "Unknown attribute '#{source[:attribute]}' for model '#{source[:model]}'" if not row.respond_to?(source[:attribute])
+                  return error_message "Unknown attribute '#{source[:attribute]}' for model '#{source[:model]}'" unless model.attribute_method?(source[:attribute])
+                  model.send(:all).each do |row|
                     value = row.send(source[:attribute])
                     find_or_create_parameter_value(parameter, value) unless value.blank?
                   end
