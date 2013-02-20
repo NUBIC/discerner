@@ -7,7 +7,7 @@
 #         :deleted: boolean                                           # optional, used to mark parameter category as deleted
 #         :parameters:
 #           - :name: string                                           # used for display
-#             :parameter_type: integer/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#             :parameter_type: numeric/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
 #             :searchable: boolean                                    # if defined, parameter will be used to construct queris, otherwise parameter will be used for  exporting only
 #             :deleted: boolean                                       # optional, used to mark parameter as deleted
 #             :exclusive: boolean                                     # defaults to true value, prevents parameters to be reused while constructing a search. Set to false to enable using a parameter multiple times 
@@ -30,13 +30,13 @@
       - :name: Demographic criteria
         :parameters:
           - :name: Age at case collection date
-            :parameter_type: integer
+            :parameter_type: numeric
             :searchable: true
             :search:
               :model: Patient
               :attribute: age_at_case_collect
           - :name: Age based on current date
-            :parameter_type: integer
+            :parameter_type: numeric
             :searchable: true
             :search:
               :model: Patient

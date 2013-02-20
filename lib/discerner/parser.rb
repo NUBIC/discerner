@@ -144,8 +144,11 @@ module Discerner
     end
     
     def find_or_initialize_parameter_type(name)
+      return error_message "Parameter type name has to be provided" if name.blank?
+      return error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
+      
       ## find or initialize parameter type
-      parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name)
+      parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name.downcase)
       if parameter_type.new_record? 
         notification_message "Creating parameter type '#{name}'"
         parameter_type.created_at = Time.now

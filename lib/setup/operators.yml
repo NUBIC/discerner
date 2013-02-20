@@ -3,28 +3,28 @@
   - :symbol: '='
     :text: is equal to
     :parameter_types:
-      - integer
+      - numeric
       - date
   - :symbol: '!='
     :text: is not equal to
     :parameter_types:
-      - integer
+      - numeric
       - date
   - :symbol: '<'
     :text: is less than
     :parameter_types:
-      - integer
+      - numeric
       - date
   - :symbol: '>'
     :text: is greater than
     :parameter_types:
-      - integer
+      - numeric
       - date
   - :symbol: between
     :text: is in the range
     :binary: true
     :parameter_types:
-      - integer
+      - numeric
       - date
   - :symbol: in
     :text: is one of

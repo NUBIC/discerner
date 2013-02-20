@@ -28,7 +28,7 @@
           = f.object.parameter_value.name
       %td{:class => "remove", :hidden => "true"}
         = link_to_remove_fields 'Remove', f, :search_parameter_values
-    - when /(integer|date|text)/
+    - when /(numeric|date|text)/
       %td.operator
         - selected = f.object.operator.blank? ? nil : f.object.operator.id
         = f.select(:operator_id, options_for_select([["", ""]] + operator_options(type), selected))
