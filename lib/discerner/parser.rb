@@ -104,7 +104,8 @@ module Discerner
       unique_identifier = hash[:unique_identifier]
       error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
       
-      parameter             = Discerner::Parameter.where(:unique_identifier => unique_identifier, :parameter_category_id => parameter_category.id).first_or_initialize
+      existing_parameter    = Discerner::Parameter.includes({:parameter_category => :dictionary}).where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
+      parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category) 
       parameter.name        = parameter_name
       parameter.deleted_at  = is_deleted?(hash[:deleted]) ? Time.now : nil
       parameter.exclusive   = hash[:exclusive].nil? ? true : to_bool(hash[:exclusive])

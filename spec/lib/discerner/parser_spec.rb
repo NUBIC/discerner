@@ -194,4 +194,33 @@ describe Discerner::Parser do
       ['true', 'false'].should include(pv.name)
     end
   end
+  
+  it "finds and updates moved parameter" do
+        parser = Discerner::Parser.new({:trace => true})    
+        dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Consented
+            :unique_identifier: consented
+}
+    parser.parse_dictionaries(dictionaries)
+    Discerner::Parameter.all.length.should == 1
+    Discerner::Parameter.last.name.should == 'Consented'
+    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Another criteria
+        :parameters:
+          - :name: Consented already
+            :unique_identifier: consented
+}    
+  parser.parse_dictionaries(dictionaries)
+  Discerner::Parameter.all.length.should == 1
+  Discerner::Parameter.last.name.should == 'Consented already'
+  end
 end
