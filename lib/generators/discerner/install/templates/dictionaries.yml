@@ -1,28 +1,28 @@
 # ---- General structure:
 #   :dictionaries:
-#    - :name: string                                                    # has to be unique within not-deleted dictionaries
-#      :deleted: boolean                                                # optional, used to mark dictionary as deleted
+#    - :name: string                                                            # has to be unique within not-deleted dictionaries
+#      :deleted: boolean                                                        # optional, used to mark dictionary as deleted
 #      :parameter_categories:
-#       - :name: string                                                 # has to be unique within the dictionary
-#         :deleted: boolean                                             # optional, used to mark parameter category as deleted
+#       - :name: string                                                         # has to be unique within the dictionary
+#         :deleted: boolean                                                     # optional, used to mark parameter category as deleted
 #         :parameters:
-#           - :name: string                                             # used for display
-#             :deleted: boolean                                         # optional, used to mark parameter as deleted
-#             :unique_identifier:                                       # has to be unique within the dictionary
+#           - :name: string                                                     # used for display
+#             :deleted: boolean                                                 # optional, used to mark parameter as deleted
+#             :unique_identifier:                                               # has to be unique within the dictionary
 #             :export:
-#               :model                                                  # name of the model to be used for exporting
-#               :method                                                 # name of the model method to be used for exporting
-#             :search:                                                  # parameter search model and method combination has to be unique within the category
-#               :model: string                                          # name of the model to be used for searching
-#               :method: string                                         # name of the model method to be used for searching
-#               :parameter_type: numeric/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
-#               :parameter_values:                                      # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
-#                 - :name: string                                       # used for display, if not provided, 'search_value' will be used instead
-#                   :search_value: string                               # has to be unique within parameter, intendend to be used as a database value while searching
-#                   :deleted: boolean                                   # optional, used to mark parameter value as deleted
+#               :model                                                          # name of the model to be used for exporting
+#               :method                                                         # name of the model method to be used for exporting
+#             :search:                                                          # parameter search model and method combination has to be unique within the category
+#               :model: string                                                  # name of the model to be used for searching
+#               :method: string                                                 # name of the model method to be used for searching
+#               :parameter_type: numeric/date/list/combobox/text/string/search  # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#               :parameter_values:                                              # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
+#                 - :name: string                                               # used for display, if not provided, 'search_value' will be used instead
+#                   :search_value: string                                       # has to be unique within parameter, intendend to be used as a database value while searching
+#                   :deleted: boolean                                           # optional, used to mark parameter value as deleted
 #               :source:
-#                 :model: string                                        # source model to be used to load parameter values
-#                 :method: string                                       # method/method in the source model to be used to load parameter values
+#                 :model: string                                                # source model to be used to load parameter values
+#                 :method: string                                               # method/method in the source model to be used to load parameter values
 
 ---
 :dictionaries:
@@ -147,7 +147,7 @@
             :search:
               :model: Author
               :method: autor_last_name
-              :parameter_type: text
+              :parameter_type: string
               
           - :name: "First name"
             :unique_identifier: autor_first_name

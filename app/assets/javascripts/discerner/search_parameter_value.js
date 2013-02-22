@@ -43,7 +43,7 @@ Discerner.SearchParameterValue.UI = function (config) {
         $(config.container).find('.parameter_value, .remove').show();
         $(config.container).find('a.add_search_parameter_values').show();
       } else {                                                                        // date, text and numeric parameters
-        var parameter_classes = ['date', 'numeric', 'text']
+        var parameter_classes = ['date', 'numeric', 'text', 'string']
         for (var i in parameter_classes) {
           if ($(selectedParameter).hasClass(parameter_classes[i])) {
             row.find('.operator option:not(.' + parameter_classes[i] +')').detach();            

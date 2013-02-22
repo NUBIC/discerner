@@ -5,11 +5,13 @@
     :parameter_types:
       - numeric
       - date
+      - string
   - :symbol: '!='
     :text: is not equal to
     :parameter_types:
       - numeric
       - date
+      - string
   - :symbol: '<'
     :text: is less than
     :parameter_types:
