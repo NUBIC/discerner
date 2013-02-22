@@ -144,8 +144,8 @@ module Discerner
     def parse_parameter_value(parameter, hash)
       error_message 'parameter value definition was not provided' if hash.blank?
       search_value = hash[:search_value]
-      error_message 'parameter value search_value cannot be blank' if search_value.blank?      
-      find_or_create_parameter_value(parameter, search_value, hash[:name]) unless search_value.blank?      
+      error_message 'parameter value search_value cannot be blank' if search_value.nil?      
+      find_or_create_parameter_value(parameter, search_value, hash[:name])     
     end
       
     def load_parameter_value_from_source(parameter, hash)
@@ -231,7 +231,7 @@ module Discerner
 
     
     def find_or_create_parameter_value(parameter, search_value, name=nil)
-      error_message "search value was not provided" if search_value.blank?
+      error_message "search value was not provided" if search_value.nil?
       search_value = search_value.to_s
       notification_message "processing parameter value '#{search_value}'"
       

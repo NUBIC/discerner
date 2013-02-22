@@ -26,15 +26,15 @@ describe Discerner::Parser do
     dictionary.should have(1).exportable_categories 
     dictionary.should_not be_deleted
     
-    dictionary.parameter_categories.first.should have(6).parameters
-    dictionary.parameter_categories.first.should have(5).searchable_parameters
+    dictionary.parameter_categories.first.should have(7).parameters
+    dictionary.parameter_categories.first.should have(6).searchable_parameters
     dictionary.parameter_categories.first.should have(4).exportable_parameters
     dictionary.parameter_categories.first.should_not be_deleted
     
     dictionary.parameter_categories.last.should have(2).parameters
     dictionary.parameter_categories.last.should_not be_deleted
 
-    Discerner::Parameter.all.count.should == 15
+    Discerner::Parameter.all.count.should == 16
     
     dictionary = Discerner::Dictionary.find_by_name('Deleted dictionary')
     dictionary.should be_deleted
@@ -44,7 +44,7 @@ describe Discerner::Parser do
     dictionary.parameter_categories.first.should have(1).parameters
     dictionary.parameter_categories.first.parameters.first.should be_deleted    
     
-    Discerner::ParameterValue.all.length.should == 22
+    Discerner::ParameterValue.all.length.should == 24
   end
   
   it "parses parameters with source model and method" do
@@ -166,6 +166,32 @@ describe Discerner::Parser do
       else
         d.should_not be_deleted
       end
+    end
+  end
+
+  it "parses boolean parameter values" do
+    parser = Discerner::Parser.new({:trace => true})    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Consented
+            :unique_identifier: consented
+            :search:
+              :model: Patient
+              :method: consented
+              :parameter_type: list            
+              :parameter_values:
+                - :search_value: yes
+                - :search_value: no
+}
+    parser.parse_dictionaries(dictionaries)
+    Discerner::Parameter.all.length.should == 1
+    Discerner::Parameter.last.parameter_values.length.should == 2
+    Discerner::Parameter.last.parameter_values.each do |pv|
+      ['true', 'false'].should include(pv.name)
     end
   end
 end

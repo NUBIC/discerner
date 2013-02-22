@@ -1,27 +1,28 @@
 # ---- General structure:
 #   :dictionaries:
-#    - :name: string                                                  # has to be unique within not-deleted dictionaries
-#      :deleted: boolean                                              # optional, used to mark dictionary as deleted
+#    - :name: string                                                    # has to be unique within not-deleted dictionaries
+#      :deleted: boolean                                                # optional, used to mark dictionary as deleted
 #      :parameter_categories:
-#       - :name: string                                               # has to be unique within the dictionary
-#         :deleted: boolean                                           # optional, used to mark parameter category as deleted
+#       - :name: string                                                 # has to be unique within the dictionary
+#         :deleted: boolean                                             # optional, used to mark parameter category as deleted
 #         :parameters:
-#           - :name: string                                           # used for display
-#             :parameter_type: numeric/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
-#             :searchable: boolean                                    # if defined, parameter will be used to construct queris, otherwise parameter will be used for  exporting only
-#             :deleted: boolean                                       # optional, used to mark parameter as deleted
-#             :exclusive: boolean                                     # defaults to true value, prevents parameters to be reused while constructing a search. Set to false to enable using a parameter multiple times 
-#             :search:                                                # parameter search model and method combination has to be unique within the category
-#               :model: string                                        # name of the model to be used for searching
-#               :method: string                                    # name of the model method to be used for searching
-#             :parameter_values:                                      # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
-#               - :name: string                                       # used for display, if not provided, 'search_value' will be used instead
-#                 :search_value: string                               # has to be unique within parameter, intendend to be used as a database value while searching
-#                 :deleted: boolean                                   # optional, used to mark parameter value as deleted
-#             :source:
-#               :model: string                                        # source model to be used to load parameter values
-#               :method: string                                    # method in the source model to be used to load parameter values
-#               :method: string                                       # method in the source model to be used to load parameter values
+#           - :name: string                                             # used for display
+#             :deleted: boolean                                         # optional, used to mark parameter as deleted
+#             :unique_identifier:                                       # has to be unique within the dictionary
+#             :export:
+#               :model                                                  # name of the model to be used for exporting
+#               :method                                                 # name of the model method to be used for exporting
+#             :search:                                                  # parameter search model and method combination has to be unique within the category
+#               :model: string                                          # name of the model to be used for searching
+#               :method: string                                         # name of the model method to be used for searching
+#               :parameter_type: numeric/date/list/combobox/text/search # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#               :parameter_values:                                      # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
+#                 - :name: string                                       # used for display, if not provided, 'search_value' will be used instead
+#                   :search_value: string                               # has to be unique within parameter, intendend to be used as a database value while searching
+#                   :deleted: boolean                                   # optional, used to mark parameter value as deleted
+#               :source:
+#                 :model: string                                        # source model to be used to load parameter values
+#                 :method: string                                       # method/method in the source model to be used to load parameter values
 
 ---
 :dictionaries:
@@ -67,7 +68,17 @@
                   :search_value: unknown
                 - :name: Declined to answer
                   :search_value: declined
-                
+
+          - :name: Consented
+            :unique_identifier: surg_inpatient_mortality
+            :search:
+              :model: Surgery
+              :method: cnsented
+              :parameter_type: list
+              :parameter_values:
+                - :search_value: yes
+                - :search_value: no
+            
           - :name: Gender
             :unique_identifier: sex
             :search:
@@ -126,7 +137,7 @@
               :model: Case
               :method: case_specimen_diagnosis
               :parameter_type: text
-  
+              
   - :name: Librarian dictionary
     :parameter_categories: 
       - :name: By author
