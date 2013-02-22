@@ -38,10 +38,9 @@
               
           - :name: Age based on current date
             :unique_identifier: age_based_on_current_date
-            :search:
+            :export:
               :model: Patient
               :method: age_based_on_current_date
-              :parameter_type: numeric
               
           - :name: Date of birth
             :unique_identifier: birth_dt_tm
@@ -49,6 +48,9 @@
               :model: Patient
               :method: birth_dt_tm
               :parameter_type: date
+            :export:
+              :model: Patient
+              :method: age_based_on_current_date
               
           - :name: Ethnic group
             :unique_identifier: ethnic_grp
@@ -83,6 +85,9 @@
                   :search_value: unknown
                 - :name: Unspecified
                   :search_value: uncpecified
+            :export:
+              :model: Person
+              :method: gender
                 
           - :name: Race
             :exclusive: false
@@ -101,6 +106,9 @@
                 - :search_value: Other
                 - :search_value: Declined to answer
                 - :search_value: Unable to answer
+            :export:
+              :model: person
+              :method: race
         
       - :name: Case criteria
         :parameters:

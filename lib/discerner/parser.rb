@@ -12,7 +12,7 @@ module Discerner
       
       # find or initialize dictionaries
       dictionaries_from_file = hash_from_file[:dictionaries]
-      return error_message 'No dictionaries detected.' if dictionaries_from_file.blank?
+      error_message 'No dictionaries detected.' if dictionaries_from_file.blank?
 
       Discerner::Dictionary.transaction do
         dictionaries_from_file.each do |dictionary_from_file|
@@ -20,14 +20,14 @@ module Discerner
           
           ## find or initialize parameter categories
           parameter_categories_from_file = dictionary_from_file[:parameter_categories]
-          return error_message 'no parameter categories detected' if parameter_categories_from_file.blank?
+          error_message 'no parameter categories detected' if parameter_categories_from_file.blank?
 
           parameter_categories_from_file.each do |parameter_category_from_file|
             parameter_category = parse_parameter_category(dictionary, parameter_category_from_file)
             
             ## find or initialize parameters
             parameters_from_file = parameter_category_from_file[:parameters]
-            return error_message 'no parameters detected' if parameters_from_file.blank?
+            error_message 'no parameters detected' if parameters_from_file.blank?
             
             parameters_from_file.each do |parameter_from_file|
               parameter = parse_parameter(parameter_category, parameter_from_file)
@@ -52,10 +52,10 @@ module Discerner
     end
     
     def parse_dictionary(hash)
-      return error_message 'dictionary definition was not provided' if hash.blank?
+      error_message 'dictionary definition was not provided' if hash.blank?
       
       dictionary_name = hash[:name]
-      return error_message 'dictionary name cannot be blank' if dictionary_name.blank?
+      error_message 'dictionary name cannot be blank' if dictionary_name.blank?
       notification_message "processing dictionary '#{dictionary_name}'"
       
       dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
@@ -68,16 +68,16 @@ module Discerner
         notification_message "updating dictionary ..."
         dictionary.updated_at = Time.now
       end
-      return error_message "dictionary could not be saved: #{dictionary.errors.full_messages}", dictionary_name unless dictionary.save
+      error_message "dictionary could not be saved: #{dictionary.errors.full_messages}", dictionary_name unless dictionary.save
       notification_message 'dictionary saved'
       dictionary 
     end
     
     def parse_parameter_category(dictionary, hash)
-      return error_message 'parameter category definition was not provided' if hash.blank?
+      error_message 'parameter category definition was not provided' if hash.blank?
       
       parameter_category_name = hash[:name]
-      return error_message 'parameter category name cannot be blank' if parameter_category_name.blank?
+      error_message 'parameter category name cannot be blank' if parameter_category_name.blank?
       notification_message "processing parameter category  '#{parameter_category_name}'"
       
       parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_name, :dictionary_id => dictionary.id).first_or_initialize
@@ -89,20 +89,20 @@ module Discerner
         notification_message "updating parameter category ..."
         parameter_category.updated_at = Time.now
       end
-      return error_message "parameter category could not be saved: #{parameter_category.errors.full_messages}", parameter_category_name unless parameter_category.save
+      error_message "parameter category could not be saved: #{parameter_category.errors.full_messages}", parameter_category_name unless parameter_category.save
       notification_message 'parameter category saved'
       parameter_category
     end
   
     def parse_parameter(parameter_category, hash)
-      return error_message 'parameter definition was not provided' if hash.blank?
+      error_message 'parameter definition was not provided' if hash.blank?
       
       parameter_name = hash[:name]
-      return error_message 'parameter name cannot be blank' if parameter_name.blank?
+      error_message 'parameter name cannot be blank' if parameter_name.blank?
   
       notification_message "processing parameter '#{parameter_name}'"
       unique_identifier = hash[:unique_identifier]
-      return error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
+      error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
       
       parameter             = Discerner::Parameter.where(:unique_identifier => unique_identifier, :parameter_category_id => parameter_category.id).first_or_initialize
       parameter.name        = parameter_name
@@ -111,11 +111,23 @@ module Discerner
 
       search_identifiers = hash[:search]
       unless search_identifiers.blank?
+        error_message "Searchable parameter should search model, search method and parameter_type defined." if 
+          search_identifiers[:model].blank? || search_identifiers[:method].blank? || search_identifiers[:parameter_type].blank?
+      
         parameter.search_model      = search_identifiers[:model].to_s
         parameter.search_method     = search_identifiers[:method].to_s
-        parameter.parameter_type    = find_or_initialize_parameter_type(search_identifiers[:parameter_type])
+        parameter.parameter_type    = find_or_initialize_parameter_type(search_identifiers[:parameter_type]) 
       end
-
+      
+      export_identifiers = hash[:export]
+      unless export_identifiers.blank?
+        error_message "Exportable parameter should export model and export method defined." if 
+          export_identifiers[:model].blank? || export_identifiers[:method].blank?
+      
+        parameter.export_model      = export_identifiers[:model].to_s
+        parameter.export_method     = export_identifiers[:method].to_s
+      end
+      
       if parameter.new_record? 
         notification_message "creating parameter ..."
         parameter.created_at = Time.now
@@ -124,44 +136,44 @@ module Discerner
         parameter.updated_at = Time.now
       end
       
-      return error_message "parameter could not be saved: #{parameter.errors.full_messages}", parameter_name unless parameter.save
+      error_message "parameter could not be saved: #{parameter.errors.full_messages}", parameter_name unless parameter.save
       notification_message 'parameter saved'
       parameter
     end
       
     def parse_parameter_value(parameter, hash)
-      return error_message 'parameter value definition was not provided' if hash.blank?
+      error_message 'parameter value definition was not provided' if hash.blank?
       search_value = hash[:search_value]
-      return error_message 'parameter value search_value cannot be blank' if search_value.blank?      
+      error_message 'parameter value search_value cannot be blank' if search_value.blank?      
       find_or_create_parameter_value(parameter, search_value, hash[:name]) unless search_value.blank?      
     end
       
     def load_parameter_value_from_source(parameter, hash)
-      return error_message 'parameter value definition was not provided' if hash.blank?
+      error_message 'parameter value definition was not provided' if hash.blank?
       
       model_name  = hash[:model]
       method_name = hash[:method]
-      return error_message "model and method must be defined for parameter source" if model_name.blank? || method_name.blank?
+      error_message "model and method must be defined for parameter source" if model_name.blank? || method_name.blank?
       
       source_model = model_name.safe_constantize
-      return error_message "model '#{model_name}' could not be found" if source_model.blank?
+      error_message "model '#{model_name}' could not be found" if source_model.blank?
       
       if source_model.respond_to?(method_name)
         notification_message "method '#{method_name}' recognized as a class method"
         
         search_values = source_model.send(method_name)
-        return error_message "method '#{method_name}' did not return an array of values" if search_values.blank? || !search_values.kind_of?(Array)
+        error_message "method '#{method_name}' did not return an array of values" if search_values.blank? || !search_values.kind_of?(Array)
         
         search_values.map{|search_value| find_or_create_parameter_value(parameter, search_value) }
       else
         notification_message "method '#{method_name}' is not recognized as a class method, will try it on instance.."
-        return error_message "model '#{model_name}' does no respond to :all method" if !source_model.respond_to?(:all)
+        error_message "model '#{model_name}' does no respond to :all method" if !source_model.respond_to?(:all)
         
         search_value_sources = source_model.send(:all)
-        return error_message "model '#{method_name}' did not return an array of instances" if search_value_sources.blank?
+        error_message "model '#{method_name}' did not return an array of instances" if search_value_sources.blank?
         
         search_value_sources.each do |row|
-          return error_message "model '#{model_name}' instanse does no respond to #{method_name} method" if !row.respond_to?(method_name)
+          error_message "model '#{model_name}' instanse does no respond to #{method_name} method" if !row.respond_to?(method_name)
           find_or_create_parameter_value(parameter, row.send(method_name))
         end
       end
@@ -171,7 +183,7 @@ module Discerner
        hash_from_file = YAML.load(str)
        
        operators_from_file = hash_from_file[:operators]
-       return error_message 'No operators detected in the file.' if operators_from_file.blank?
+       error_message 'No operators detected in the file.' if operators_from_file.blank?
        
        Discerner::Operator.transaction do
          operators_from_file.each do |operator_from_file|
@@ -196,14 +208,14 @@ module Discerner
            operator.text = operator_from_file[:text]
            operator.binary  = operator_from_file[:binary]
            operator.deleted_at = operator_from_file[:deleted].blank? ? nil : Time.now
-           return error_message 'Operator could not be saved:' unless operator.save
+           error_message 'Operator could not be saved:' unless operator.save
          end
       end
     end
     
     def find_or_initialize_parameter_type(name)
-      return error_message "Parameter type name has to be provided" if name.blank?
-      return error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
+      error_message "Parameter type name has to be provided" if name.blank?
+      error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
       
       ## find or initialize parameter type
       parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name.downcase)
@@ -213,13 +225,13 @@ module Discerner
       else 
         notification_message "Parameter type '#{name}' already exists"
       end
-      return error_message "Parameter type #{name} could not be saved: #{parameter_type.errors.full_messages}" unless parameter_type.save
+      error_message "Parameter type #{name} could not be saved: #{parameter_type.errors.full_messages}" unless parameter_type.save
       return parameter_type
     end
 
     
     def find_or_create_parameter_value(parameter, search_value, name=nil)
-      return error_message "search value was not provided" if search_value.blank?
+      error_message "search value was not provided" if search_value.blank?
       search_value = search_value.to_s
       notification_message "processing parameter value '#{search_value}'"
       
@@ -233,7 +245,7 @@ module Discerner
       end
       
       parameter_value.name = name || search_value
-      return error_message "Parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+      error_message "Parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
       parameter_value
     end

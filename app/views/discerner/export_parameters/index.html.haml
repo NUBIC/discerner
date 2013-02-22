@@ -9,19 +9,23 @@
     %h3
       %b Fields to be exported:
       
-    = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
-      - exportable_parameter_categories(@discerner_search).each do |c|
-        %div{ :style => "clear:both;"}
-          %br
-          %h4 
-            = c.name
-          - c.parameters.not_deleted.sort{|a,b| a.name <=> b.name}.each do |p|
-            %div{ :style => "float:left;width:27em;"}
-              - selected_parameters = @discerner_search.export_parameters
-              - selected_parameters = @discerner_search.search_parameters if selected_parameters.empty?
-              - is_checked = selected_parameters.where(:parameter_id => p.id).blank? ? false : true
-              = check_box_tag "parameter_ids[]", p.id, is_checked, :id => "parameter_ids_#{p.id}"
-              = label_tag "parameter_ids_#{p.id}", p.name
-      .clear
-      .buttons
-        = submit_tag 'Export', :class => "button-discerner positive"
+    - exportable_parameter_categories = exportable_parameter_categories(@discerner_search)
+    - if exportable_parameter_categories.blank?
+      = "-- No exportable parameters detected --"
+    - else
+      = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
+        - exportable_parameter_categories.each do |c|
+          %div{ :style => "clear:both;"}
+            %br
+            %h4 
+              = c.name
+            - c.parameters.exportable.not_deleted.sort{|a,b| a.name <=> b.name}.each do |p|
+              %div{ :style => "float:left;width:27em;"}
+                - selected_parameters = @discerner_search.export_parameters
+                - selected_parameters = @discerner_search.search_parameters if selected_parameters.empty?
+                - is_checked = selected_parameters.where(:parameter_id => p.id).blank? ? false : true
+                = check_box_tag "parameter_ids[]", p.id, is_checked, :id => "parameter_ids_#{p.id}"
+                = label_tag "parameter_ids_#{p.id}", p.name
+        .clear
+        .buttons
+          = submit_tag 'Export', :class => "button-discerner positive"

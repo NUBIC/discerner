@@ -95,7 +95,7 @@ module Discerner
           else
             parameter_categories = search.dictionary.parameter_categories
           end
-          parameter_categories.all.sort{|a,b| a.parameters.length <=> b.parameters.length}
+          parameter_categories.exportable.all.sort{|a,b| a.parameters.length <=> b.parameters.length}
         end
 
         def search_parameter_values(search_parameter)

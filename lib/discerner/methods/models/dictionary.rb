@@ -40,6 +40,10 @@ module Discerner
         def searchable_categories
           parameter_categories.searchable
         end
+        
+        def exportable_categories
+          parameter_categories.exportable
+        end
       end
     end
   end

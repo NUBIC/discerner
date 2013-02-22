@@ -10,6 +10,7 @@ module Discerner
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
           base.send(:scope, :searchable, base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null'))
+          base.send(:scope, :exportable, base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null'))
           
           #Validations
           @@validations_already_included ||= nil
@@ -38,6 +39,10 @@ module Discerner
         
         def searchable_parameters
           parameters.searchable
+        end
+        
+        def exportable_parameters
+          parameters.exportable
         end
       end
     end

@@ -10,10 +10,15 @@ Given /^search operators are loaded$/ do
   parser.parse_operators(File.read(file))
 end
 
-Given /^search "([^\"]*)" exists$/ do |name|
+Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
   s = Factory.build(:search, :name => name)
   p = Discerner::Parameter.last || Factory.build(:parameter)
   s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => p)
+  unless exportable.blank?
+    p.export_model = 'Person'
+    p.export_method = 'some_method'
+    p.save
+  end
   s.save!
 end
 

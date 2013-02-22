@@ -22,16 +22,16 @@ describe Discerner::Parameter do
   it "validates that searchable parameter has parameter type, model and attribute" do
     p = Factory.build(:parameter, :search_model => 'A')
     p.should_not be_valid
-    p.errors.full_messages.should include 'Searchable parameter should search model, search method and parameter_type defined.'
+    p.errors.full_messages.should include 'Searchable parameter should have search model, search method and parameter_type defined.'
     
     p = Factory.build(:parameter, :search_method => 'A')
     p.should_not be_valid
-    p.errors.full_messages.should include 'Searchable parameter should search model, search method and parameter_type defined.'
+    p.errors.full_messages.should include 'Searchable parameter should have search model, search method and parameter_type defined.'
     
     p = Factory.build(:parameter, :search_model => 'A', :search_method => 'A')
     p.parameter_type = nil
     p.should_not be_valid
-    p.errors.full_messages.should include 'Searchable parameter should search model, search method and parameter_type defined.'
+    p.errors.full_messages.should include 'Searchable parameter should have search model, search method and parameter_type defined.'
     
     p = Factory.build(:parameter, :search_model => 'A', :search_method => 'A', :parameter_type => Discerner::ParameterType.last || Factory(:parameter_type) )
     p.should be_valid

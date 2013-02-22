@@ -22,14 +22,18 @@ describe Discerner::Parser do
     dictionary = Discerner::Dictionary.find_by_name('Sample dictionary')
     dictionary.should_not be_blank
     dictionary.should have(2).parameter_categories
+    dictionary.should have(2).searchable_categories 
+    dictionary.should have(1).exportable_categories 
     dictionary.should_not be_deleted
     
     dictionary.parameter_categories.first.should have(6).parameters
+    dictionary.parameter_categories.first.should have(5).searchable_parameters
+    dictionary.parameter_categories.first.should have(4).exportable_parameters
     dictionary.parameter_categories.first.should_not be_deleted
     
     dictionary.parameter_categories.last.should have(2).parameters
     dictionary.parameter_categories.last.should_not be_deleted
-    
+
     Discerner::Parameter.all.count.should == 15
     
     dictionary = Discerner::Dictionary.find_by_name('Deleted dictionary')
