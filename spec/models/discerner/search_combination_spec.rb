@@ -11,7 +11,7 @@ describe Discerner::SearchCombination do
   
   let!(:search_combination) { 
     s = Factory.build(:search, :name => 'other search')
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Factory.build(:parameter, :search_attribute => 'other_parameter'))
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Factory.build(:parameter, :search_method => 'other_parameter'))
     s.save!
     Discerner::SearchCombination.new(:search => search, :combined_search => s)
   }

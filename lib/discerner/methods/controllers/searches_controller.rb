@@ -8,9 +8,13 @@ module Discerner
         end
         
         def new
-          @discerner_search = Discerner::Search.new
-          @discerner_search.search_parameters.build()
-          @discerner_search.search_combinations.build()
+          if Discerner::Dictionary.any?
+            @discerner_search = Discerner::Search.new
+            @discerner_search.search_parameters.build()
+            @discerner_search.search_combinations.build()
+          else 
+            flash[:error] = 'Dictionaries must be loaded in order to perform searches' 
+          end
         end
 
         def create

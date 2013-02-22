@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discerner::Parameter do
-  let!(:parameter) { Factory.create(:parameter) }
+  let(:parameter) { Factory.create(:parameter) }
 
   it "is valid with valid attributes" do
     parameter.should be_valid
@@ -19,74 +19,56 @@ describe Discerner::Parameter do
     p.errors.full_messages.should include 'Parameter category can\'t be blank'
   end
   
-  it "validates that parameter has a parameter type" do
-    p = Discerner::Parameter.new()
+  it "validates that searchable parameter has parameter type, model and attribute" do
+    p = Factory.build(:parameter, :search_model => 'A')
     p.should_not be_valid
-    p.errors.full_messages.should include 'Parameter type can\'t be blank'
+    p.errors.full_messages.should include 'Searchable parameter should search model, search method and parameter_type defined.'
+    
+    p = Factory.build(:parameter, :search_method => 'A')
+    p.should_not be_valid
+    p.errors.full_messages.should include 'Searchable parameter should search model, search method and parameter_type defined.'
+    
+    p = Factory.build(:parameter, :search_model => 'A', :search_method => 'A')
+    p.parameter_type = nil
+    p.should_not be_valid
+    p.errors.full_messages.should include 'Searchable parameter should search model, search method and parameter_type defined.'
+    
+    p = Factory.build(:parameter, :search_model => 'A', :search_method => 'A', :parameter_type => Discerner::ParameterType.last || Factory(:parameter_type) )
+    p.should be_valid
   end
    
-  it "validates uniqueness of search_attribute for not-deleted records" do
+  it "validates uniqueness of unique_identifier" do
+    p1 = parameter
     p = Discerner::Parameter.new(:name => 'new parameter',
-      :search_attribute => parameter.search_attribute, 
-      :search_model => parameter.search_model, 
-      :parameter_category => parameter.parameter_category,
-      :parameter_type => parameter.parameter_type)
+      :unique_identifier => p1.unique_identifier, 
+      :parameter_category => p1.parameter_category)
       
     p.should_not be_valid
-    p.errors.full_messages.should include 'Search attribute for parameter category and model has already been taken'
+    p.errors.full_messages.should include 'Unique identifier has to be unique within dictionary.'
   end
   
-  it "allows to re-use search_attribute for different search_model" do
+  it "allows to re-use unique_identifier in different dictionary" do
     p = Discerner::Parameter.new(:name => 'new parameter',
-      :search_attribute => parameter.search_attribute, 
-      :search_model => 'other model', 
-      :parameter_category => parameter.parameter_category,
-      :parameter_type => parameter.parameter_type)
-      
+      :unique_identifier => parameter.unique_identifier, 
+      :parameter_category => Factory.create(:parameter_category, :name => 'other category', :dictionary => Factory.create(:dictionary, :name => "other dictionary")))  
     p.should be_valid
   end
   
-  it "allows to re-use search_model with different search_attribute" do
-    p = Discerner::Parameter.new(:name => 'new parameter',
-      :search_attribute => 'other_attribute', 
-      :search_model => parameter.search_model, 
-      :parameter_category => parameter.parameter_category,
-      :parameter_type => parameter.parameter_type)
-      
-    p.should be_valid
-  end
-  
-  it "allows to re-use search_model and search_attribute in different category" do
-    p = Discerner::Parameter.new(:name => 'new parameter',
-      :search_attribute => parameter.search_attribute,
-      :search_model => parameter.search_model, 
-      :parameter_category => Factory.create(:parameter_category, :name => 'other category'),
-      :parameter_type => parameter.parameter_type)
-      
-    p.should be_valid
-  end
-  
-  it "does not allow to reuse search_attribute if record has been deleted" do
+  it "does not allow to reuse unique_identifier if record has been deleted" do
     d = Discerner::Parameter.new(:name => 'new parameter', 
-      :search_attribute => parameter.search_attribute, 
-      :search_model => parameter.search_model,
+      :unique_identifier => parameter.unique_identifier, 
       :parameter_category => parameter.parameter_category,
-      :parameter_type => parameter.parameter_type,
       :deleted_at => Time.now)
     d.should_not be_valid
     
     Factory.create(:parameter, :name => 'deleted parameter', 
-      :search_attribute => 'deleted_parameter',
-      :search_model => 'deleted_parameter_model',
+      :unique_identifier => 'deleted_unique_identifier',
       :parameter_category => parameter.parameter_category,
-      :parameter_type => parameter.parameter_type,
       :deleted_at => Time.now)
       
     d = Discerner::Parameter.new(:name => 'deleted parameter', 
-    :search_attribute => 'deleted_parameter',
-    :search_model => 'deleted_parameter_model',
-      :parameter_category => parameter.parameter_category,
-      :parameter_type => parameter.parameter_type)
+      :unique_identifier => 'deleted_unique_identifier',
+      :parameter_category => parameter.parameter_category)
     d.should_not be_valid
     
     d.deleted_at = Time.now

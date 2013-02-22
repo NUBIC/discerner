@@ -14,8 +14,7 @@ FactoryGirl.define do
   
   factory :parameter, :class => Discerner::Parameter do |f|
     f.name "some parameter"
-    f.search_attribute "some parameter"
-    f.search_model "SearchModel"
+    f.unique_identifier "some_parameter"
     f.after_build { |s| s.parameter_category = Discerner::ParameterCategory.last || Factory(:parameter_category) }
     f.after_build { |s| s.parameter_type = Discerner::ParameterType.last || Factory(:parameter_type) }
   end

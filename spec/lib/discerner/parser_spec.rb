@@ -52,16 +52,17 @@ describe Discerner::Parser do
       - :name: Demographic criteria
         :parameters:
           - :name: Ethnic group
-            :searchable: true
-            :parameter_type: list
+            :unique_identifier: ethnic_grp
             :search:
               :model: Patient
-              :attribute: ethnic_grp
-            :source:
-              :model: Person
-              :method: ethnic_groups
+              :method: ethnic_grp
+              :parameter_type: numeric            
+              :source:
+                :model: Person
+                :method: ethnic_groups
 }
     parser.parse_dictionaries(dictionaries)
+    
     Discerner::Dictionary.all.should_not be_empty
     Discerner::Dictionary.all.length.should == 1
     Discerner::Parameter.all.length.should == 1
@@ -73,38 +74,39 @@ describe Discerner::Parser do
     end
   end
   
-    it "parses parameters with source attribute and method" do
-      Person.create(:id=>1, :gender=>'Male')
-      Person.create(:id=>2, :gender=>'Female')
-      Person.create(:id=>3, :gender=>'Female')
-      parser = Discerner::Parser.new({:trace => true})    
-      dictionaries = %Q{
+  it "parses parameters with source attribute method and model" do
+    Person.create(:id=>1, :gender=>'Male')
+    Person.create(:id=>2, :gender=>'Female')
+    Person.create(:id=>3, :gender=>'Female')
+    parser = Discerner::Parser.new({:trace => true})    
+    dictionaries = %Q{
 :dictionaries:
-  - :name: Sample dictionary
-    :parameter_categories:
-      - :name: Demographic criteria
-        :parameters:
-          - :name: Gender
-            :searchable: true
-            :parameter_type: list
-            :search:
-              :model: Patient
-              :attribute: gender
+- :name: Sample dictionary
+  :parameter_categories:
+    - :name: Demographic criteria
+      :parameters:
+        - :name: Gender
+          :unique_identifier: ethnic_grp
+          :search:
+            :model: Patient
+            :method: ethnic_grp
+            :parameter_type: numeric            
             :source:
               :model: Person
-              :attribute: gender
+              :method: gender
+              :parameter_type: list
 }
-      parser.parse_dictionaries(dictionaries)
-      Discerner::Dictionary.all.should_not be_empty
-      Discerner::Dictionary.all.length.should == 1
-      Discerner::Parameter.all.length.should == 1
-      p = Discerner::Parameter.last
-      p.name.should == 'Gender'
-      p.parameter_values.length.should == 2
-      p.parameter_values.each do |pv|
-        ['Male', 'Female'].should include(pv.name)
-      end
+    parser.parse_dictionaries(dictionaries)
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Parameter.all.length.should == 1
+    p = Discerner::Parameter.last
+    p.name.should == 'Gender'
+    p.parameter_values.length.should == 2
+    p.parameter_values.each do |pv|
+      ['Male', 'Female'].should include(pv.name)
     end
+  end
     
   it "restores soft deleted dictionaries if they are not marked as deleted in the dictionary definition" do
     file = 'test/dummy/lib/setup/dictionaries.yml'

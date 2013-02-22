@@ -11,16 +11,16 @@
 #             :searchable: boolean                                    # if defined, parameter will be used to construct queris, otherwise parameter will be used for  exporting only
 #             :deleted: boolean                                       # optional, used to mark parameter as deleted
 #             :exclusive: boolean                                     # defaults to true value, prevents parameters to be reused while constructing a search. Set to false to enable using a parameter multiple times 
-#             :search:                                                # parameter search model and attribute combination has to be unique within the category
+#             :search:                                                # parameter search model and method combination has to be unique within the category
 #               :model: string                                        # name of the model to be used for searching
-#               :attribute: string                                    # name of the model attribute to be used for searching
+#               :method: string                                    # name of the model method to be used for searching
 #             :parameter_values:                                      # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
 #               - :name: string                                       # used for display, if not provided, 'search_value' will be used instead
 #                 :search_value: string                               # has to be unique within parameter, intendend to be used as a database value while searching
 #                 :deleted: boolean                                   # optional, used to mark parameter value as deleted
 #             :source:
 #               :model: string                                        # source model to be used to load parameter values
-#               :attribute: string                                    # attribute in the source model to be used to load parameter values
+#               :method: string                                    # method in the source model to be used to load parameter values
 #               :method: string                                       # method in the source model to be used to load parameter values
 
 ---
@@ -30,133 +30,148 @@
       - :name: Demographic criteria
         :parameters:
           - :name: Age at case collection date
-            :parameter_type: numeric
-            :searchable: true
+            :unique_identifier: age_at_case_collect
             :search:
               :model: Patient
-              :attribute: age_at_case_collect
+              :method: age_at_case_collect
+              :parameter_type: numeric
+              
           - :name: Age based on current date
-            :parameter_type: numeric
-            :searchable: true
+            :unique_identifier: age_based_on_current_date
             :search:
               :model: Patient
-              :attribute: age_based_on_current_date
+              :method: age_based_on_current_date
+              :parameter_type: numeric
+              
           - :name: Date of birth
-            :parameter_type: date
-            :searchable: true
+            :unique_identifier: birth_dt_tm
             :search:
               :model: Patient
-              :attribute: birth_dt_tm
+              :method: birth_dt_tm
+              :parameter_type: date
+              
           - :name: Ethnic group
-            :searchable: true
-            :parameter_type: list
+            :unique_identifier: ethnic_grp
             :search:
               :model: Patient
-              :attribute: ethnic_grp
-            :parameter_values:
-              - :name: Hispanic or Latino
-                :search_value: hisp_or_latino
-              - :name: NOT Hispanic or Latino
-                :search_value: not_hisp_or_latino
-              - :name: Unable to answer
-                :search_value: unknown
-              - :name: Declined to answer
-                :search_value: declined
+              :method: ethnic_grp
+              :parameter_type: list
+              :parameter_values:
+                - :name: Hispanic or Latino
+                  :search_value: hisp_or_latino
+                - :name: NOT Hispanic or Latino
+                  :search_value: not_hisp_or_latino
+                - :name: Unable to answer
+                  :search_value: unknown
+                - :name: Declined to answer
+                  :search_value: declined
+                
           - :name: Gender
-            :searchable: true
-            :parameter_type: list
+            :unique_identifier: sex
             :search:
               :model: Patient
-              :attribute: sex
-            :parameter_values:
-              - :name: Male
-                :search_value: male
-              - :name: Female
-                :search_value: female
-              - :name: Indeterminent
-                :search_value: indeterminent
-              - :name: Unknown
-                :search_value: unknown
-              - :name: Unspecified
-                :search_value: uncpecified
+              :method: sex
+              :parameter_type: list              
+              :parameter_values:
+                - :name: Male
+                  :search_value: male
+                - :name: Female
+                  :search_value: female
+                - :name: Indeterminent
+                  :search_value: indeterminent
+                - :name: Unknown
+                  :search_value: unknown
+                - :name: Unspecified
+                  :search_value: uncpecified
+                
           - :name: Race
-            :searchable: true
-            :parameter_type: list
             :exclusive: false
+            :unique_identifier: race
             :search:
               :model: Patient
-              :attribute: race
-            :parameter_values:
-              - :search_value: American Indian or Alaska Native
-              - :search_value: Asian
-              - :search_value: Black or African American
-              - :search_value: Hispanic or Latino
-              - :search_value: Native Hawaiian or Other Pacific Islander
-              - :search_value: White or Caucasian
-              - :search_value: Other
-              - :search_value: Declined to answer
-              - :search_value: Unable to answer
+              :method: race
+              :parameter_type: list
+              :parameter_values:
+                - :search_value: American Indian or Alaska Native
+                - :search_value: Asian
+                - :search_value: Black or African American
+                - :search_value: Hispanic or Latino
+                - :search_value: Native Hawaiian or Other Pacific Islander
+                - :search_value: White or Caucasian
+                - :search_value: Other
+                - :search_value: Declined to answer
+                - :search_value: Unable to answer
         
       - :name: Case criteria
         :parameters:
-          - :name: Accession date
-            :parameter_type: date
+          - :name: Accession date            
+            :unique_identifier: accessioned_dt_tm
             :search:
               :model: Case
-              :attribute: accessioned_dt_tm
+              :method: accessioned_dt_tm
+              :parameter_type: date
+              
           - :name: Text search diagnosis
             :exclusive: false
-            :parameter_type: text
-            :searchable: true
+            :unique_identifier: case_specimen_diagnosis
             :search:
               :model: Case
-              :attribute: case_specimen_diagnosis
+              :method: case_specimen_diagnosis
+              :parameter_type: text
   
   - :name: Librarian dictionary
     :parameter_categories: 
       - :name: By author
         :parameters:
           - :name: "Last name"
+            :unique_identifier: autor_last_name
             :search:
               :model: Author
-              :attribute: autor_last_name
-            :parameter_type: text
+              :method: autor_last_name
+              :parameter_type: text
+              
           - :name: "First name"
+            :unique_identifier: autor_first_name
             :search:
               :model: Author
-              :attribute: autor_first_name
-            :parameter_type: text
+              :method: autor_first_name
+              :parameter_type: text
+              
           - :name: "Country"
+            :unique_identifier: country
             :search:
               :model: Author
-              :attribute: country
-            :parameter_type: text
+              :method: country
+              :parameter_type: text
+              
       - :name: Book criteria
         :parameters:
           - :name: "Type"
+            :unique_identifier: type
             :search:
               :model: Book
-              :attribute: type
-            :parameter_type: combobox
-            :searchable: true
-            :parameter_values:
-              - :search_value: book
-              - :search_value: journal
-              - :search_value: article
-              - :search_value: electronic journal
+              :method: type
+              :parameter_type: combobox
+              :parameter_values:
+                - :search_value: book
+                - :search_value: journal
+                - :search_value: article
+                - :search_value: electronic journal
+              
           - :name: "Title"
-            :searchable: true
+            :unique_identifier: title
             :search:
               :model: Book
-              :attribute: title
-            :parameter_type: text
+              :method: title
+              :parameter_type: text
+              
           - :name: "Keyword"
-            :searchable: true
+            :unique_identifier: text
             :search:
               :model: Book
-              :attribute: text
-            :parameter_type: text
-
+              :method: text
+              :parameter_type: text
+            
   - :name: Deleted dictionary
     :deleted: true
     :parameter_categories: 
@@ -164,8 +179,9 @@
         :deleted: true
         :parameters:
           - :name: "Deleted date parameter"
+            :unique_identifier: deleted_date
             :search:
               :model: Deleted
-              :attribute: deleted_date
-            :parameter_type: date
+              :method: deleted_date
+              :parameter_type: date
             :deleted: true

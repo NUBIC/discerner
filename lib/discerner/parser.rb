@@ -1,106 +1,48 @@
 module Discerner
   class Parser
-    attr_accessor :options
+    attr_accessor :options, :errors
     
     def initialize(options={})
       self.options = options
+      self.errors = []
     end
     
     def parse_dictionaries(str)
       hash_from_file = YAML.load(str)
+      
+      # find or initialize dictionaries
       dictionaries_from_file = hash_from_file[:dictionaries]
-      return error_message 'No dictionaries detected in the file.' if dictionaries_from_file.blank?
+      return error_message 'No dictionaries detected.' if dictionaries_from_file.blank?
 
       Discerner::Dictionary.transaction do
-        # find or initialize dictionaries
         dictionaries_from_file.each do |dictionary_from_file|
-          dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_from_file[:name])
-          if dictionary.new_record? 
-            notification_message "creating dictionary '#{dictionary_from_file[:name]}'"
-            dictionary.created_at = Time.now
-          else 
-            notification_message "dictionary '#{dictionary_from_file[:name]}' already exists and will be updated"
-            dictionary.updated_at = Time.now
-          end
-          dictionary.deleted_at = is_deleted?(dictionary_from_file[:deleted]) ? Time.now : nil
-          return error_message 'Dictionary could not be saved:' unless dictionary.save
-          
-          parameter_categories_from_file = dictionary_from_file[:parameter_categories]
-          return error_message 'No parameter categories detected in the file.' if parameter_categories_from_file.blank?
+          dictionary = parse_dictionary(dictionary_from_file)
           
           ## find or initialize parameter categories
+          parameter_categories_from_file = dictionary_from_file[:parameter_categories]
+          return error_message 'no parameter categories detected' if parameter_categories_from_file.blank?
+
           parameter_categories_from_file.each do |parameter_category_from_file|
-            parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_from_file[:name], :dictionary_id => dictionary.id).first_or_initialize
-            if parameter_category.new_record? 
-              notification_message "creating parameter category '#{parameter_category_from_file[:name]}'"
-              parameter_category.created_at = Time.now
-            else 
-              notification_message "parameter category '#{parameter_category.name}' already exists and will be updated"
-              parameter_category.updated_at = Time.now
-            end
-            parameter_category.deleted_at = is_deleted?(parameter_category_from_file[:deleted]) ? Time.now : nil
-            return error_message 'Parameter category could not be saved:' unless parameter_category.save
-            
-            parameters_from_file = parameter_category_from_file[:parameters]
-            return error_message 'No parameters detected in the file.' if parameters_from_file.blank?
+            parameter_category = parse_parameter_category(dictionary, parameter_category_from_file)
             
             ## find or initialize parameters
+            parameters_from_file = parameter_category_from_file[:parameters]
+            return error_message 'no parameters detected' if parameters_from_file.blank?
+            
             parameters_from_file.each do |parameter_from_file|
+              parameter = parse_parameter(parameter_category, parameter_from_file)
+              
               search_identifiers = parameter_from_file[:search]
-              
-              if search_identifiers.blank? || search_identifiers[:model].blank? || search_identifiers[:attribute].blank?
-                return error_message "Parameter search mapping is not defined, add\n:source:\n\t:model: ModelName\n\t:attribute: string to '#{parameter_from_file[:name]}' definition"
-              end
-              
-              parameter = Discerner::Parameter.where(:search_model => search_identifiers[:model].to_s, :search_attribute => search_identifiers[:attribute].to_s, :parameter_category_id => parameter_category.id).first_or_initialize
-              
-              if parameter.new_record? 
-                notification_message "creating parameter '#{parameter_from_file[:name]}'"
-                parameter.created_at = Time.now
-              else 
-                notification_message "parameter '#{parameter.name}' already exists and will be updated"
-                parameter.updated_at = Time.now
-              end
-              return error_message 'Parameter type is not defined in file' if parameter_from_file[:parameter_type].blank?
-              
-              parameter.parameter_type        = find_or_initialize_parameter_type(parameter_from_file[:parameter_type])
-              parameter.name                  = parameter_from_file[:name]
-              parameter.deleted_at            = is_deleted?(parameter_from_file[:deleted]) ? Time.now : nil
-              parameter.searchable            = to_bool(parameter_from_file[:searchable])
-              parameter.exclusive             = parameter_from_file[:exclusive].nil? ? true : to_bool(parameter_from_file[:exclusive])
-              parameter.parameter_category_id = parameter_category.id
-              return error_message "Parameter #{parameter_from_file[:name].to_s} could not be saved: #{parameter.errors.full_messages}" unless parameter.save
-              
-              ## find or initialize parameter values
-              unless parameter_from_file[:parameter_values].blank?
-                parameter_from_file[:parameter_values].each do |parameter_value_from_file|
-                  value = parameter_value_from_file[:search_value]
-                  find_or_create_parameter_value(parameter, value, parameter_value_from_file[:name]) unless value.blank?
-                end
-              end
-
-              unless parameter_from_file[:source].blank?
-                source = parameter_from_file[:source]
-                return error_message "Model and attribute or method must be defined for parameter source" if source[:model].blank? || (source[:attribute].blank? && source[:method].blank?)
-                
-                model = source[:model].safe_constantize
-
-                return error_message "Model '#{source[:model]}' could not be found" if model.blank?
-                return error_message "Only one source is allowed (attribute or method)" if !source[:attribute].blank? && !source[:method].blank?
-
-                unless source[:attribute].blank?
-                  return error_message "Unknown attribute '#{source[:attribute]}' for model '#{source[:model]}'" unless model.attribute_method?(source[:attribute])
-                  model.send(:all).each do |row|
-                    value = row.send(source[:attribute])
-                    find_or_create_parameter_value(parameter, value) unless value.blank?
+              unless search_identifiers.blank?
+                ## find or initialize parameter values
+                unless search_identifiers[:parameter_values].blank?
+                  search_identifiers[:parameter_values].each do |parameter_value_from_file|
+                    parse_parameter_value(parameter, parameter_value_from_file)
                   end
                 end
-                unless source[:method].blank? 
-                  return error_message "Unknown method '#{source[:method]}' for model '#{source[:model]}'" if not model.respond_to?(source[:method])
-                  
-                  model.send(source[:method]).each do |value|
-                    find_or_create_parameter_value(parameter, value) unless value.blank?
-                  end
+
+                unless search_identifiers[:source].blank?
+                  load_parameter_value_from_source(parameter, search_identifiers[:source])
                 end
               end
             end
@@ -108,7 +50,123 @@ module Discerner
         end
       end
     end
+    
+    def parse_dictionary(hash)
+      return error_message 'dictionary definition was not provided' if hash.blank?
+      
+      dictionary_name = hash[:name]
+      return error_message 'dictionary name cannot be blank' if dictionary_name.blank?
+      notification_message "processing dictionary '#{dictionary_name}'"
+      
+      dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
+      dictionary.deleted_at = is_deleted?(hash[:deleted]) ? Time.now : nil
+      
+      if dictionary.new_record? 
+        notification_message "creating dictionary ..."
+        dictionary.created_at = Time.now
+      else 
+        notification_message "updating dictionary ..."
+        dictionary.updated_at = Time.now
+      end
+      return error_message "dictionary could not be saved: #{dictionary.errors.full_messages}", dictionary_name unless dictionary.save
+      notification_message 'dictionary saved'
+      dictionary 
+    end
+    
+    def parse_parameter_category(dictionary, hash)
+      return error_message 'parameter category definition was not provided' if hash.blank?
+      
+      parameter_category_name = hash[:name]
+      return error_message 'parameter category name cannot be blank' if parameter_category_name.blank?
+      notification_message "processing parameter category  '#{parameter_category_name}'"
+      
+      parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_name, :dictionary_id => dictionary.id).first_or_initialize
+      parameter_category.deleted_at = is_deleted?(hash[:deleted]) ? Time.now : nil
+      if parameter_category.new_record? 
+        notification_message "creating parameter category ..."
+        parameter_category.created_at = Time.now
+      else 
+        notification_message "updating parameter category ..."
+        parameter_category.updated_at = Time.now
+      end
+      return error_message "parameter category could not be saved: #{parameter_category.errors.full_messages}", parameter_category_name unless parameter_category.save
+      notification_message 'parameter category saved'
+      parameter_category
+    end
   
+    def parse_parameter(parameter_category, hash)
+      return error_message 'parameter definition was not provided' if hash.blank?
+      
+      parameter_name = hash[:name]
+      return error_message 'parameter name cannot be blank' if parameter_name.blank?
+  
+      notification_message "processing parameter '#{parameter_name}'"
+      unique_identifier = hash[:unique_identifier]
+      return error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
+      
+      parameter             = Discerner::Parameter.where(:unique_identifier => unique_identifier, :parameter_category_id => parameter_category.id).first_or_initialize
+      parameter.name        = parameter_name
+      parameter.deleted_at  = is_deleted?(hash[:deleted]) ? Time.now : nil
+      parameter.exclusive   = hash[:exclusive].nil? ? true : to_bool(hash[:exclusive])
+
+      search_identifiers = hash[:search]
+      unless search_identifiers.blank?
+        parameter.search_model      = search_identifiers[:model].to_s
+        parameter.search_method     = search_identifiers[:method].to_s
+        parameter.parameter_type    = find_or_initialize_parameter_type(search_identifiers[:parameter_type])
+      end
+
+      if parameter.new_record? 
+        notification_message "creating parameter ..."
+        parameter.created_at = Time.now
+      else 
+        notification_message "updating parameter ..."
+        parameter.updated_at = Time.now
+      end
+      
+      return error_message "parameter could not be saved: #{parameter.errors.full_messages}", parameter_name unless parameter.save
+      notification_message 'parameter saved'
+      parameter
+    end
+      
+    def parse_parameter_value(parameter, hash)
+      return error_message 'parameter value definition was not provided' if hash.blank?
+      search_value = hash[:search_value]
+      return error_message 'parameter value search_value cannot be blank' if search_value.blank?      
+      find_or_create_parameter_value(parameter, search_value, hash[:name]) unless search_value.blank?      
+    end
+      
+    def load_parameter_value_from_source(parameter, hash)
+      return error_message 'parameter value definition was not provided' if hash.blank?
+      
+      model_name  = hash[:model]
+      method_name = hash[:method]
+      return error_message "model and method must be defined for parameter source" if model_name.blank? || method_name.blank?
+      
+      source_model = model_name.safe_constantize
+      return error_message "model '#{model_name}' could not be found" if source_model.blank?
+      
+      if source_model.respond_to?(method_name)
+        notification_message "method '#{method_name}' recognized as a class method"
+        
+        search_values = source_model.send(method_name)
+        return error_message "method '#{method_name}' did not return an array of values" if search_values.blank? || !search_values.kind_of?(Array)
+        
+        search_values.map{|search_value| find_or_create_parameter_value(parameter, search_value) }
+      else
+        notification_message "method '#{method_name}' is not recognized as a class method, will try it on instance.."
+        return error_message "model '#{model_name}' does no respond to :all method" if !source_model.respond_to?(:all)
+        
+        search_value_sources = source_model.send(:all)
+        return error_message "model '#{method_name}' did not return an array of instances" if search_value_sources.blank?
+        
+        search_value_sources.each do |row|
+          return error_message "model '#{model_name}' instanse does no respond to #{method_name} method" if !row.respond_to?(method_name)
+          find_or_create_parameter_value(parameter, row.send(method_name))
+        end
+      end
+    end
+    
     def parse_operators(str)
        hash_from_file = YAML.load(str)
        
@@ -159,24 +217,33 @@ module Discerner
       return parameter_type
     end
 
-    def find_or_create_parameter_value(parameter, value, name=nil)
-      parameter_value = Discerner::ParameterValue.where(:search_value => value.to_s, :parameter_id => parameter.id).first_or_initialize
+    
+    def find_or_create_parameter_value(parameter, search_value, name=nil)
+      return error_message "search value was not provided" if search_value.blank?
+      search_value = search_value.to_s
+      notification_message "processing parameter value '#{search_value}'"
+      
+      parameter_value = Discerner::ParameterValue.where(:search_value => search_value, :parameter_id => parameter.id).first_or_initialize
       if parameter_value.new_record? 
-        notification_message "Creating parameter value '#{value}'"
+        notification_message "creating parameter value ..."
         parameter_value.created_at = Time.now
       else 
-        notification_message "Parameter value '#{value}' already exists"
+        notification_message "updating parameter value ..."
         parameter_value.updated_at = Time.now
       end
-      parameter_value.name = name || value.to_s
-      return error_message "Parameter value #{parameter_value_from_file[:search_value].to_s} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+      
+      parameter_value.name = name || search_value
+      return error_message "Parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+      notification_message 'parameter value saved'
+      parameter_value
     end
     
-    def error_message(str)
+    def error_message(str, target=nil)
+      errors << "#{target}: #{str}"
       puts "ERROR: #{str}" if self.options.has_key?(:trace)
       raise ActiveRecord::Rollback
     end
-    
+
     def notification_message(str)
       puts str if self.options.has_key?(:trace)
     end

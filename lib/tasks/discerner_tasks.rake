@@ -14,4 +14,11 @@ namespace :discerner do
       parser.parse_dictionaries(File.read(file))
     end
   end
+  desc 'Unload all dictionaries'
+  task :unload_dictionaries => :environment do
+    Discerner::ParameterValue.destroy_all
+    Discerner::Parameter.destroy_all
+    Discerner::ParameterCategory.destroy_all
+    Discerner::Dictionary.destroy_all
+  end
 end
