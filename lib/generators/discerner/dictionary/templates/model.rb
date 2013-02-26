@@ -1,9 +1,15 @@
 class <%= @class_name %>
-  def self.search(o)
+  attr_accessor :search
+  
+  def initialize(search)
+    @search = search
+  end
+  
+  def search(params=nil)
     
   end
   
-  def self.to_csv(o, params)
+  def to_csv(params)
     
   end
 end

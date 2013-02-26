@@ -30,16 +30,18 @@ module Discerner
 
         def edit
           if dictionary_model
-            if not dictionary_model.respond_to?('search')
-              error_message = "Model '#{dictionary_model_name}' does not have 'search' method. You need to implement it to be able to run search on this dictionary"
+            dictionary =  dictionary_model.new(@discerner_search)
+            if dictionary.respond_to?('search')
+              @results = dictionary.search(params)  
             else
-             dictionary_model.search(@discerner_search)
+              error_message = "Model '#{dictionary_model_name}' instance does not respond to 'search' method. You need to implement it to be able to run search on this dictionary"
             end
           else
             error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run search on this dictionary"
           end
           flash[:error] = error_message unless error_message.blank?
         end
+        
 
         def update
           respond_to do |format|
@@ -73,8 +75,9 @@ module Discerner
         
         def show
           if dictionary_model
-            if not dictionary_model.respond_to?('to_csv')
-              error_message = "Model '#{dictionary_model_name}' does not have 'to_csv' method. You need to implement it to be able to run export on this dictionary"
+            dictionary =  dictionary_model.new(@discerner_search)
+            if not dictionary.respond_to?('to_csv')
+              error_message = "Model '#{dictionary_model_name}' instance does not respond to 'to_csv' method. You need to implement it to be able to run export on this dictionary"
             end
           else
             error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run export on this dictionary"
@@ -84,12 +87,12 @@ module Discerner
           respond_to do |format|
             if error_message
               format.html
-              format.csv { redirect_to :action => :export }
+              format.csv { redirect_to export_parameters_path(@discerner_search)  }
             else
               format.html
               format.csv do
                 filename ="#{@discerner_search.parameterized_name}_#{Date.today.strftime('%m_%d_%Y')}"
-                csv_data = dictionary_model.to_csv(@discerner_search, params)
+                csv_data = dictionary.to_csv(params)
                 send_data csv_data,
                   :type => 'text/csv; charset=iso-8859-1; header=present',
                   :disposition => "attachment; filename=#{filename}.csv"
