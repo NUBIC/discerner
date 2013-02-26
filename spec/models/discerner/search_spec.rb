@@ -61,41 +61,44 @@ describe Discerner::Search do
       Factory.create(:operator, :symbol => o.last, :text => o.first)
     end
         
-    s = Factory.build(:search)
-    sp1 = s.search_parameters.build(:parameter => p1)
-    sp2 = s.search_parameters.build(:parameter => p2)
-    sp3 = s.search_parameters.build(:parameter => p3)
+    s1 = Factory.build(:search)
+    sp11 = s1.search_parameters.build(:parameter => p1)
+    sp12 = s1.search_parameters.build(:parameter => p3)
     
-    sp1.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('<'), :value => '50')
-    sp1.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('='), :value => '65')
-    sp1.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('between'), :value => '75', :additional_value => '80')
-
+    sp11.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('<'), :value => '50')
+    sp11.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('='), :value => '65')
+    sp11.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('between'), :value => '75', :additional_value => '80')
+    
+    sp12.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('between'), :value => '01/02/2009', :additional_value => '02/02/2009')
+    sp12.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('='), :value => '03/05/2009')
+    
+    s1.save!
+    
+    s2 = Factory.build(:search)
+    sp2 = s2.search_parameters.build(:parameter => p2)
     sp2.search_parameter_values.build(:parameter_value => Factory.create(:parameter_value, :name => 'Male', :search_value => 'male', :parameter => p2), :chosen => true)
     sp2.search_parameter_values.build(:parameter_value => Factory.create(:parameter_value, :name => 'Female', :search_value => 'female', :parameter => p2), :chosen => false)
+    s2.combined_searches << s1
+    s2.save!
     
-    sp3.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('between'), :value => '01/02/2009', :additional_value => '02/02/2009')
-    sp3.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('='), :value => '03/05/2009')
+    s2.to_conditions.should_not be_blank
+    s2.to_conditions['Case'].should_not be_blank
+    s2.to_conditions['Case'][:search_parameters].length.should == 1
+    s2.to_conditions['Case'][:conditions].should include("(accessioned_dt_tm between ? and ? or accessioned_dt_tm = ?)")
+    s2.to_conditions['Case'][:conditions].should include('01/02/2009'.to_date)
+    s2.to_conditions['Case'][:conditions].should include('02/02/2009'.to_date)
+    s2.to_conditions['Case'][:conditions].should include('03/05/2009'.to_date)
     
-    s.save!
-
-    s.to_conditions.should_not be_blank
-    s.to_conditions['Case'].should_not be_blank
-    s.to_conditions['Case'][:search_parameters].length.should == 1
-    s.to_conditions['Case'][:conditions].should include("(accessioned_dt_tm between ? and ? or accessioned_dt_tm = ?)")
-    s.to_conditions['Case'][:conditions].should include('01/02/2009'.to_date)
-    s.to_conditions['Case'][:conditions].should include('02/02/2009'.to_date)
-    s.to_conditions['Case'][:conditions].should include('03/05/2009'.to_date)
-    
-    s.to_conditions['Patient'].should_not be_blank
-    s.to_conditions['Patient'][:search_parameters].length.should == 2
-    s.to_conditions['Patient'][:conditions].should include("(age_at_case_collect < ? or age_at_case_collect = ? or age_at_case_collect between ? and ?) and patients.gender in (?)")
-    s.to_conditions['Patient'][:conditions].should include(50.0)
-    s.to_conditions['Patient'][:conditions].should include(65.0)
-    s.to_conditions['Patient'][:conditions].should include(75.0)
-    s.to_conditions['Patient'][:conditions].should include(80.0)
-    s.to_conditions['Patient'][:conditions].should include(['male'])
-    s.to_conditions['Patient'][:conditions].should_not include(['female'])
-    
-    s.to_conditions['Surgery'].should be_blank
+    s2.to_conditions['Patient'].should_not be_blank
+    s2.to_conditions['Patient'][:search_parameters].length.should == 2
+    s2.to_conditions['Patient'][:conditions].should include("(age_at_case_collect < ? or age_at_case_collect = ? or age_at_case_collect between ? and ?) and patients.gender in (?)")
+    s2.to_conditions['Patient'][:conditions].should include(50.0)
+    s2.to_conditions['Patient'][:conditions].should include(65.0)
+    s2.to_conditions['Patient'][:conditions].should include(75.0)
+    s2.to_conditions['Patient'][:conditions].should include(80.0)
+    s2.to_conditions['Patient'][:conditions].should include(['male'])
+    s2.to_conditions['Patient'][:conditions].should_not include(['female'])
+          
+    s2.to_conditions['Surgery'].should be_blank
   end
 end
