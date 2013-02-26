@@ -5,7 +5,7 @@ module Discerner
         def self.included(base)
           # Associations
           base.send :belongs_to, :dictionary
-          base.send :has_many, :parameters
+          base.send :has_many, :parameters, :order => :name
           
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
