@@ -62,7 +62,7 @@ describe Discerner::Parser do
               :method: ethnic_grp
               :parameter_type: numeric            
               :source:
-                :model: Person
+                :model: Patient
                 :method: ethnic_groups
 }
     parser.parse_dictionaries(dictionaries)
@@ -79,9 +79,9 @@ describe Discerner::Parser do
   end
   
   it "parses parameters with source attribute method and model" do
-    Person.create(:id=>1, :gender=>'Male')
-    Person.create(:id=>2, :gender=>'Female')
-    Person.create(:id=>3, :gender=>'Female')
+    Patient.create(:id=>1, :gender=>'Male')
+    Patient.create(:id=>2, :gender=>'Female')
+    Patient.create(:id=>3, :gender=>'Female')
     parser = Discerner::Parser.new({:trace => true})    
     dictionaries = %Q{
 :dictionaries:
@@ -93,10 +93,10 @@ describe Discerner::Parser do
           :unique_identifier: ethnic_grp
           :search:
             :model: Patient
-            :method: ethnic_grp
+            :method: gender
             :parameter_type: numeric            
             :source:
-              :model: Person
+              :model: Patient 
               :method: gender
               :parameter_type: list
 }

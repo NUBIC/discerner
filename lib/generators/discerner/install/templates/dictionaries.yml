@@ -73,7 +73,7 @@
             :unique_identifier: surg_inpatient_mortality
             :search:
               :model: Surgery
-              :method: cnsented
+              :method: consented
               :parameter_type: list
               :parameter_values:
                 - :search_value: yes
@@ -97,7 +97,7 @@
                 - :name: Unspecified
                   :search_value: uncpecified
             :export:
-              :model: Person
+              :model: Patient
               :method: gender
                 
           - :name: Race
@@ -118,7 +118,7 @@
                 - :search_value: Declined to answer
                 - :search_value: Unable to answer
             :export:
-              :model: person
+              :model: Patient
               :method: race
         
       - :name: Case criteria

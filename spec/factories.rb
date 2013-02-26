@@ -50,7 +50,6 @@ FactoryGirl.define do
     f.association :search_parameter
     f.association :operator
     f.value 'hello'
-    f.additional_value 'world'
     f.chosen false
     f.display_order 1
   end

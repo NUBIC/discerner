@@ -31,6 +31,59 @@ module Discerner
         def parameterized_name
           name.blank? ? 'no_name_specified' : name.parameterize.underscore
         end
+
+        def prepare_sql
+          sql = {}
+          parameter_type = parameter.parameter_type.name
+          case parameter_type
+          when 'list'
+            values    = [search_parameter_values.chosen.map { |spv| spv.parameter_value.search_value }]
+            predicate = "#{parameter.search_method} in (?)"
+          when 'combobox'
+            values    = [search_parameter_values.map { |spv| spv.parameter_value.search_value unless spv.parameter_value.nil? }.compact]
+            predicate = "#{parameter.search_method} in (?)" unless values.blank?
+          else # 'numeric','date', 'text', 'string
+            spvs = []
+            values = []
+            search_parameter_values.map {|spv| spvs << spv.to_sql}
+            
+            predicates = spvs.map { |s| s[:predicates] }.join(' or ')
+            predicate = "(#{predicates})"
+            
+            spvs.each do |spv|
+              if spv[:values].is_a?(Array)
+                spv[:values].each do |v|
+                  values << v
+                end
+              else
+                values << spv[:values]
+              end
+            end
+          end
+          sql[:predicates] = predicate
+          sql[:values] = values
+          sql
+        end
+        
+        def search_model_class
+          return if parameter.search_model.blank? || parameter.search_method.blank?
+          search_model_class = parameter.search_model.safe_constantize
+          raise "Search model #{parameter.search_model} could not be found" if search_model_class.blank?
+          search_model_class
+        end
+        
+        def search_model_attribute_method?
+          search_model_class && search_model_class.attribute_method?(parameter.search_method)
+        end
+
+        def to_sql
+          sql = prepare_sql
+          if search_model_class && !search_model_attribute_method?
+            raise "Search model #{parameter.search_model} does not respond to search method #{parameter.search_method}" unless search_model_class.respond_to?(parameter.search_method)
+            sql = search_model_class.send(parameter.search_method, sql)
+          end
+          sql
+        end
       end
     end
   end

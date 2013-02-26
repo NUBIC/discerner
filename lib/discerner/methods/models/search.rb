@@ -77,6 +77,43 @@ module Discerner
         def parameter_categories
           search_parameters.map{|p| p.parameter.parameter_category unless p.parameter.blank?}.uniq
         end
+
+        def to_conditions
+          search_models = {}
+          all_search_parameters = nested_searches.map { |ns| ns.search_parameters }.flatten
+          all_search_parameters.concat(search_parameters).flatten!
+
+          all_search_parameters.each do |search_parameter|
+            search_models[search_parameter.parameter.search_model] = { :search_parameters => [], :conditions => nil } unless search_models.has_key?(search_parameter.parameter.search_model)
+            search_models[search_parameter.parameter.search_model][:search_parameters] << search_parameter
+          end
+
+          search_models.each do |k,v|
+            predicates = []
+            arguments = []
+            
+            v[:search_parameters].each do |search_parameter|
+              sql = search_parameter.to_sql unless search_parameter.search_parameter_values.empty?
+              unless sql.nil?
+                predicates << sql[:predicates]
+                arguments << sql[:values]
+              end
+            end
+
+            search_models[k][:conditions] = [predicates.join(' and '), *flatten_arguments(arguments)]
+          end
+          search_models
+        end
+
+        def flatten_arguments(arguments)
+          args = []
+          arguments.each do |a|
+            a.each do |b|
+              args << b
+            end
+          end
+          args
+        end
       end
     end
   end

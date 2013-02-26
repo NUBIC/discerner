@@ -20,6 +20,36 @@ module Discerner
         def initialize(*args)
           super(*args)
         end
+
+        def to_sql
+          sql = {}
+          raise "Search operator has to be defined in order to run 'to_sql' method on search_parameter_value" if operator.blank?
+          
+          case operator.text
+            when 'is less than', 'is not equal to', 'is greater than', 'is equal to'
+              sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol} ?"
+              sql[:values]    = formatted_values.first
+            when 'is in the range'
+              sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol} ? and ?"
+              sql[:values]    = formatted_values
+            when 'is like', 'is not like'            
+              sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol} ?"
+              sql[:values]    = "%#{formatted_values.first}%"
+            end
+          sql
+        end
+        
+        def formatted_values
+          all_values = [value, additional_value].compact
+          case search_parameter.parameter.parameter_type.name
+          when 'date'
+            all_values.map{|v| v.to_date}
+          when 'numeric'
+            all_values.map{|v| v.to_f}
+          else
+            all_values
+          end
+        end
       end
     end
   end
