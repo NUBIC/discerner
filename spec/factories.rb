@@ -9,7 +9,7 @@ FactoryGirl.define do
   end
   
   factory :parameter_type, :class => Discerner::ParameterType do |f|
-    f.name "some type"
+    f.name "string"
   end
   
   factory :parameter, :class => Discerner::Parameter do |f|

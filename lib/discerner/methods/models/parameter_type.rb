@@ -14,6 +14,7 @@ module Discerner
           @@validations_already_included ||= nil
           unless @@validations_already_included
             base.send :validates, :name, :presence => true, :uniqueness => {:message => "for parameter type has already been taken"}
+            base.send :validate, :name_supported?
             @@validations_already_included = true
           end
           
@@ -28,6 +29,12 @@ module Discerner
         
         def deleted?
           not deleted_at.blank?
+        end
+        
+        def name_supported?
+          return if self.name.blank?
+          supported_types = ['numeric', 'date', 'list', 'combobox', 'text', 'string', 'search']
+          errors.add(:base,"Parameter type '#{self.name}' is not supported, please use one of the following types: #{supported_types.join(', ')}") unless supported_types.include?(self.name)
         end
       end
     end

@@ -23,8 +23,8 @@ describe Discerner::ParameterType do
     d = Discerner::ParameterType.new(:name => parameter_type.name, :deleted_at => Time.now)
     d.should_not be_valid
     
-    Factory.create(:parameter_type, :name => 'deleted', :deleted_at => Time.now)
-    d = Discerner::ParameterType.new(:name => 'deleted')
+    Factory.create(:parameter_type, :name => 'numeric', :deleted_at => Time.now)
+    d = Discerner::ParameterType.new(:name => 'numeric')
     d.should_not be_valid
     
     d.deleted_at = Time.now
@@ -38,5 +38,11 @@ describe Discerner::ParameterType do
   it "detects if record has been marked as deleted" do
     parameter_type.deleted_at = Time.now
     parameter_type.should be_deleted
+  end
+  
+  it "validates that parameter type is supported" do
+    parameter_type.name = 'some type'
+    parameter_type.should_not be_valid
+    parameter_type.errors.full_messages.should include "Parameter type 'some type' is not supported, please use one of the following types: numeric, date, list, combobox, text, string, search"
   end
 end

@@ -75,7 +75,7 @@ describe Discerner::SearchParameter do
       Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => 'second string', :operator => Factory.create(:operator, :symbol => 'is not like', :text => 'is not like'))
     
       ['text', 'string'].each do |type|
-        parameter.parameter_type = Factory(:parameter_type, :name => type)
+        parameter.parameter_type = Discerner::ParameterType.find_by_name(type) || Factory(:parameter_type, :name => type)
         parameter.save!
         search_parameter.to_sql.should_not == {}
         search_parameter.to_sql[:predicates].should == "(age_at_case_collect is like ? or age_at_case_collect is not like ?)"
