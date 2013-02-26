@@ -140,6 +140,14 @@ Then /^I should receive a CSV file(?: "([^\"]*)")?/ do |file|
   result
 end
 
+Then /^I should receive a XLS file(?: "([^\"]*)")?/ do |file|
+  result = page.response_headers['Content-Type'].should include("application/xls")
+  if result
+    result = page.response_headers['Content-Disposition'].should include(file)
+  end
+  result
+end
+
 When /^I add combined search$/ do
   steps %Q{
     When I follow "Add search"

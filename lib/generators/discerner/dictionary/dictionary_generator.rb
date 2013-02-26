@@ -17,7 +17,11 @@ module Discerner
         create_dictionary_view(dictionary)  unless options["no-views"]
       end
     end
-
+    
+    def add_excel_mime_type
+      inject_into_file("#{Rails.root}/config/initializers/mime_types.rb", 'Mime::Type.register "application/xls", :xls', :after => "# Be sure to restart your server when you modify this file.\n")
+    end
+    
     private
       def create_dictionary_class(dictionary)
         @class_name = dictionary.parameterized_name.camelize
@@ -28,6 +32,7 @@ module Discerner
         @dictionary_name = dictionary.name
         empty_directory "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/#{dictionary.parameterized_name}"
         template "view.html.haml", "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/#{dictionary.parameterized_name}/_results.html.haml"
+        template "show.xls.erb", "#{Discerner::Engine.paths['app/views']}/discerner/dictionaries/#{dictionary.parameterized_name}/show.xls.erb"
       end
   end
 end

@@ -9,7 +9,11 @@ class <%= @class_name %>
     
   end
   
-  def to_csv(params)
+  def export(params)
     
+  end
+  
+  def export_formats
+    ['csv', 'excel']
   end
 end

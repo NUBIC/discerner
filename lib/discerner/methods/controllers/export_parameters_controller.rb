@@ -13,7 +13,7 @@ module Discerner
           
           existing_export_parameters.map{ |export_parameter| export_parameter.delete unless export_parameter_ids.include?(export_parameter.parameter_id) }
           export_parameter_ids.map{ |parameter_id| @discerner_search.export_parameters.create(:parameter_id => parameter_id) unless existing_export_parameters.where(:parameter_id => parameter_id).any?}
-          redirect_to search_path(@discerner_search, :format => 'csv')
+          redirect_to search_path(@discerner_search, :format => 'xls')
         end
 
         private

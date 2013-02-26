@@ -29,19 +29,19 @@ Feature: Exporting results for existing searches
     When I am on the search export page
     Then I should see "Awesome search"
 
-  Scenario: It should return a CSV document named after search
+  Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists
     When I am on the search edit page
     And I follow "Export"
     And I press "Export"
-    Then I should receive a CSV file "awesome_search_"
+    Then I should receive a XLS file "awesome_search_"
 
   Scenario: It should allow to export unnamed searches
     Given exportable search "" exists
     When I am on the search edit page
     And I follow "Export"
     And I press "Export"
-    Then I should receive a CSV file "no_name_specified_"
+    Then I should receive a XLS file "no_name_specified_"
 
   @javascript
   Scenario: It should allow to change and save export parameters 

@@ -76,26 +76,32 @@ module Discerner
         def show
           if dictionary_model
             dictionary =  dictionary_model.new(@discerner_search)
-            if not dictionary.respond_to?('to_csv')
-              error_message = "Model '#{dictionary_model_name}' instance does not respond to 'to_csv' method. You need to implement it to be able to run export on this dictionary"
+            if not dictionary.respond_to?('export')
+              error_message = "Model '#{dictionary_model_name}' instance does not respond to 'export' method. You need to implement it to be able to run export on this dictionary"
             end
           else
             error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run export on this dictionary"
           end
           flash[:error] = error_message unless error_message.blank?
-
+          
           respond_to do |format|
             if error_message
               format.html
               format.csv { redirect_to export_parameters_path(@discerner_search)  }
+              format.xls { redirect_to export_parameters_path(@discerner_search)  }
             else
+              @export_data = dictionary.export(params)
+              filename ="#{@discerner_search.parameterized_name}_#{Date.today.strftime('%m_%d_%Y')}"
               format.html
               format.csv do
-                filename ="#{@discerner_search.parameterized_name}_#{Date.today.strftime('%m_%d_%Y')}"
-                csv_data = dictionary.to_csv(params)
-                send_data csv_data,
+                
+                send_data @export_data,
                   :type => 'text/csv; charset=iso-8859-1; header=present',
                   :disposition => "attachment; filename=#{filename}.csv"
+              end
+              format.xls do
+                headers["Content-Disposition"] = "attachment; filename=\"#{filename}\"" 
+                render "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/show"
               end
             end
           end
