@@ -100,7 +100,7 @@ module Discerner
                   :disposition => "attachment; filename=#{filename}.csv"
               end
               format.xls do
-                headers["Content-Disposition"] = "attachment; filename=\"#{filename}\"" 
+                headers["Content-Disposition"] = "attachment; filename=\"#{filename}.xls\"" 
                 render "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/show"
               end
             end
