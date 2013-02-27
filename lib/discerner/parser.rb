@@ -188,12 +188,14 @@ module Discerner
        
        Discerner::Operator.transaction do
          operators_from_file.each do |operator_from_file|
-           operator = Discerner::Operator.find_or_initialize_by_symbol(operator_from_file[:symbol])
+           error_message 'unique identifier has to be defined' if operator_from_file[:unique_identifier].blank?
+           
+           operator = Discerner::Operator.find_or_initialize_by_unique_identifier(operator_from_file[:unique_identifier])
            if operator.new_record? 
-             notification_message "creating operator '#{operator_from_file[:symbol]}'"
+             notification_message "creating operator '#{operator_from_file[:unique_identifier]}'"
              operator.created_at = Time.now
            else 
-             notification_message "operator '#{operator_from_file[:symbol]}' already exists and will be updated"
+             notification_message "operator '#{operator_from_file[:unique_identifier]}' already exists and will be updated"
              operator.updated_at = Time.now
            end
            operator.deleted_at = operator_from_file[:deleted].blank? ? nil : Time.now
@@ -206,6 +208,7 @@ module Discerner
                operator.parameter_types << parameter_type
              end
            end
+           operator.symbol = operator_from_file[:symbol]
            operator.text = operator_from_file[:text]
            operator.binary  = operator_from_file[:binary]
            operator.deleted_at = operator_from_file[:deleted].blank? ? nil : Time.now
@@ -229,7 +232,6 @@ module Discerner
       error_message "Parameter type #{name} could not be saved: #{parameter_type.errors.full_messages}" unless parameter_type.save
       return parameter_type
     end
-
     
     def find_or_create_parameter_value(parameter, search_value, name=nil)
       error_message "search value was not provided" if search_value.nil?

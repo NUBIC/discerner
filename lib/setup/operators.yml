@@ -1,64 +1,65 @@
 ---
 :operators:
-  - :symbol: '='
+  - :unique_identifier: is_equal_to
+    :symbol: '='
     :text: is equal to
     :parameter_types:
       - numeric
       - date
       - string
-  - :symbol: '!='
+  - :unique_identifier: is_not_equal_to
+    :symbol: '!='
     :text: is not equal to
     :parameter_types:
       - numeric
       - date
       - string
-  - :symbol: '<'
+  - :unique_identifier: is_less_than
+    :symbol: '<'
     :text: is less than
     :parameter_types:
       - numeric
       - date
-  - :symbol: '>'
+  - :unique_identifier: is_greater_than
+    :symbol: '>'
     :text: is greater than
     :parameter_types:
       - numeric
       - date
-  - :symbol: between
+  - :unique_identifier: is_in_the_range
+    :symbol: between
     :text: is in the range
     :binary: true
     :parameter_types:
       - numeric
       - date
-  - :symbol: in
+  - :unique_identifier: is_one_of
+    :symbol: in
     :text: is one of
     :parameter_types:
       - list
-  - :symbol: not in
+  - :unique_identifier: is_not_one_of
+    :symbol: not in
     :text: is not one of
     :parameter_types:
       - list
-  - :symbol: contains
-    :deleted: true
+  - :unique_identifier: is_like
+    :symbol: like
     :text: is like
     :parameter_types:
       - text
-  - :symbol: not contains
-    :deleted: true
+  - :unique_identifier: is_not_like
+    :symbol: not like
     :text: is not like
     :parameter_types:
       - text
-  - :symbol: like
-    :text: is like
-    :parameter_types:
-      - text
-  - :symbol: not like
-    :text: is not like
-    :parameter_types:
-      - text
-  - :symbol: include
+  - :unique_identifier: include
+    :symbol: include
     :text: include
     :parameter_types:
       - search
-  - :symbol: exclude
+  - :unique_identifier: exclude
+    :symbol: exclude
     :text: exclude
     :parameter_types:
       - search
