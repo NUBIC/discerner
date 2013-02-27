@@ -37,10 +37,20 @@
     :parameter_types:
       - list
   - :symbol: contains
+    :deleted: true
     :text: is like
     :parameter_types:
       - text
   - :symbol: not contains
+    :deleted: true
+    :text: is not like
+    :parameter_types:
+      - text
+  - :symbol: like
+    :text: is like
+    :parameter_types:
+      - text
+  - :symbol: not like
     :text: is not like
     :parameter_types:
       - text
