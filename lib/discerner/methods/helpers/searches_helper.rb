@@ -110,7 +110,7 @@ module Discerner
         end
         
         def discerner_export_link
-          link_to "Export", export_parameters_path(@discerner_search), :class => "icon_link export_link"
+          link_to "Export options", export_parameters_path(@discerner_search), :class => "button-discerner positive"
         end
       end
     end
