@@ -5,20 +5,20 @@ Feature: Viewing existing searches
   Scenario: It should not allow to add search criteria until dictionary is selected
     Given search dictionaries are loaded
     When I go to the new search page 
-    Then I should see "Search name"
-    And I should see "Dictionary"
+    Then "discerner_search_name" should contain text "Search name"
+    And "discerner_search_name" should contain text "Dictionary"
     And the element ".add_search_parameters" should not be visible
     And the element ".discerner_dictionary_required_message" should be visible
     
     When I select dictionary "Sample dictionary"
     Then the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
-    And I should not see "Export"
+    And "discerner-buttons" should not contain text "Export options"
 
   Scenario: It should not render results template for a new search
     Given search dictionaries are loaded
     When I go to the new search page 
-    Then I should not see "Results for search on the `Sample dictionary` dictionary can be added here"
+    Then "discerner_results" should not contain text "Results for search on the `Sample dictionary` dictionary can be added here"
 
   @javascript
   Scenario: It should allow to add search criteria if dictionary is selected
@@ -202,28 +202,28 @@ Feature: Viewing existing searches
     And I fill in "Search name" with "Awesome search"
     And I press "Search"
     Then I should be on the searches page
-    And I should see "Search should have at least one search criteria."
+    And ".discerner" should contain text "Search should have at least one search criteria."
     
     When I select dictionary "Sample dictionary"
     And I press "Search"
     Then I should be on the searches page
-    And I should see "Search should have at least one search criteria."
+    And ".discernerr" should contain text "Search should have at least one search criteria."
     
     When I select dictionary "Sample dictionary"
     And I add search criteria
     And I press "Search"
     Then I should be on the searches page
-    And I should see "Search should have at least one search criteria."
+    And ".discerner" should contain text "Search should have at least one search criteria."
 
   @javascript
   Scenario: It should save created search and redirect to edit page
     Given I create search with name "Awesome search"
     Then I should be on the search edit page
-    And I should see "Awesome search"
-    And I should see "Sample dictionary"
+    And "discerner_search_name" should contain text "Search name: Awesome search"
+    And "dictionary_sample_dictionary" should contain text "Sample dictionary"
     And the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
-    
+
   @javascript
   Scenario: It should not allow to add multiple search criteria with same exclusive parameter  
     Given search dictionaries are loaded
@@ -259,9 +259,8 @@ Feature: Viewing existing searches
     Given search dictionaries are loaded
     And ony "Sample dictionary" dictionary exists
     When I go to the new search page 
-    Then I should see "Search name"
-    And I should see "Dictionary"
-    And I should see "Sample dictionary"
+    Then "discerner_search_name" should contain text "Search name"
+    And "dictionary_sample_dictionary" should contain text "Dictionary: Sample dictionary"
     And the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
     And I add "Gender" search criteria
@@ -269,13 +268,12 @@ Feature: Viewing existing searches
     And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
     When I press "Search"
     Then I should be on the search edit page
-    And I should see "Dictionary"
-    And I should see "Sample dictionary"
+    And "dictionary_sample_dictionary" should contain text "Dictionary: Sample dictionary"
 
   Scenario: It should notify user if there are no searches that can be combined
     Given search dictionaries are loaded
     When I go to the new search page 
-    Then I should see "No qualifying searches found"
+    Then "search_combinations" should contain text "No qualifying searches found"
     
   @javascript
   Scenario: It should not allow to add combined searches until dictionary is selected

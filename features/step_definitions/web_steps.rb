@@ -102,42 +102,6 @@ When /^(?:|I )attach the file "([^\"]*)" to "([^\"]*)"$/ do |path, field|
   attach_file(field, File.expand_path(path))
 end
 
-Then /^(?:|I )should see "(.+?)"$/ do |text|
-  if page.respond_to? :should
-    page.should have_content(text)
-  else
-    assert page.has_content?(text)
-  end
-end
-
-Then /^(?:|I )should see \/([^\/]*)\/$/ do |regexp|
-  regexp = Regexp.new(regexp)
-
-  if page.respond_to? :should
-    page.should have_xpath('//*', :text => regexp)
-  else
-    assert page.has_xpath?('//*', :text => regexp)
-  end
-end
-
-Then /^(?:|I )should not see "([^\"]*)"$/ do |text|
-  if page.respond_to? :should
-    page.should have_no_content(text)
-  else
-    assert page.has_no_content?(text)
-  end
-end
-
-Then /^(?:|I )should not see \/([^\/]*)\/$/ do |regexp|
-  regexp = Regexp.new(regexp)
-
-  if page.respond_to? :should
-    page.should have_no_xpath('//*', :text => regexp)
-  else
-    assert page.has_no_xpath?('//*', :text => regexp)
-  end
-end
-
 Then /^the "([^\"]*)" field(?: within (.*))? should contain "([^\"]*)"$/ do |field, parent, value|
   with_scope(parent) do
     field = find_field(field)
@@ -217,7 +181,7 @@ end
 Then /^the element "([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? be visible$/ do |selector, position, scope_selector, negation|
   within_scope(get_scope(position, scope_selector)) {
     if negation.blank?
-      find(selector).should be_visible
+      all(selector, :visible => true).length.should > 0
     else
       all(selector, :visible => true).length.should == 0
     end
@@ -257,8 +221,9 @@ Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? have opt
   }
 end
 
-Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain text "([^\"]*)"$/ do |selector, position, scope_selector, negation, value|
+Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain text "(.+?)"$/ do |selector, position, scope_selector, negation, value|
   within_scope(get_scope(position, scope_selector)) {
+    
     if negation.blank?
       all(selector, :visible => true).each{ |e| e.should have_selector ":contains('#{value}')" }
     else

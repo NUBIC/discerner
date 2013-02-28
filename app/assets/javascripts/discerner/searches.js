@@ -39,7 +39,7 @@ Discerner.Search.UI = function (config) {
     });
   });
     
-  $(".datepicker").live('mouseover', function() {
+  $(document).on('mouseover', '.datepicker', function() {
     $(this).datepicker({
       altFormat: 'yy-mm-dd',
       dateFormat: 'yy-mm-dd',
@@ -60,7 +60,7 @@ Discerner.Search.UI = function (config) {
   });
   
   // handle cancel on search name editing
-  $('#discerner_search_form .discerner_search_name a.cancel').live('click', function() {
+  $(document).on('click', '#discerner_search_form .discerner_search_name a.cancel', function() {
     $('span.name_edit').siblings('span.discerner_search_name').show();
     $('span.name_edit').siblings('span.discerner_search_name_edit').show();
     $('span.name_edit').remove();

@@ -11,7 +11,7 @@
         = render :partial => 'form_combined_searches', :locals => { :f => f }
       = render :partial => 'form_search_parameters', :locals => { :f => f }
     
-      .buttons
+      .discerner-buttons
         = submit_tag 'Search', :class => "button-discerner positive"
         - if @discerner_search.persisted? && export_discerner_results? && discerner_export_link
           = discerner_export_link

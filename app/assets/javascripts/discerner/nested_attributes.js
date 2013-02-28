@@ -19,8 +19,9 @@ NestedAttributes = function (config) {
   });
 
   if (this.config.remove) {
-    $(this.config.container).find('.delete_' + this.config.association).die('click');
-    $(this.config.container).find('.delete_' + this.config.association).live('click', function () {
+    var link = $(this.config.container).find('.delete_' + this.config.association)
+    $(document).off('click', link.selector)
+    $(document).on('click', link.selector, function() {
       that.remove_fields(this, that.config.removeStyle);
 
       if (that.config.removeHandler) {
@@ -30,9 +31,9 @@ NestedAttributes = function (config) {
   }
 
   if (this.config.add) {
-    $(this.config.container).find('.add_' + this.config.association).die('click');
-    $(this.config.container).find('.add_' + this.config.association).live('click', function () {
-
+    var link = $(this.config.container).find('.add_' + this.config.association)
+    $(document).off('click', link.selector)
+    $(document).on('click', link.selector, function() {
       that.add_fields(this, that.config.association, that.config.content);
 
       if (that.config.addHandler) {
