@@ -59,4 +59,10 @@ describe Discerner::ParameterValue do
     parameter_value.should_not be_valid
     parameter_value.errors.full_messages.should include "Search value is too long (maximum is 1000 characters)"
   end
+  
+  it "validates name length" do
+    parameter_value.name = 'a'*5000
+    parameter_value.should_not be_valid
+    parameter_value.errors.full_messages.should include "Name is too long (maximum is 1000 characters)"
+  end
 end
