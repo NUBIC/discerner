@@ -53,4 +53,10 @@ describe Discerner::ParameterValue do
     parameter_value.deleted_at = Time.now
     parameter_value.should be_deleted
   end
+  
+  it "validates string_value length" do
+    parameter_value.search_value = 'a'*5000
+    parameter_value.should_not be_valid
+    parameter_value.errors.full_messages.should include "Search value is too long (maximum is 1000 characters)"
+  end
 end
