@@ -1,9 +1,13 @@
 class ChangeSearchValueTypeInDiscernerParameterValues < ActiveRecord::Migration
   def self.up
-   change_column :discerner_parameter_values, :search_value, :text, :limit => 1000
+    remove_index :discerner_parameter_values, [:search_value, :parameter_id, :deleted_at], :unique => true, :name => 'index_discerner_parameter_values'
+    change_column :discerner_parameter_values, :search_value, :text, :limit => 1000
+    add_index :discerner_parameter_values, [:search_value, :parameter_id, :deleted_at], :unique => true, :name => 'index_discerner_parameter_values'
   end
 
   def self.down
-   change_column :discerner_parameter_values, :search_value, :string
+    remove_index :discerner_parameter_values, [:search_value, :parameter_id, :deleted_at], :unique => true, :name => 'index_discerner_parameter_values'
+    change_column :discerner_parameter_values, :search_value, :string
+    add_index :discerner_parameter_values, [:search_value, :parameter_id, :deleted_at], :unique => true, :name => 'index_discerner_parameter_values'
   end
 end
