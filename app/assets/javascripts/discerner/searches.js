@@ -53,17 +53,28 @@ Discerner.Search.UI = function (config) {
   $('#discerner_search_form .discerner_search_name_edit a').bind('click', function(){
     $(this).closest('span.discerner_search_name_edit').hide();
     $(this).closest('span.discerner_search_name_edit').siblings('span.discerner_search_name').hide();
-    $(this).closest('div').append($('<span>')
-      .load(config.renameUrl + ' form')
-      .addClass('name_edit'));
+    $(this).closest('div').append($('<span>').load(config.renameUrl + ' form').addClass('discerner_search_name_edit_dialog'));
     return false;
   });
   
+  // handle search name editing (submit the form)
+  $(document).on('click','#discerner_search_form .discerner_search_name_edit_dialog input[type="submit"]', function(){
+    var form = $(this).closest('form');
+    $.ajax({
+      type: form.attr('method'),
+      url:  form.attr('action'),
+      data: form.serializeArray(),
+      dataType: 'script'
+    });
+    
+    return false;
+  })
+  
   // handle cancel on search name editing
-  $(document).on('click', '#discerner_search_form .discerner_search_name a.cancel', function() {
-    $('span.name_edit').siblings('span.discerner_search_name').show();
-    $('span.name_edit').siblings('span.discerner_search_name_edit').show();
-    $('span.name_edit').remove();
+  $(document).on('click', '#discerner_search_form .discerner_search_name_edit_dialog a.cancel', function() {
+    $('span.discerner_search_name_edit_dialog').siblings('span.discerner_search_name').show();
+    $('span.discerner_search_name_edit_dialog').siblings('span.discerner_search_name_edit').show();
+    $('span.discerner_search_name_edit_dialog').remove();
     $("#messages").html('');
     return false;
   });
