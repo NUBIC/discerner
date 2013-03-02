@@ -57,7 +57,7 @@ Discerner.SearchParameterValue.UI = function (config) {
       }       
       $(config.container).find('.nested_records_search_parameter_values tr.search_parameter_value:visible:not(:first)')
         .find('.parameter_values_boolean_operator span').html('or');
-      //$(".parameter_values_combobox_autocompleter").combobox({watermark:'a value', css_class:'autocompleter-dropdown'});
+      $(".parameter_values_combobox_autocompleter").combobox({watermark:'a value', css_class:'autocompleter-dropdown'});
 
       var i = 0,
           display_orders = config.container.find('input[name*="search_parameter_values_attributes"][name$="[display_order]"]');
