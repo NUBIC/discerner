@@ -5,15 +5,11 @@ class <%= @class_name %>
     @search = search
   end
   
-  def search(params=nil)
+  def search(params = {}, options ={})
     
   end
   
-  def export(params)
+  def export(params = {})
     
-  end
-  
-  def export_formats
-    ['csv', 'excel']
   end
 end
