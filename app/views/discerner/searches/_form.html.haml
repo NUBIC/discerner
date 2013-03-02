@@ -18,12 +18,12 @@
         = link_to 'Clear', new_search_path, :class => "button-discerner negative"
   .clear
 
-:javascript
-  $(function () { 
-    var yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}',
-    renameUrl = '#{@discerner_search.persisted? ? rename_search_path(@discerner_search) : ""}';
-    new Discerner.Search.UI({
-      yearRange: yearRange, 
-      renameUrl: renameUrl
-    })
-  });
+  :javascript
+    $(function () { 
+      var yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}',
+      renameUrl = '#{@discerner_search.persisted? ? rename_search_path(@discerner_search) : ""}';
+      new Discerner.Search.UI({
+        yearRange: yearRange, 
+        renameUrl: renameUrl
+      })
+    });
