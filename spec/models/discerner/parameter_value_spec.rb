@@ -65,4 +65,15 @@ describe Discerner::ParameterValue do
     parameter_value.should_not be_valid
     parameter_value.errors.full_messages.should include "Name is too long (maximum is 1000 characters)"
   end
+  
+  it "detects if parameter value is used in search" do
+    v = parameter_value
+    v.should_not be_used_in_search
+    
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => v.parameter)
+    s.save!
+    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
+    v.reload.should be_used_in_search
+  end
 end

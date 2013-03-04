@@ -8,6 +8,9 @@ module Discerner
           base.send :belongs_to, :parameter_type
           base.send :has_many, :parameter_values
           
+          base.send :has_many, :search_parameters
+          base.send :has_many, :export_parameters
+          
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
           base.send(:scope, :searchable, base.where('search_model is not null and search_method is not null'))
@@ -36,7 +39,11 @@ module Discerner
         def deleted?
           not deleted_at.blank?
         end
-                
+        
+        def used_in_search?
+          search_parameters.any? || export_parameters.any?
+        end
+        
         private 
           def validate_search_parameters
             errors.add(:base,"Search should have at least one search criteria.") if 

@@ -31,6 +31,10 @@ module Discerner
         def deleted?
           not deleted_at.blank?
         end
+        
+        def used_in_search?
+          search_parameter_values.any?
+        end
       end
     end
   end

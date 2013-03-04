@@ -48,7 +48,7 @@ describe Discerner::Parser do
   end
   
   it "parses parameters with source model and method" do
-    parser = Discerner::Parser.new({:trace => true})    
+    parser = Discerner::Parser.new()    
     dictionaries = %Q{
 :dictionaries:
   - :name: Sample dictionary
@@ -82,7 +82,7 @@ describe Discerner::Parser do
     Patient.create(:id=>1, :gender=>'Male')
     Patient.create(:id=>2, :gender=>'Female')
     Patient.create(:id=>3, :gender=>'Female')
-    parser = Discerner::Parser.new({:trace => true})    
+    parser = Discerner::Parser.new()    
     dictionaries = %Q{
 :dictionaries:
 - :name: Sample dictionary
@@ -170,7 +170,7 @@ describe Discerner::Parser do
   end
 
   it "parses boolean parameter values" do
-    parser = Discerner::Parser.new({:trace => true})    
+    parser = Discerner::Parser.new()    
     dictionaries = %Q{
 :dictionaries:
   - :name: Sample dictionary
@@ -196,7 +196,7 @@ describe Discerner::Parser do
   end
   
   it "finds and updates moved parameter" do
-        parser = Discerner::Parser.new({:trace => true})    
+        parser = Discerner::Parser.new()    
         dictionaries = %Q{
 :dictionaries:
   - :name: Sample dictionary
@@ -222,5 +222,425 @@ describe Discerner::Parser do
   parser.parse_dictionaries(dictionaries)
   Discerner::Parameter.all.length.should == 1
   Discerner::Parameter.last.name.should == 'Consented already'
+  end
+  
+  it "deletes dictionaries that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              
+  - :name: Another dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_dictionaries.length.should == 2
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 2
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_dictionaries.length.should == 1
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Dictionary.not_deleted.all.length.should == 1  
+  end
+
+  it "deletes categories that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              
+      - :name: Patient criteria
+        :parameters:
+          - :name: Date of birth
+            :unique_identifier: date_of_birth
+            :search:
+              :model: Patient
+              :method: date_of_birth
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_categories.length.should == 2
+    Discerner::ParameterCategory.all.should_not be_empty
+    Discerner::ParameterCategory.all.length.should == 2
+    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_categories.length.should == 1
+    Discerner::ParameterCategory.all.should_not be_empty
+    Discerner::ParameterCategory.all.length.should == 1
+    Discerner::ParameterCategory.not_deleted.all.length.should == 1  
+  end
+
+  it "deletes parameters that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              
+          - :name: Gender
+            :unique_identifier: gender
+            :search:
+              :model: Patient
+              :method: gender
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameters.length.should == 2
+    Discerner::Parameter.all.should_not be_empty
+    Discerner::Parameter.all.length.should == 2
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameters.length.should == 1
+    Discerner::Parameter.all.should_not be_empty
+    Discerner::Parameter.all.length.should == 1
+    Discerner::Parameter.not_deleted.all.length.should == 1  
+  end
+
+  it "deletes parameter values that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              :parameter_values:
+                - :name: Hispanic or Latino
+                  :search_value: hisp_or_latino
+                - :name: NOT Hispanic or Latino
+                  :search_value: not_hisp_or_latino
+                - :name: Unable to answer
+                  :search_value: unknown
+                - :name: Declined to answer
+                  :search_value: declined
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameter_values.length.should == 4
+    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.all.length.should == 4
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              :parameter_values:
+                - :name: Hispanic or Latino
+                  :search_value: hisp_or_latino
+                - :name: NOT Hispanic or Latino
+                  :search_value: not_hisp_or_latino
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameter_values.length.should == 2
+    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.all.length.should == 2
+    Discerner::ParameterValue.not_deleted.all.length.should == 2 
+  end
+
+  it "soft-deletes dictionaries that are no longer defined in the definition file but are used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+
+  - :name: Another dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_dictionaries.length.should == 2
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 2
+
+    dictionary = Discerner::Dictionary.where(:name => "Another dictionary").first
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s)
+    s.dictionary = dictionary
+    s.save!
+
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_dictionaries.length.should == 1
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 2
+    Discerner::Dictionary.not_deleted.all.length.should == 1  
+    dictionary.reload.should be_deleted
+  end
+
+  it "soft-deletes categories that are no longer defined in the definition file but are used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+
+      - :name: Patient criteria
+        :parameters:
+          - :name: Date of birth
+            :unique_identifier: date_of_birth
+            :search:
+              :model: Patient
+              :method: date_of_birth
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_categories.length.should == 2
+    Discerner::ParameterCategory.all.should_not be_empty
+    Discerner::ParameterCategory.all.length.should == 2
+    
+    category = Discerner::ParameterCategory.where(:name => "Patient criteria").first
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => category.parameters.first)
+    s.save!
+    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_categories.length.should == 1
+    Discerner::ParameterCategory.all.should_not be_empty
+    Discerner::ParameterCategory.all.length.should == 2
+    Discerner::ParameterCategory.not_deleted.all.length.should == 1  
+  end
+
+  it "soft-deletes parameters that are no longer defined in the definition file but are used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+
+          - :name: Gender
+            :unique_identifier: gender
+            :search:
+              :model: Patient
+              :method: gender
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameters.length.should == 2
+    Discerner::Parameter.all.should_not be_empty
+    Discerner::Parameter.all.length.should == 2
+    
+    parameter = Discerner::Parameter.where(:unique_identifier => "gender").first
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => parameter)
+    s.save!
+    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameters.length.should == 1
+    Discerner::Parameter.all.should_not be_empty
+    Discerner::Parameter.all.length.should == 2
+    Discerner::Parameter.not_deleted.all.length.should == 1  
+  end
+
+  it "soft-deletes parameter values that are no longer defined in the definition file but are used in searches" do
+    parser = Discerner::Parser.new()    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              :parameter_values:
+                - :name: Hispanic or Latino
+                  :search_value: hisp_or_latino
+                - :name: NOT Hispanic or Latino
+                  :search_value: not_hisp_or_latino
+                - :name: Unable to answer
+                  :search_value: unknown
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameter_values.length.should == 3
+    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.all.length.should == 3
+    
+    value = Discerner::ParameterValue.where(:search_value => "unknown").first
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s.save!
+    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
+    
+    dictionaries = %Q{
+:dictionaries:
+  - :name: Sample dictionary
+    :parameter_categories:
+      - :name: Demographic criteria
+        :parameters:
+          - :name: Ethnic group
+            :unique_identifier: ethnic_grp
+            :search:
+              :model: Patient
+              :method: ethnic_grp
+              :parameter_type: list
+              :parameter_values:
+                - :name: Hispanic or Latino
+                  :search_value: hisp_or_latino
+                - :name: NOT Hispanic or Latino
+                  :search_value: not_hisp_or_latino
+}
+    parser.parse_dictionaries(dictionaries)
+    parser.updated_parameter_values.length.should == 2
+    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.all.length.should == 3
+    Discerner::ParameterValue.not_deleted.all.length.should == 2 
   end
 end

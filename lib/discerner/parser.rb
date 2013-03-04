@@ -1,13 +1,25 @@
 module Discerner
   class Parser
-    attr_accessor :options, :errors
+    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_values
     
     def initialize(options={})
       self.options = options
       self.errors = []
+      self.updated_dictionaries = []
+      self.updated_categories = []
+      self.updated_parameters = []
+      self.updated_parameter_values = []
+    end
+    
+    def reset_counts
+      self.updated_dictionaries = []
+      self.updated_categories = []
+      self.updated_parameters = []
+      self.updated_parameter_values = []
     end
     
     def parse_dictionaries(str)
+      reset_counts
       hash_from_file = YAML.load(str)
       
       # find or initialize dictionaries
@@ -48,6 +60,7 @@ module Discerner
             end
           end
         end
+        cleanup
       end
     end
     
@@ -70,6 +83,7 @@ module Discerner
       end
       error_message "dictionary could not be saved: #{dictionary.errors.full_messages}", dictionary_name unless dictionary.save
       notification_message 'dictionary saved'
+      updated_dictionaries << dictionary
       dictionary 
     end
     
@@ -91,6 +105,7 @@ module Discerner
       end
       error_message "parameter category could not be saved: #{parameter_category.errors.full_messages}", parameter_category_name unless parameter_category.save
       notification_message 'parameter category saved'
+      updated_categories << parameter_category
       parameter_category
     end
   
@@ -139,6 +154,7 @@ module Discerner
       
       error_message "parameter could not be saved: #{parameter.errors.full_messages}", parameter_name unless parameter.save
       notification_message 'parameter saved'
+      updated_parameters << parameter
       parameter
     end
       
@@ -250,12 +266,14 @@ module Discerner
       parameter_value.name = name || search_value
       error_message "Parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
+      updated_parameter_values << parameter_value
       parameter_value
     end
     
     def error_message(str, target=nil)
       errors << "#{target}: #{str}"
       puts "ERROR: #{str}" if self.options.has_key?(:trace)
+      reset_counts
       raise ActiveRecord::Rollback
     end
 
@@ -273,5 +291,81 @@ module Discerner
       return false if param.blank?
       to_bool(param)
     end
+  
+    private
+      def cleanup
+        cleanup_parameter_values
+        cleanup_parameters
+        cleanup_categories
+        cleanup_dictionaries
+      end
+      
+      def cleanup_dictionaries
+        abandoned_dictionaries  = Discerner::Dictionary.all - updated_dictionaries
+        used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
+        not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
+        
+        used_dictionaries.each do |r|
+          notification_message("marking dictionary #{r.name} as deleted"); 
+          r.deleted_at = Time.now
+          error_message "dictionary could not be updated: #{r.errors.full_messages}", r.name unless r.save
+        end
+        
+        unless not_used_dictionaries.blank?
+          notification_message("permanently deleting dictionaries #{not_used_dictionaries.map{|r| r.name}.join(', ')}"); 
+          not_used_dictionaries.each{|r| r.destroy}
+        end
+      end
+      
+      def cleanup_categories
+        abandoned_categories = Discerner::ParameterCategory.all - updated_categories
+        used_categories      = abandoned_categories.reject{|c| c.parameters.blank? || c.parameters.select{|p| p.used_in_search?}.blank?}
+        not_used_categories  = abandoned_categories - used_categories
+        
+        used_categories.each do |r|
+          notification_message("marking parameter category #{r.name} as deleted"); 
+          r.deleted_at = Time.now
+          error_message "parameter category could not be deleted: #{r.errors.full_messages}", r.name unless r.save
+        end
+        
+        unless not_used_categories.blank?
+          notification_message("permanently deleting parameter categories #{not_used_categories.map{|r| r.name}.join(', ')}"); 
+          not_used_categories.each{|r| r.destroy}
+        end
+      end
+  
+      def cleanup_parameters
+        abandoned_parameters = Discerner::Parameter.all - updated_parameters
+        used_parameters      = abandoned_parameters.select{|p| p.used_in_search?}
+        not_used_parameters  = abandoned_parameters - used_parameters
+        
+        used_parameters.each do |r|
+          notification_message("marking parameter #{r.name} as deleted"); 
+          r.deleted_at = Time.now
+          error_message "parameter could not be deleted: #{r.errors.full_messages}", r.name unless r.save
+        end
+        
+        unless not_used_parameters.blank?
+          notification_message("permanently deleting parameters #{not_used_parameters.map{|r| r.name}.join(', ')}"); 
+          not_used_parameters.each{|r| r.destroy}
+        end
+      end
+  
+      def cleanup_parameter_values
+        abandoned_parameter_values = Discerner::ParameterValue.all - updated_parameter_values
+        used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
+        not_used_parameter_values  = abandoned_parameter_values - used_parameter_values
+      
+        used_parameter_values.each do |r|
+          notification_message("marking parameter value #{r.name} as deleted"); 
+          r.deleted_at = Time.now
+          error_message "parameter value could not be deleted: #{r.errors.full_messages}", r.name unless r.save
+        end
+        
+        unless not_used_parameter_values.blank?
+          notification_message("permanently deleting parameter values #{not_used_parameter_values.map{|r| r.name}.join(', ')}"); 
+          not_used_parameter_values.each{|r| r.destroy}
+        end
+      end
   end
 end

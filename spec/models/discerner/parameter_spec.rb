@@ -87,4 +87,25 @@ describe Discerner::Parameter do
     parameter.deleted_at = Time.now
     parameter.should be_deleted
   end
+
+  it "detects if parameter is used in search through search parameters" do
+    p = parameter
+    p.should_not be_used_in_search
+    
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => p)
+    s.save!
+    p.reload.should be_used_in_search
+  end
+  
+  it "detects if parameter is used in search through export parameters" do
+    p = parameter
+    s = Factory.build(:search)
+    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Discerner::Parameter.last)
+    s.export_parameters << Factory.build(:export_parameter, :search => s, :parameter => p)
+    s.dictionary = Discerner::Dictionary.last
+    s.save!
+    
+    p.reload.should be_used_in_search
+  end
 end
