@@ -8,8 +8,8 @@ Feature: Viewing existing searches
     Then the first search criteria should be "Gender"
     And the last search criteria should be "Date of birth"
     And the last search criteria selection value should be "2012-10-22"
-    And I should see "Awesome search"
-    And I should see "Sample dictionary"
+    Then "discerner_search_name" should contain text "Search name: Awesome search"
+    And "dictionary_sample_dictionary" should contain text "Sample dictionary"
     And the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
     
@@ -17,34 +17,31 @@ Feature: Viewing existing searches
   Scenario: It should render results template
     Given I create search with name "Awesome search"
     When I am on the search edit page
-    Then I should see "Results for search on the `Sample dictionary` dictionary can be added here"
-  
+    Then "discerner_results" should contain text "Results for search on the `Sample dictionary` dictionary can be added here"
+
   @javascript
   Scenario: It should allow to rename the saved search
     Given I create search with name "Awesome search" 
     When I am on the search edit page
-    Then I should see "Edit"
+    Then "discerner_search_name" should contain text "Edit"
     
     When I follow "Edit"
     And I fill in "search_name" with "Not that great after all"
     And I follow "Cancel"
-    Then I should see "Search name: Awesome search"
-    And I should not see "Cancel"
-    And I should not see "search_name"
+    Then "discerner_search_name" should contain text "Search name: Awesome search"
+    And "discerner_search_name" should not contain text "Cancel"
     
     When I follow "Edit"
     And I fill in "search_name" with ""
     And I press "Submit"
-    Then I should not see "Search name: Awesome search"
-    And I should not see "Cancel"
-    And I should not see "search_name"
-    
+    Then "discerner_search_name" should not contain text "Search name: Awesome search"
+    And "discerner_search_name" should not contain text "Cancel"
+
     When I follow "Edit"
     And I fill in "search_name" with "Not so awesome search"
     And I press "Submit"
-    Then I should see "Search name: Not so awesome search"
-    And I should not see "Cancel"
-    And I should not see "search_name"
+    Then "discerner_search_name" should contain text "Search name: Not so awesome search"
+    And "discerner_search_name" should not contain text "Cancel"
 
   @javascript
   Scenario: It should allow to add and remove search criteria
@@ -53,13 +50,13 @@ Feature: Viewing existing searches
     And I add "Text search diagnosis" search criteria
     And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"
-    Then I should see "Search was successfully updated"
+    Then ".discerner" should contain text "Search was successfully updated."
     And the last search criteria should be "Text search diagnosis"
     And the last search criteria selection value should be "adenocarcinoma"
     
-    When I follow "Remove" within the last ".search_parameter"
+    When I follow "Remove" within the last ".search_parameter .remove"
     And I press "Search"
-    Then I should see "Search was successfully updated"
+    Then ".discerner" should contain text "Search was successfully updated"
     And the first search criteria should be "Date of birth"
     And the first search criteria selection value should be "2012-10-22"
     

@@ -1,6 +1,6 @@
 #discerner_search
   = render 'discerner/searches/summary'
-  .buttons
+  .discerner-buttons
     = link_to 'Back to search', edit_search_path(@discerner_search), :class => "button-discerner positive"
   .clear
     %hr
@@ -27,5 +27,5 @@
                 = check_box_tag "parameter_ids[]", p.id, is_checked, :id => "parameter_ids_#{p.id}"
                 = label_tag "parameter_ids_#{p.id}", p.name
         .clear
-        .buttons
+        .discerner-buttons
           = submit_tag 'Export', :class => "button-discerner positive"

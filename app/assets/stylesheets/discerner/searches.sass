@@ -2,8 +2,11 @@
   :width 1110px
   :margin 1em
   
-  .buttons
+  .discerner-buttons
     :float right
+  
+  #discerner_searches_filter
+    :margin-bottom 1em
     
 #discerner_search
   #discerner_search_header
@@ -56,6 +59,8 @@
       
     button.ui-widget, input.ui-autocomplete-input
       :font-size 13px !important
+      .ui-button-text
+        :padding 0 !important
   
     .categorized_autocompleter button, .parameter_value button, .combined_search button
       :border-left-width 0
@@ -65,14 +70,17 @@
       :margin-top 0 !important
       :padding-top 0 !important
       :padding-bottom 0 !important
-    
+      
+    .combined_search_combobox button
+      :border-width 0
+      :padding 0 !important
     .combined_search input.ui-autocomplete-input 
       :width 25em !important
       
     .parameter, .combined_search
       :width 31em
     
-      .categorized_autocompleter
+      .categorized_autocompleter, .combined_search_combobox
         :border 1px solid #CCCCCC
         :position relative
         
@@ -137,7 +145,7 @@
     
       .records 
         input[type="text"]
-          :width 14em
+          :width 13em
         td.operator, td.value, td.additional_value
           :width 6em
         
@@ -145,28 +153,13 @@
           :width 10em
           :margin-top 0
           :padding-top 0
-
-  .export_link
-    :float right
-    :padding-top 0.8em
-    :padding-left 2.5em
-    :padding-right 8px
-
+      
+      .combined_search_combobox
+        button.ui-button
+          
   
-ul.ui-autocomplete  
-  :list-style-type none !important
-  :padding-left 0 !important
-  :overflow scroll
-  :height 20em
-
-ul.ui-autocomplete li a
-  :color black
-
 input.ui-autocomplete-input
   :width 20em !important
-
-.ui-button-text
-  :padding 0 !important
 
 .ui-menu .ui-menu-item a
   :text-align left

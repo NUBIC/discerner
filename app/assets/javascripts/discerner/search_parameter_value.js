@@ -86,8 +86,8 @@ Discerner.SearchParameterValue.UI = function (config) {
 
   setupParameterValues();
   $.each($('.operator'), function() { setupOperator(this); });
-
-  $('.operator select').live('change', function(){
+  
+  $(document).on('change', '.operator select', function(){
     setupOperator(this);
   });
 };

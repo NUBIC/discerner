@@ -11,19 +11,19 @@
         = render :partial => 'form_combined_searches', :locals => { :f => f }
       = render :partial => 'form_search_parameters', :locals => { :f => f }
     
-      .buttons
+      .discerner-buttons
         = submit_tag 'Search', :class => "button-discerner positive"
         - if @discerner_search.persisted? && export_discerner_results? && discerner_export_link
           = discerner_export_link
         = link_to 'Clear', new_search_path, :class => "button-discerner negative"
   .clear
 
-:javascript
-  $(function () { 
-    var yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}',
-    renameUrl = '#{@discerner_search.persisted? ? rename_search_path(@discerner_search) : ""}';
-    new Discerner.Search.UI({
-      yearRange: yearRange, 
-      renameUrl: renameUrl
-    })
-  });
+  :javascript
+    $(function () { 
+      var yearRange = '#{DateTime.now.year - 100}:#{DateTime.now.year}',
+      renameUrl = '#{@discerner_search.persisted? ? rename_search_path(@discerner_search) : ""}';
+      new Discerner.Search.UI({
+        yearRange: yearRange, 
+        renameUrl: renameUrl
+      })
+    });

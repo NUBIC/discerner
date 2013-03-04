@@ -12,6 +12,9 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require discerner/jquery/jquery-ui-1.9.1.custom.min
+//= require jquery.ui.widget
+//= require jquery.ui.autocomplete
+//= require jquery.ui.datepicker
+//= require jquery.ui.button
 //= require discerner/jquery/jquery.blockUI
 //= require_tree .

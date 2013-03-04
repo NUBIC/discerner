@@ -49,7 +49,7 @@ Discerner.SearchParameter.UI = function (config) {
   });
 
   // handle criteria autocompleter button click
-  $('.categorized_autocompleter_link').live('click',  function () {
+  $(document).on('click', '.categorized_autocompleter_link', function () {
     var select = $(this).siblings('select').first(),    
         sibling_selects = $('select.' + select.attr('class')).filter(function(){
           return $(this).closest('tr').find('td.remove input[name$="[_destroy]"]:not([name*="[search_parameter_values_attributes]"])[value="1"]').length == 0 // exclude rows marked for destroy
@@ -65,7 +65,7 @@ Discerner.SearchParameter.UI = function (config) {
   });
   
   // handle criteria popup list link click
-  $('.categorized_autocompleter_item_link:not(.selection_disabled)').live('click', function () {
+  $(document).on('click', '.categorized_autocompleter_item_link:not(.selection_disabled)', function () {
     var autocompleter = $(this).parents('.categorized_autocompleter').find('.parameters_combobox_autocompleter'),
       categorizedItem = $(this).attr('rel'),
       categorizedAutocompleterLink = $(this).parents('.categorized_autocompleter').find('.categorized_autocompleter_link');
@@ -90,7 +90,7 @@ Discerner.SearchParameter.UI = function (config) {
   };
 
   // handle changing selections for criteria autocompleter
-  $('.parameters_combobox_autocompleter').live('change', function () {
+  $(document).on('change', '.parameters_combobox_autocompleter', function () {
     var that = this,
       predicate = $(that).closest('.search_parameter'),
       selected_option = $(that).find('option:selected:last'),

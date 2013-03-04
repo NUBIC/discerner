@@ -5,7 +5,7 @@
       %span
         restrict to
     %td.combined_search
-      %div
+      %div.combined_search_combobox
         = f.hidden_field :display_order
         = f.hidden_field :operator_id, :value => Discerner::Operator.where(:symbol => 'include').first.id
         -#= f.select(:operator_id, operator_options('search'))
