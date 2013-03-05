@@ -72,7 +72,7 @@ module Discerner
       notification_message "processing dictionary '#{dictionary_name}'"
       
       dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
-      dictionary.deleted_at = is_deleted?(hash[:deleted]) ? Time.now : nil
+      dictionary.deleted_at = deleted?(hash[:deleted]) ? Time.now : nil
       
       if dictionary.new_record? 
         notification_message "creating dictionary ..."
@@ -95,7 +95,7 @@ module Discerner
       notification_message "processing parameter category  '#{parameter_category_name}'"
       
       parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_name, :dictionary_id => dictionary.id).first_or_initialize
-      parameter_category.deleted_at = is_deleted?(hash[:deleted]) ? Time.now : nil
+      parameter_category.deleted_at = deleted?(hash[:deleted]) ? Time.now : nil
       if parameter_category.new_record? 
         notification_message "creating parameter category ..."
         parameter_category.created_at = Time.now
@@ -121,10 +121,12 @@ module Discerner
       
       existing_parameter    = Discerner::Parameter.includes({:parameter_category => :dictionary}).where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
       parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category) 
+      
       parameter.name        = parameter_name
-      parameter.deleted_at  = is_deleted?(hash[:deleted]) ? Time.now : nil
+      parameter.deleted_at  = deleted?(hash[:deleted]) ? Time.now : nil
       parameter.exclusive   = hash[:exclusive].nil? ? true : to_bool(hash[:exclusive])
-
+      parameter.parameter_category  = parameter_category
+      
       search_identifiers = hash[:search]
       unless search_identifiers.blank?
         error_message "Searchable parameter should search model, search method and parameter_type defined." if 
@@ -287,7 +289,7 @@ module Discerner
       error_message("invalid value for Boolean: \"#{s}\"")
     end
     
-    def is_deleted?(param)
+    def deleted?(param)
       return false if param.blank?
       to_bool(param)
     end
