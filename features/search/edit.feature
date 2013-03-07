@@ -12,7 +12,7 @@ Feature: Viewing existing searches
     And "dictionary_sample_dictionary" should contain text "Sample dictionary"
     And the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
-    
+
   @javascript
   Scenario: It should render results template
     Given I create search with name "Awesome search"
@@ -20,17 +20,23 @@ Feature: Viewing existing searches
     Then "discerner_results" should contain text "Results for search on the `Sample dictionary` dictionary can be added here"
 
   @javascript
+  Scenario: It should pass the username when searching a dictionary
+    Given an executed search should pass the username to dictionary instance
+    And I create search with name "Awesome search"
+    When I am on the search edit page
+
+  @javascript
   Scenario: It should allow to rename the saved search
-    Given I create search with name "Awesome search" 
+    Given I create search with name "Awesome search"
     When I am on the search edit page
     Then "discerner_search_name" should contain text "Edit"
-    
+
     When I follow "Edit"
     And I fill in "search_name" with "Not that great after all"
     And I follow "Cancel"
     Then "discerner_search_name" should contain text "Search name: Awesome search"
     And "discerner_search_name" should not contain text "Cancel"
-    
+
     When I follow "Edit"
     And I fill in "search_name" with ""
     And I press "Submit"
@@ -45,7 +51,7 @@ Feature: Viewing existing searches
 
   @javascript
   Scenario: It should allow to add and remove search criteria
-    Given I create search with name "Awesome search" 
+    Given I create search with name "Awesome search"
     When I am on the search edit page
     And I add "Text search diagnosis" search criteria
     And I enter value "adenocarcinoma" within the last search criteria
@@ -53,17 +59,17 @@ Feature: Viewing existing searches
     Then ".discerner" should contain text "Search was successfully updated."
     And the last search criteria should be "Text search diagnosis"
     And the last search criteria selection value should be "adenocarcinoma"
-    
+
     When I follow "Remove" within the last ".search_parameter .remove"
     And I press "Search"
     Then ".discerner" should contain text "Search was successfully updated"
     And the first search criteria should be "Date of birth"
     And the first search criteria selection value should be "2012-10-22"
-    
+
   @javascript
   Scenario: It should allow to add and remove multiple criteria selections
-    Given I create search with name "Awesome search" 
-    
+    Given I create search with name "Awesome search"
+
     When I follow "Add selection" within the last ".search_parameter"
     And I select "is in the range" from ".operator select" in the last ".search_parameter_value"
     And I enter value "2012-11-01" within the last search criteria
@@ -76,9 +82,9 @@ Feature: Viewing existing searches
     When I follow "Remove" within the last ".search_parameter_value"
     And I press "Search"
     And the last search criteria selection value should be "2012-10-22"
-    And the element ".additional_value" in the last ".search_parameter_value" should not be visible 
+    And the element ".additional_value" in the last ".search_parameter_value" should not be visible
     And ".operator select" in the last ".search_parameter_value" should have "is equal to" selected
-    
+
   @javascript
   Scenario: It should allow to add and remove combined search from the list
     Given I create search with name "Awesome search"

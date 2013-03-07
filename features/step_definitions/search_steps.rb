@@ -22,6 +22,60 @@ Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
   s.save!
 end
 
+Given /^I create search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
+  dictionary ||= "Sample dictionary"
+  steps %Q{
+    Given search dictionaries are loaded
+    And search operators are loaded
+    When I go to the new search page
+    And I select dictionary "#{dictionary}"
+    And I fill in "Search name" with "#{name}"
+  }
+  if dictionary == "Sample dictionary"
+    set_sample_dictionary_search_parameters
+  else
+    set_librarian_dictionary_search_parameters
+  end
+end
+
+Given /^I create combined search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
+  dictionary ||= "Sample dictionary"
+  steps %Q{
+    Given I create search for dictionary "#{dictionary}" with name "Awesome search"
+    When I go to the new search page
+    And I select dictionary "#{dictionary}"
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+  }
+  if dictionary == "Sample dictionary"
+    set_sample_dictionary_search_parameters
+  else
+    set_librarian_dictionary_search_parameters
+  end
+end
+
+Given /^ony "([^\"]*)" dictionary exists$/ do |name|
+  dictionaries = Discerner::Dictionary.where("name not like ?", name)
+  dictionaries.each{|d| d.parameter_categories.destroy_all}
+  dictionaries.destroy_all
+end
+
+Given /^an executed search should pass the username to dictionary instance$/ do
+  SampleDictionary.any_instance.should_receive(:search).exactly(:once).with do |*args|
+    options = args.pop
+    options.has_key?(:username).should be_true
+    true
+  end
+end
+
+Given /^an exported search should pass the username to dictionary instance$/ do
+  SampleDictionary.any_instance.should_receive(:export).exactly(:once).with do |*args|
+    options = args.pop
+    options.has_key?(:username).should be_true
+    true
+  end
+end
+
 When /^I select dictionary "([^\"]*)"$/ do |dictionary|
   steps %Q{
     When I select "#{dictionary}" from "Dictionary"
@@ -54,47 +108,27 @@ When /^I add "([^\"]*)" search criteria$/ do |value|
   }
 end
 
-Given /^I create search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
-  dictionary ||= "Sample dictionary"
-  steps %Q{
-    Given search dictionaries are loaded
-    And search operators are loaded
-    When I go to the new search page
-    And I select dictionary "#{dictionary}"
-    And I fill in "Search name" with "#{name}"
-  }
-  if dictionary == "Sample dictionary"
-    set_sample_dictionary_search_parameters
-  else 
-    set_librarian_dictionary_search_parameters
-  end
-end
-
-Given /^I create combined search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
-  dictionary ||= "Sample dictionary"
-  steps %Q{
-    Given I create search for dictionary "#{dictionary}" with name "Awesome search" 
-    When I go to the new search page 
-    And I select dictionary "#{dictionary}"
-    And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
-  }
-  if dictionary == "Sample dictionary"
-    set_sample_dictionary_search_parameters
-  else 
-    set_librarian_dictionary_search_parameters
-  end
-end
-
-When /^I enter value "([^\"]*)" within the (first|last) search criteria$/ do |value, position| 
+When /^I enter value "([^\"]*)" within the (first|last) search criteria$/ do |value, position|
   steps %Q{
     When I enter "#{value}" into ".value input[type='text']" within the #{position} ".search_parameter"
   }
 end
 
-When /^I enter additional value "([^\"]*)" within the (first|last) search criteria$/ do |value, position| 
+When /^I enter additional value "([^\"]*)" within the (first|last) search criteria$/ do |value, position|
   steps %Q{
     When I enter "#{value}" into ".additional_value input[type='text']" within the #{position} ".search_parameter"
+  }
+end
+
+When /^I add combined search$/ do
+  steps %Q{
+    When I follow "Add search"
+  }
+end
+
+When /^I open combined search dropdown$/ do
+  steps %Q{
+    When I press "Show All Items" within the last ".combined_search"
   }
 end
 
@@ -126,11 +160,6 @@ Then /^the search should have (\d+) criteria$/ do |count|
   all("tr.search_parameter", :visible => true).count.should == count.to_i
 end
 
-Given /^ony "([^\"]*)" dictionary exists$/ do |name|
-  dictionaries = Discerner::Dictionary.where("name not like ?", name)
-  dictionaries.each{|d| d.parameter_categories.destroy_all}
-  dictionaries.destroy_all
-end
 
 Then /^I should receive a CSV file(?: "([^\"]*)")?/ do |file|
   result = page.response_headers['Content-Type'].should include("text/csv")
@@ -148,17 +177,6 @@ Then /^I should receive a XLS file(?: "([^\"]*)")?/ do |file|
   result
 end
 
-When /^I add combined search$/ do
-  steps %Q{
-    When I follow "Add search"
-  }
-end
-
-When /^I open combined search dropdown$/ do
-  steps %Q{
-    When I press "Show All Items" within the last ".combined_search"
-  }
-end
 
 def set_sample_dictionary_search_parameters
   steps %Q{
@@ -180,4 +198,3 @@ def set_librarian_dictionary_search_parameters
     And I press "Search"
   }
 end
-  

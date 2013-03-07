@@ -19,7 +19,7 @@ namespace :cucumber do
   Cucumber::Rake::Task.new(:wip, 'Run features that are being worked on') do |t|
     t.profile = 'wip'
   end
-  
+
   Cucumber::Rake::Task.new(:features) do |t|
     t.cucumber_opts = "features --format pretty"
   end

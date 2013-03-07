@@ -3,7 +3,7 @@ Feature: Exporting results for existing searches
 
   @javascript
   Scenario: It should show export link
-    Given I create search with name "Awesome search" 
+    Given I create search with name "Awesome search"
     When I am on the search edit page
     Then "discerner-buttons" should not contain text "Export options"
     When I follow "Export options"
@@ -11,7 +11,7 @@ Feature: Exporting results for existing searches
 
   @javascript
   Scenario: It should show search parameters summary
-    Given I create search with name "Awesome search" 
+    Given I create search with name "Awesome search"
     When I am on the search export page
     Then "discerner_search_summary" should contain text "Demographic criteria"
     And "discerner_search_summary" should not contain text "Case criteria"
@@ -25,12 +25,14 @@ Feature: Exporting results for existing searches
 
   @javascript
   Scenario: It should show combined searches summary
-    Given I create combined search with name "Awesome combined search" 
+    Given I create combined search with name "Awesome combined search"
     When I am on the search export page
     Then "discerner_search_summary" should contain text "Awesome search"
 
   Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists
+    And an executed search should pass the username to dictionary instance
+    And an exported search should pass the username to dictionary instance
     When I am on the search edit page
     And I follow "Export"
     And I press "Export"
@@ -44,8 +46,8 @@ Feature: Exporting results for existing searches
     Then I should receive a XLS file "no_name_specified_"
 
   @javascript
-  Scenario: It should allow to change and save export parameters 
-    Given I create search with name "Awesome search" 
+  Scenario: It should allow to change and save export parameters
+    Given I create search with name "Awesome search"
     When I am on the search export page
     And I uncheck "Date of birth"
     And I check "Age based on current date"

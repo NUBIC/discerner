@@ -6,14 +6,14 @@ module Discerner
           base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :show]
           base.send :before_filter, :load_combined_searches, :except => :index
         end
-        
+
         def new
           if Discerner::Dictionary.any?
             @discerner_search = Discerner::Search.new
             @discerner_search.search_parameters.build()
             @discerner_search.search_combinations.build()
-          else 
-            flash[:error] = 'Dictionaries must be loaded in order to perform searches' 
+          else
+            flash[:error] = 'Dictionaries must be loaded in order to perform searches'
           end
         end
 
@@ -32,7 +32,7 @@ module Discerner
           if dictionary_model
             dictionary =  dictionary_model.new(@discerner_search)
             if dictionary.respond_to?('search')
-              @results = dictionary.search(params)  
+              @results = dictionary.search(params, dictionary_options)
             else
               error_message = "Model '#{dictionary_model_name}' instance does not respond to 'search' method. You need to implement it to be able to run search on this dictionary"
             end
@@ -41,7 +41,6 @@ module Discerner
           end
           flash[:error] = error_message unless error_message.blank?
         end
-        
 
         def update
           respond_to do |format|
@@ -72,7 +71,7 @@ module Discerner
             format.html { redirect_to searches_path }
           end
         end
-        
+
         def show
           if dictionary_model
             dictionary =  dictionary_model.new(@discerner_search)
@@ -83,24 +82,24 @@ module Discerner
             error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run export on this dictionary"
           end
           flash[:error] = error_message unless error_message.blank?
-          
+
           respond_to do |format|
             if error_message
               format.html
               format.csv { redirect_to export_parameters_path(@discerner_search)  }
               format.xls { redirect_to export_parameters_path(@discerner_search)  }
             else
-              @export_data = dictionary.export(params)
+              @export_data = dictionary.export(params, dictionary_options)
               filename ="#{@discerner_search.parameterized_name}_#{Date.today.strftime('%m_%d_%Y')}"
               format.html
               format.csv do
-                
+
                 send_data @export_data,
                   :type => 'text/csv; charset=iso-8859-1; header=present',
                   :disposition => "attachment; filename=#{filename}.csv"
               end
               format.xls do
-                headers["Content-Disposition"] = "attachment; filename=\"#{filename}.xls\"" 
+                headers["Content-Disposition"] = "attachment; filename=\"#{filename}.xls\""
                 render "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/show"
               end
             end
@@ -112,14 +111,14 @@ module Discerner
             @discerner_search = Discerner::Search.find(params[:id])
           end
 
-          def dictionary_model_name 
+          def dictionary_model_name
             @discerner_search.dictionary.parameterized_name.camelize
           end
 
           def dictionary_model
             dictionary_model_name.safe_constantize
           end
-          
+
           def load_combined_searches
             discerner_searches = available_searches
             if @discerner_search && @discerner_search.persisted?
@@ -129,10 +128,16 @@ module Discerner
             end
             @discerner_searches = discerner_searches
           end
-          
+
           def available_searches
             username = discerner_user.username unless discerner_user.blank?
             Discerner::Search.by_user(username)
+          end
+
+          def dictionary_options
+            options = { :username => nil }
+            options[:username] = discerner_user.username unless discerner_user.blank?
+            options
           end
      end
     end
