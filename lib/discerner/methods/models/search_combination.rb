@@ -36,6 +36,11 @@ module Discerner
           return if self.search_id.blank? || self.combined_search_id.blank?
           errors.add(:base,"Search cannot be combined with itself.") if self.search_id == self.combined_search_id
         end
+
+        def disabled?
+          return false unless persisted?
+          deleted? || combined_search.deleted? || combined_search.disabled?
+        end
       end
     end
   end

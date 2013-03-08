@@ -110,6 +110,16 @@ module Discerner
           end
           args
         end
+
+        def disabled?
+          return false unless persisted?
+          deleted? ||
+          dictionary.deleted? ||
+          search_parameters.select{ |sp| sp.disabled? }.any? ||
+          export_parameters.select{ |ep| ep.disabled? }.any? ||
+          search_combinations.select{ |sc| sc.disabled? }.any?
+        end
+
         private
           def validate_search_parameters
             if self.search_parameters.size < 1 || self.search_parameters.all?{|search_parameter| search_parameter.marked_for_destruction? }

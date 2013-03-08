@@ -93,6 +93,14 @@ module Discerner
           end
           sql
         end
+
+        def disabled?
+          return false unless persisted?
+          deleted? ||
+          parameter.blank? || parameter.deleted? ||
+          search_parameter_values.blank? || search_parameter_values.select{ |spv| spv.disabled?}.any?
+        end
+
         private
           def update_associations
             search_parameter_values.each do |r|

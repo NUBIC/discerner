@@ -141,4 +141,44 @@ describe Discerner::SearchParameter do
       spv.should be_deleted
     end
   end
+
+  describe "it detects if search parameter is disabled" do
+    before(:each) do
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => '0', :operator => Factory.create(:operator, :symbol => '<', :text => 'is less than'))
+    end
+
+    it "disables search parameter without parameter" do
+      search_parameter.should_not be_disabled
+      search_parameter.parameter = nil
+      search_parameter.should be_disabled
+    end
+
+    it "disables search parameter with deleted parameter" do
+      search_parameter.should_not be_disabled
+      search_parameter.parameter.deleted_at = Time.now
+      search_parameter.should be_disabled
+    end
+
+    it "disables search parameter without search parameter value" do
+      search_parameter.should_not be_disabled
+      search_parameter.search_parameter_values = []
+      search_parameter.should be_disabled
+    end
+
+    it "disables search parameter with disabled search parameter value" do
+      search_parameter.should_not be_disabled
+
+      search_parameter.search_parameter_values.first.value = nil
+      search_parameter.should be_disabled
+
+      search_parameter.search_parameter_values.first.parameter_value = Factory.create(:parameter_value, :parameter => search_parameter.parameter)
+      search_parameter.should_not be_disabled
+
+      search_parameter.search_parameter_values.first.parameter_value.deleted_at = Time.now
+      search_parameter.should_not be_disabled
+
+      search_parameter.search_parameter_values.first.chosen = true
+      search_parameter.should be_disabled
+    end
+  end
 end

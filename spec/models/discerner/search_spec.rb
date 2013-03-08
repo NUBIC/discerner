@@ -133,4 +133,30 @@ describe Discerner::Search do
       end
     end
   end
+
+  describe "it detects if search is disabled" do
+    before(:each) do
+      Factory.create(:search_parameter_value, :search_parameter => search.search_parameters.first, :value => '0', :operator => Factory.create(:operator, :symbol => '<', :text => 'is less than'))
+    end
+
+    it "disables search on deleted dictionary" do
+      search.should_not be_disabled
+      search.dictionary.deleted_at = Time.now
+      search.should be_disabled
+    end
+
+    it "disables search with disabled search parameter" do
+      search.should_not be_disabled
+      search.search_parameters.first.parameter.deleted_at = Time.now
+      search.should be_disabled
+    end
+
+    it "disables search with disabled export parameter" do
+      Factory.create(:export_parameter, :parameter => search.search_parameters.first.parameter, :search => search)
+      search.should_not be_disabled
+
+      search.export_parameters.first.parameter.deleted_at = Time.now
+      search.should be_disabled
+    end
+  end
 end

@@ -22,6 +22,11 @@ module Discerner
         def deleted?
           not deleted_at.blank?
         end
+
+        def disabled?
+          return false unless persisted?
+          deleted? || parameter.blank? || parameter.deleted?
+        end
       end
     end
   end

@@ -57,6 +57,14 @@ module Discerner
             all_values
           end
         end
+
+        def disabled?
+          return false unless persisted?
+          return true if parameter_value.blank? && value.blank?
+          return true if chosen? && (parameter_value.blank? || parameter_value.deleted?)
+          return false
+        end
+
         private
           def destroy_if_deleted_parameter_value
             return if parameter_value.blank? || search_parameter.blank? || search_parameter.parameter.blank? || search_parameter.parameter.parameter_type.blank?
