@@ -9,11 +9,11 @@ module Discerner
           base.send :has_many, :search_combinations
           base.send :has_many, :combined_searches, :through => :search_combinations
           base.send :has_many, :export_parameters
-          
+
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
           base.send(:scope, :by_user, lambda{|username| base.not_deleted.where(:username => username)})
-          
+
           # Validations
           @@validations_already_included ||= nil
           unless @@validations_already_included
@@ -21,43 +21,39 @@ module Discerner
             base.send :validate, :validate_search_parameters
             @@validations_already_included = true
           end
-          
+
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameters, :allow_destroy => true,
             :reject_if => proc { |attributes| attributes['parameter_id'].blank? && attributes['parameter'].blank? }
 
-          # Nested attributes
           base.send :accepts_nested_attributes_for, :search_combinations, :allow_destroy => true,
             :reject_if => proc { |attributes| attributes['combined_search_id'].blank? && attributes['combined_search'].blank? }
-          
+
           # Whitelisting attributes
-          base.send :attr_accessible, :deleted_at, :name, :username, :search_parameters, :search_parameters_attributes, 
+          base.send :attr_accessible, :deleted_at, :name, :username, :search_parameters, :search_parameters_attributes,
           :dictionary, :dictionary_id, :search_combinations_attributes
+
+          # Hooks
+          base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
-        
+
         # Instance Methods
         def initialize(*args)
           super(*args)
         end
-        
+
         def deleted?
           not deleted_at.blank?
         end
-        
-        def validate_search_parameters
-          if self.search_parameters.size < 1 || self.search_parameters.all?{|search_parameter| search_parameter.marked_for_destruction? }
-            errors.add(:base,"Search should have at least one search criteria.")
-          end
-        end
-        
+
         def display_name
           name.blank? ? "[No name specified]" : name
         end
-        
+
         def parameterized_name
           display_name.parameterize.underscore
         end
-        
+
         def traverse
           return unless combined_searches.any?
           searches = []
@@ -68,12 +64,12 @@ module Discerner
           end
           searches
         end
-        
+
         def nested_searches
           nested_searches = traverse || []
           nested_searches.flatten.compact
         end
-        
+
         def parameter_categories
           search_parameters.map{|p| p.parameter.parameter_category unless p.parameter.blank?}.uniq
         end
@@ -91,7 +87,7 @@ module Discerner
           search_models.each do |k,v|
             predicates = []
             arguments = []
-            
+
             v[:search_parameters].each do |search_parameter|
               sql = search_parameter.to_sql unless search_parameter.search_parameter_values.empty?
               unless sql.nil?
@@ -114,6 +110,21 @@ module Discerner
           end
           args
         end
+        private
+          def validate_search_parameters
+            if self.search_parameters.size < 1 || self.search_parameters.all?{|search_parameter| search_parameter.marked_for_destruction? }
+              errors.add(:base,"Search should have at least one search criteria.")
+            end
+          end
+
+          def update_associations
+            [search_parameters, export_parameters, search_combinations].each do |accociated_records|
+              accociated_records.each do |r|
+                r.deleted_at = Time.now
+                r.save
+              end
+            end
+          end
       end
     end
   end
