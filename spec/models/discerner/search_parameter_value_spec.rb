@@ -58,4 +58,15 @@ describe Discerner::SearchParameterValue do
       search_parameter_value.to_sql[:values].should == '%50%'
     end
   end
+  it "self-destroyes if belongs to list or combobox parameter and references deleted value and not chosen" do
+    search_parameter_value.parameter_value = Factory.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
+    search_parameter_value.parameter_value.deleted_at = Time.now
+    search_parameter_value.chosen = false
+    search_parameter_value.save
+    search_parameter_value.class.should exist(search_parameter_value)
+
+    search_parameter_value.search_parameter.parameter.parameter_type.name = 'list'
+    search_parameter_value.save
+    search_parameter_value.class.should_not exist(search_parameter_value)
+  end
 end
