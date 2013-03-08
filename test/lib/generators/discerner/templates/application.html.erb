@@ -8,7 +8,7 @@
 </head>
 <body class="discerner">
    <% flash.each do |message_type, message| %>
-      <div class="<%= message %>", id="<%= message_type %>">
+      <div class="message" id="<%= message_type %>">
          <%= message %>
       </div>
    <% end %>
