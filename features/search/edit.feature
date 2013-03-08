@@ -8,8 +8,8 @@ Feature: Viewing existing searches
     Then the first search criteria should be "Gender"
     And the last search criteria should be "Date of birth"
     And the last search criteria selection value should be "2012-10-22"
-    Then "discerner_search_name" should contain text "Search name: Awesome search"
-    And "dictionary_sample_dictionary" should contain text "Sample dictionary"
+    Then "div.discerner_search_name" should contain text "Awesome search"
+    And "div.discerner_search_dictionary" should contain text "Sample dictionary"
     And the element ".add_search_parameters" should be visible
     And the element ".discerner_dictionary_required_message" should not be visible
 
@@ -17,37 +17,31 @@ Feature: Viewing existing searches
   Scenario: It should render results template
     Given I create search with name "Awesome search"
     When I am on the search edit page
-    Then "discerner_results" should contain text "Results for search on the `Sample dictionary` dictionary can be added here"
-
-  @javascript
-  Scenario: It should pass the username when searching a dictionary
-    Given an executed search should pass the username to dictionary instance
-    And I create search with name "Awesome search"
-    When I am on the search edit page
+    Then "#discerner_results" should contain text "Results for search on the `Sample dictionary` dictionary can be added here"
 
   @javascript
   Scenario: It should allow to rename the saved search
     Given I create search with name "Awesome search"
     When I am on the search edit page
-    Then "discerner_search_name" should contain text "Edit"
+    Then "div.discerner_search_name" should contain text "Edit"
 
     When I follow "Edit"
     And I fill in "search_name" with "Not that great after all"
     And I follow "Cancel"
-    Then "discerner_search_name" should contain text "Search name: Awesome search"
-    And "discerner_search_name" should not contain text "Cancel"
+    Then "div.discerner_search_name" should contain text "Awesome search"
+    And "div.discerner_search_name" should not contain text "Cancel"
 
     When I follow "Edit"
     And I fill in "search_name" with ""
     And I press "Submit"
-    Then "discerner_search_name" should not contain text "Search name: Awesome search"
-    And "discerner_search_name" should not contain text "Cancel"
+    Then "div.discerner_search_name" should not contain text "Awesome search"
+    And "div.discerner_search_name" should not contain text "Cancel"
 
     When I follow "Edit"
     And I fill in "search_name" with "Not so awesome search"
     And I press "Submit"
-    Then "discerner_search_name" should contain text "Search name: Not so awesome search"
-    And "discerner_search_name" should not contain text "Cancel"
+    Then "div.discerner_search_name" should contain text "Not so awesome search"
+    And "div.discerner_search_name" should not contain text "Cancel"
 
   @javascript
   Scenario: It should allow to add and remove search criteria
@@ -60,16 +54,15 @@ Feature: Viewing existing searches
     And the last search criteria should be "Text search diagnosis"
     And the last search criteria selection value should be "adenocarcinoma"
 
-    When I follow "Remove" within the last ".search_parameter .remove"
+    When I follow "Remove" within the last ".search_parameter > .remove"
     And I press "Search"
     Then ".discerner" should contain text "Search was successfully updated"
-    And the first search criteria should be "Date of birth"
-    And the first search criteria selection value should be "2012-10-22"
+    And the last search criteria should be "Date of birth"
+    And the last search criteria selection value should be "2012-10-22"
 
   @javascript
   Scenario: It should allow to add and remove multiple criteria selections
     Given I create search with name "Awesome search"
-
     When I follow "Add selection" within the last ".search_parameter"
     And I select "is in the range" from ".operator select" in the last ".search_parameter_value"
     And I enter value "2012-11-01" within the last search criteria
@@ -93,7 +86,8 @@ Feature: Viewing existing searches
     When I go to the search edit page
     And I add combined search
     And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
-    And I add "Gender" search criteria
+    And I add "Text search diagnosis" search criteria
+    And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"
     Then ".combined_search select" in the first ".search_combination" should have "Awesome search" selected
     And ".combined_search select" in the first ".search_combination" should not have "Another search" selected
@@ -102,11 +96,12 @@ Feature: Viewing existing searches
   Scenario: It should not allow to combine in searches that use the search
     Given I create search with name "Awesome search"
     And I create search with name "Another search"
-     And I create search with name "One more search"
+    And I create search with name "One more search"
     When I go to the search "Another search" edit page
     And I add combined search
     And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
-    And I add "Gender" search criteria
+    And I add "Text search diagnosis" search criteria
+    And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"
     And I go to the search "Awesome search" edit page
     And I add combined search

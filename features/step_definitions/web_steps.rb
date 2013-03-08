@@ -147,7 +147,7 @@ Then /^the "([^\"]*)" checkbox(?: within (.*))? should not be checked$/ do |labe
     end
   end
 end
- 
+
 Then /^(?:|I )should be on (.+)$/ do |page_name|
   current_path = URI.parse(current_url).path
   if current_path.respond_to? :should
@@ -161,8 +161,8 @@ Then /^(?:|I )should have the following query string:$/ do |expected_pairs|
   query = URI.parse(current_url).query
   actual_params = query ? CGI.parse(query) : {}
   expected_params = {}
-  expected_pairs.rows_hash.each_pair{|k,v| expected_params[k] = v.split(',')} 
-  
+  expected_pairs.rows_hash.each_pair{|k,v| expected_params[k] = v.split(',')}
+
   if actual_params.respond_to? :should
     actual_params.should == expected_params
   else
@@ -180,42 +180,49 @@ end
 
 Then /^the element "([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? be visible$/ do |selector, position, scope_selector, negation|
   within_scope(get_scope(position, scope_selector)) {
+    elements = all(selector, :visible => true)
     if negation.blank?
-      all(selector, :visible => true).length.should > 0
+      elements.length.should > 0
     else
-      all(selector, :visible => true).length.should == 0
+      elements.length.should == 0
     end
   }
 end
 
-Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain "([^\"]*)"$/ do |position, selector, scope_selector, negation, value|
+Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain "([^\"]*)"$/ do |selector, position, scope_selector, negation, value|
   within_scope(get_scope(position, scope_selector)) {
+    elements = all(selector, :visible => true)
+    elements.should_not be_empty
     if negation.blank?
-      all(selector, :visible => true).each{ |e| e.value.should == value}
-    else 
-      all(selector, :visible => true).each{ |e| e.value.should_not == value}
+      elements.each{ |e| e.value.should == value}
+    else
+      elements.each{ |e| e.value.should_not == value}
     end
   }
 end
 
-Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? have "([^\"]*)" selected$/ do |selector, position, scope_selector, negation, value|
+Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? have "([^\"]*)" selected$/ do |selector, position, scope_selector, negation, text|
   within_scope(get_scope(position, scope_selector)) {
-    selector = "#{selector} option[selected='true']"
+    selector = "#{selector}"
+    elements = all(selector)
+    elements.should_not be_empty
     if negation.blank?
-      all(selector, :visible => true).each{ |e| e.value.should == value }
+      elements.each{ |e| e.should have_selector "option[@selected='selected']:contains('#{text}')" }
     else
-      all(selector, :visible => true).each{ |e| e.value.should_not == value }
+      elements.each{ |e| e.should_not have_selector "option[@selected='selected']:contains('#{text}')" }
     end
   }
 end
 
 Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? have options "([^\"]*)"$/ do |selector, position, scope_selector, negation, options|
   within_scope(get_scope(position, scope_selector)) {
+    elements = all(selector)
+    elements.should_not be_empty
     options.split(', ').each do |o|
       if negation.blank?
-        all(selector, :visible => true).each{ |e| e.should have_selector "option:contains('#{o}')" }
+        elements.each{ |e| e.should have_selector "option:contains('#{o}')" }
       else
-        all(selector, :visible => true).each{ |e| e.should_not have_selector "option:contains('#{o}')" }
+        elements.each{ |e| e.should_not have_selector "option:contains('#{o}')" }
       end
     end
   }
@@ -223,18 +230,20 @@ end
 
 Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain text "(.+?)"$/ do |selector, position, scope_selector, negation, value|
   within_scope(get_scope(position, scope_selector)) {
-    
+    elements = all(selector, :visible => true)
+    elements.should_not be_empty
     if negation.blank?
-      all(selector, :visible => true).each{ |e| e.should have_selector ":contains('#{value}')" }
+      elements.each{ |e| e.should have_selector ":contains('#{value}')" }
     else
-      all(selector, :visible => true).each{ |e| e.should_not have_selector ":contains('#{value}')" }
+      elements.each{ |e| e.should_not have_selector ":contains('#{value}')" }
     end
   }
 end
 
 When /^I select "([^\"]*)" from "([^\"]*)" in(?: the (first|last))? "([^\"]*)"$/ do |value, selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    all(selector).each{|e| e.select(value)} 
+    all(selector).should_not be_empty
+    all(selector).each{|e| e.select(value)}
   }
 end
 
@@ -248,26 +257,41 @@ end
 
 When /^I focus on "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    all(selector, :visible => true).each{ |e| e.click }
+    elements = all(selector, :visible => true)
+    elements.should_not be_empty
+    elements.each{ |e| e.click }
   }
   steps %Q{
     When I wait 2 seconds
   }
 end
 
-When /^I check "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector| 
+When /^I check "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    all(selector, :visible => true).each{ |e| e.click }
+    elements = all(selector, :visible => true)
+    elements.should_not be_empty
+    elements.each{ |e| e.click }
   }
 end
 
-When /^I enter "([^\"]*)" into "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |value, selector, position, scope_selector| 
+When /^I uncheck "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    all(selector, :visible => true).each{ |e| e.set(value) }
+    selector = "#{selector}[checked='checked']"
+    elements = all(selector, :visible => true)
+    elements.should_not be_empty
+    elements.each{ |e| e.click }
   }
 end
 
-When /^I press "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector| 
+When /^I enter "([^\"]*)" into "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |value, selector, position, scope_selector|
+  within_scope(get_scope(position, scope_selector)) {
+    elements = all(selector, :visible => true)
+    elements.should_not be_empty
+    elements.each{ |e| e.set(value) }
+  }
+end
+
+When /^I press "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
     steps %Q{
       When I press "#{selector}"
@@ -284,7 +308,8 @@ end
 
 When /^I fill in "([^\"]*)" autocompleter within(?: the (first|last))? "([^\"]*)" with "([^\"]*)"$/ do |selector, position, scope_selector, value|
   within_scope(get_scope(position, scope_selector)) {
-    all(selector).each.each{|e| e.set(value)}
+    all(selector).should_not be_empty
+    all(selector).each{|e| e.set(value)}
     menuitem = '.ui-menu-item a:contains(\"' + value + '\")'
     page.execute_script " $('#{menuitem}').trigger(\"mouseenter\").click();"
   }
@@ -302,7 +327,7 @@ def get_scope(position, scope_selector)
     item = items.first
   when 'last'
     item = items.last
-  else 
+  else
     item = items.last
   end
   item

@@ -5,7 +5,7 @@ Feature: Exporting results for existing searches
   Scenario: It should show export link
     Given I create search with name "Awesome search"
     When I am on the search edit page
-    Then "discerner-buttons" should not contain text "Export options"
+    Then ".discerner-buttons" should contain text "Export options"
     When I follow "Export options"
     Then I should be on the search export page
 
@@ -13,21 +13,21 @@ Feature: Exporting results for existing searches
   Scenario: It should show search parameters summary
     Given I create search with name "Awesome search"
     When I am on the search export page
-    Then "discerner_search_summary" should contain text "Demographic criteria"
-    And "discerner_search_summary" should not contain text "Case criteria"
-    And "discerner_search_summary" should not contain text "Age at case collection date"
+    Then "#discerner_search_summary" should contain text "Demographic criteria"
+    And "#discerner_search_summary" should not contain text "Case criteria"
+    And "#discerner_search_summary" should not contain text "Age at case collection date"
     And the "Gender" checkbox should be checked
     And the "Date of birth" checkbox should be checked
-    And "discerner_search_summary" should contain text "Gender: "Female""
-    And "discerner_search_summary" should contain text "Date of birth: is equal to "2012-10-22""
-    And "discerner_exportable_fields" should not contain text "Male"
-    And "discerner_exportable_fields" should not contain text "Unspecified"
+    And "#discerner_search_summary" should contain text "Female"
+    And "#discerner_search_summary" should contain text "is equal to "2012-10-22""
+    And "#discerner_search_summary" should not contain text "Male"
+    And "#discerner_search_summary" should not contain text "Unspecified"
 
   @javascript
   Scenario: It should show combined searches summary
     Given I create combined search with name "Awesome combined search"
     When I am on the search export page
-    Then "discerner_search_summary" should contain text "Awesome search"
+    Then "#discerner_search_summary" should contain text "Awesome search"
 
   Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists

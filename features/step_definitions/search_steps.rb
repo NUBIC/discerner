@@ -13,51 +13,19 @@ end
 Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
   s = Factory.build(:search, :name => name)
   p = Discerner::Parameter.last || Factory.build(:parameter)
-  s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => p)
+  p.search_method = 'age'
+  p.search_model = 'Person'
   unless exportable.blank?
     p.export_model = 'Person'
     p.export_method = 'some_method'
-    p.save
   end
+  p.save!
+  search_parameter = Factory.build(:search_parameter, :search => s, :parameter => p)
+  s.search_parameters << search_parameter
+  s.dictionary = Discerner::Dictionary.last
   s.save!
-end
-
-Given /^I create search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
-  dictionary ||= "Sample dictionary"
-  steps %Q{
-    Given search dictionaries are loaded
-    And search operators are loaded
-    When I go to the new search page
-    And I select dictionary "#{dictionary}"
-    And I fill in "Search name" with "#{name}"
-  }
-  if dictionary == "Sample dictionary"
-    set_sample_dictionary_search_parameters
-  else
-    set_librarian_dictionary_search_parameters
-  end
-end
-
-Given /^I create combined search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
-  dictionary ||= "Sample dictionary"
-  steps %Q{
-    Given I create search for dictionary "#{dictionary}" with name "Awesome search"
-    When I go to the new search page
-    And I select dictionary "#{dictionary}"
-    And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
-  }
-  if dictionary == "Sample dictionary"
-    set_sample_dictionary_search_parameters
-  else
-    set_librarian_dictionary_search_parameters
-  end
-end
-
-Given /^ony "([^\"]*)" dictionary exists$/ do |name|
-  dictionaries = Discerner::Dictionary.where("name not like ?", name)
-  dictionaries.each{|d| d.parameter_categories.destroy_all}
-  dictionaries.destroy_all
+  o = Discerner::Operator.last || Factory.create(:operator)
+  Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :operator => o)
 end
 
 Given /^an executed search should pass the username to dictionary instance$/ do
@@ -74,6 +42,13 @@ Given /^an exported search should pass the username to dictionary instance$/ do
     options.has_key?(:username).should be_true
     true
   end
+end
+
+Given /^search "([^\"]*)" is disabled$/ do |name|
+  search = Discerner::Search.where(:name => name).first
+  p = search.search_parameters.first.parameter
+  p.deleted_at = Time.now
+  p.save
 end
 
 When /^I select dictionary "([^\"]*)"$/ do |dictionary|
@@ -108,51 +83,71 @@ When /^I add "([^\"]*)" search criteria$/ do |value|
   }
 end
 
+Given /^I create search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
+  dictionary ||= "Sample dictionary"
+  steps %Q{
+    Given search dictionaries are loaded
+    And search operators are loaded
+    When I go to the new search page
+    And I select dictionary "#{dictionary}"
+    And I fill in "Search name" with "#{name}"
+  }
+  if dictionary == "Sample dictionary"
+    set_sample_dictionary_search_parameters
+  else
+    set_librarian_dictionary_search_parameters
+  end
+end
+
+Given /^I create combined search(?: for dictionary "([^\"]*)")?(?: with name "([^\"]*)")?$/ do |dictionary, name|
+  dictionary ||= "Sample dictionary"
+  steps %Q{
+    Given I create search for dictionary "#{dictionary}" with name "Awesome search"
+    When I go to the new search page
+    And I select dictionary "#{dictionary}"
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+  }
+  if dictionary == "Sample dictionary"
+    set_sample_dictionary_search_parameters
+  else
+    set_librarian_dictionary_search_parameters
+  end
+end
+
 When /^I enter value "([^\"]*)" within the (first|last) search criteria$/ do |value, position|
   steps %Q{
-    When I enter "#{value}" into ".value input[type='text']" within the #{position} ".search_parameter"
+    When I enter "#{value}" into ".value input[type='text']" within the #{position} ".search_parameter .search_parameter_value"
   }
 end
 
 When /^I enter additional value "([^\"]*)" within the (first|last) search criteria$/ do |value, position|
   steps %Q{
-    When I enter "#{value}" into ".additional_value input[type='text']" within the #{position} ".search_parameter"
-  }
-end
-
-When /^I add combined search$/ do
-  steps %Q{
-    When I follow "Add search"
-  }
-end
-
-When /^I open combined search dropdown$/ do
-  steps %Q{
-    When I press "Show All Items" within the last ".combined_search"
+    When I enter "#{value}" into ".additional_value input[type='text']" within the #{position} ".search_parameter .search_parameter_value"
   }
 end
 
 Then /^the (first|last) search criteria should(?: (not))? be "([^\"]*)"$/ do |position, negation, value|
   if negation.blank?
     steps %Q{
-      Then ".parameters_combobox_autocompleter" in the #{position} ".search_parameter" should have "#{value}" selected
+      Then ".parameter select" in the #{position} ".search_parameter" should have "#{value}" selected
     }
   else
     steps %Q{
-      Then ".parameters_combobox_autocompleter" in the #{position} ".search_parameter" should not have "#{value}" selected
+      Then ".parameter select" in the #{position} ".search_parameter" should not have "#{value}" selected
     }
   end
 end
 
 Then /^the (first|last) search criteria selection value should be "([^\"]*)"$/ do |position, value|
   steps %Q{
-    Then ".value" in the #{position} ".search_parameter_value" should contain "#{value}"
+    Then ".value input[type='text']" in the #{position} ".search_parameter_value" should contain "#{value}"
   }
 end
 
 Then /^the (first|last) search criteria selection additional value should be "([^\"]*)"$/ do |position, value|
   steps %Q{
-    Then ".value" in the #{position} ".search_parameter_value" should contain "#{value}"
+    Then ".additional_value input[type='text']" in the #{position} ".search_parameter_value" should contain "#{value}"
   }
 end
 
@@ -160,6 +155,11 @@ Then /^the search should have (\d+) criteria$/ do |count|
   all("tr.search_parameter", :visible => true).count.should == count.to_i
 end
 
+Given /^only "([^\"]*)" dictionary exists$/ do |name|
+  dictionaries = Discerner::Dictionary.where("name not like ?", name)
+  dictionaries.each{|d| d.parameter_categories.destroy_all}
+  dictionaries.destroy_all
+end
 
 Then /^I should receive a CSV file(?: "([^\"]*)")?/ do |file|
   result = page.response_headers['Content-Type'].should include("text/csv")
@@ -175,6 +175,37 @@ Then /^I should receive a XLS file(?: "([^\"]*)")?/ do |file|
     result = page.response_headers['Content-Disposition'].should include(file)
   end
   result
+end
+
+When /^I add combined search$/ do
+  steps %Q{
+    When I follow "Add search"
+  }
+end
+
+When /^I open combined search dropdown$/ do
+  steps %Q{
+    When I press "Show All Items" within the last ".combined_search"
+  }
+end
+
+Given /^value "([^\"]*)" for parameter "([^\"]*)" is marked as deleted$/ do |value_name, parameter_name|
+  p = Discerner::Parameter.where(:name => parameter_name).first
+  v = p.parameter_values.where(:name => value_name).first
+  v.deleted_at = Time.now
+  v.save
+end
+
+Given /^parameter "([^\"]*)" is marked as deleted$/ do |parameter_name|
+  p = Discerner::Parameter.where(:name => parameter_name).first
+  p.deleted_at = Time.now
+  p.save
+end
+
+Given /^parameter category "([^\"]*)" is marked as deleted$/ do |parameter_name|
+  p = Discerner::ParameterCategory.where(:name => parameter_name).first
+  p.deleted_at = Time.now
+  p.save
 end
 
 
