@@ -1,13 +1,10 @@
 # ---- General structure:
 #   :dictionaries:
 #    - :name: string                                                            # has to be unique within not-deleted dictionaries
-#      :deleted: boolean                                                        # optional, used to mark dictionary as deleted
 #      :parameter_categories:
 #       - :name: string                                                         # has to be unique within the dictionary
-#         :deleted: boolean                                                     # optional, used to mark parameter category as deleted
 #         :parameters:
 #           - :name: string                                                     # used for display
-#             :deleted: boolean                                                 # optional, used to mark parameter as deleted
 #             :unique_identifier:                                               # has to be unique within the dictionary
 #             :export:
 #               :model                                                          # name of the model to be used for exporting
@@ -15,11 +12,10 @@
 #             :search:                                                          # parameter search model and method combination has to be unique within the category
 #               :model: string                                                  # name of the model to be used for searching
 #               :method: string                                                 # name of the model method to be used for searching
-#               :parameter_type: numeric/date/list/combobox/text/string/search  # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#               :parameter_type: numeric/date/list/combobox/text/string         # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
 #               :parameter_values:                                              # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
 #                 - :name: string                                               # used for display, if not provided, 'search_value' will be used instead
 #                   :search_value: string                                       # has to be unique within parameter, intendend to be used as a database value while searching
-#                   :deleted: boolean                                           # optional, used to mark parameter value as deleted
 #               :source:
 #                 :model: string                                                # source model to be used to load parameter values
 #                 :method: string                                               # method/method in the source model to be used to load parameter values
@@ -36,13 +32,13 @@
               :model: Patient
               :method: age_at_case_collect
               :parameter_type: numeric
-              
+
           - :name: Age based on current date
             :unique_identifier: age_based_on_current_date
             :export:
               :model: Patient
               :method: age_based_on_current_date
-              
+
           - :name: Date of birth
             :unique_identifier: birth_dt_tm
             :search:
@@ -52,7 +48,7 @@
             :export:
               :model: Patient
               :method: age_based_on_current_date
-              
+
           - :name: Ethnic group
             :unique_identifier: ethnic_grp
             :search:
@@ -78,13 +74,13 @@
               :parameter_values:
                 - :search_value: yes
                 - :search_value: no
-            
+
           - :name: Gender
             :unique_identifier: sex
             :search:
               :model: Patient
               :method: sex
-              :parameter_type: list              
+              :parameter_type: list
               :parameter_values:
                 - :name: Male
                   :search_value: male
@@ -99,7 +95,7 @@
             :export:
               :model: Patient
               :method: gender
-                
+
           - :name: Race
             :exclusive: false
             :unique_identifier: race
@@ -120,16 +116,16 @@
             :export:
               :model: Patient
               :method: race
-        
+
       - :name: Case criteria
         :parameters:
-          - :name: Accession date            
+          - :name: Accession date
             :unique_identifier: accessioned_dt_tm
             :search:
               :model: Case
               :method: accessioned_dt_tm
               :parameter_type: date
-              
+
           - :name: Text search diagnosis
             :exclusive: false
             :unique_identifier: case_specimen_diagnosis
@@ -137,9 +133,9 @@
               :model: Case
               :method: case_specimen_diagnosis
               :parameter_type: text
-              
+
   - :name: Librarian dictionary
-    :parameter_categories: 
+    :parameter_categories:
       - :name: By author
         :parameters:
           - :name: "Last name"
@@ -148,21 +144,21 @@
               :model: Author
               :method: autor_last_name
               :parameter_type: string
-              
+
           - :name: "First name"
             :unique_identifier: autor_first_name
             :search:
               :model: Author
               :method: autor_first_name
               :parameter_type: text
-              
+
           - :name: "Country"
             :unique_identifier: country
             :search:
               :model: Author
               :method: country
               :parameter_type: text
-              
+
       - :name: Book criteria
         :parameters:
           - :name: "Type"
@@ -176,31 +172,18 @@
                 - :search_value: journal
                 - :search_value: article
                 - :search_value: electronic journal
-              
+
           - :name: "Title"
             :unique_identifier: title
             :search:
               :model: Book
               :method: title
               :parameter_type: text
-              
+
           - :name: "Keyword"
             :unique_identifier: text
             :search:
               :model: Book
               :method: text
               :parameter_type: text
-            
-  - :name: Deleted dictionary
-    :deleted: true
-    :parameter_categories: 
-      - :name: Deleted category A
-        :deleted: true
-        :parameters:
-          - :name: "Deleted date parameter"
-            :unique_identifier: deleted_date
-            :search:
-              :model: Deleted
-              :method: deleted_date
-              :parameter_type: date
-            :deleted: true
+

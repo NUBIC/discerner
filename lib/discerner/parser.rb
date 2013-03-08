@@ -60,8 +60,8 @@ module Discerner
             end
           end
         end
-        cleanup
       end
+      cleanup
     end
 
     def parse_dictionary(hash)
@@ -72,7 +72,7 @@ module Discerner
       notification_message "processing dictionary '#{dictionary_name}'"
 
       dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
-      dictionary.deleted_at = deleted?(hash[:deleted]) ? Time.now : nil
+      dictionary.deleted_at = nil
 
       if dictionary.new_record?
         notification_message "creating dictionary ..."
@@ -95,7 +95,8 @@ module Discerner
       notification_message "processing parameter category  '#{parameter_category_name}'"
 
       parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_name, :dictionary_id => dictionary.id).first_or_initialize
-      parameter_category.deleted_at = deleted?(hash[:deleted]) ? Time.now : nil
+      parameter_category.deleted_at = nil
+
       if parameter_category.new_record?
         notification_message "creating parameter category ..."
         parameter_category.created_at = Time.now
@@ -123,7 +124,7 @@ module Discerner
       parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category)
 
       parameter.name        = parameter_name
-      parameter.deleted_at  = deleted?(hash[:deleted]) ? Time.now : nil
+      parameter.deleted_at  = nil
       parameter.exclusive   = hash[:exclusive].nil? ? true : to_bool(hash[:exclusive])
       parameter.parameter_category  = parameter_category
 
@@ -271,7 +272,8 @@ module Discerner
       end
 
       parameter_value.name = name || search_value
-      error_message "Parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
+      parameter_value.deleted_at = nil
+      error_message "parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
       updated_parameter_values << parameter_value
       parameter_value
@@ -281,7 +283,6 @@ module Discerner
       errors << "#{target}: #{str}"
       puts "ERROR: #{str}" if self.options.has_key?(:trace)
       reset_counts
-
       raise ActiveRecord::Rollback
     end
 
@@ -359,6 +360,8 @@ module Discerner
         end
       end
 
+      # this also marks search_parameter_values that reference this value and are chosen as deleted
+      # and destroys search_parameter_values that reference this value but are not chosen (list options)
       def cleanup_parameter_values
         abandoned_parameter_values = Discerner::ParameterValue.all - updated_parameter_values
         used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
@@ -367,7 +370,7 @@ module Discerner
         used_parameter_values.each do |r|
           notification_message("marking parameter value #{r.name} as deleted");
           r.deleted_at = Time.now
-          error_message "parameter value could not be deleted: #{r.errors.full_messages}", r.name unless r.save
+          error_message "parameter value could not be marked as deleted: #{r.errors.full_messages}", r.name unless r.save
         end
 
         unless not_used_parameter_values.blank?

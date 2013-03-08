@@ -39,4 +39,11 @@ describe Discerner::Dictionary do
     dictionary.deleted_at = Time.now
     dictionary.should be_deleted
   end
+
+  it "soft deleted linked parameter category on soft delete" do
+    parameter_category = Factory.create(:parameter_category, :dictionary => dictionary)
+    dictionary.deleted_at = Time.now
+    dictionary.save
+    parameter_category.reload.should be_deleted
+  end
 end
