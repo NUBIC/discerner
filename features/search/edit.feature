@@ -109,3 +109,105 @@ Feature: Viewing existing searches
     Then ".combined_search select" in the first ".search_combination" should not have options "Another search"
     And ".combined_search select" in the first ".search_combination" should have options "One more search"
 
+  @javascript
+  Scenario: Deleted parameter values should not be given as options if they are not selected
+    Given I create search with name "Awesome search"
+    And value "Unknown" for parameter "Gender" is marked as deleted
+    When I go to the search edit page
+    Then ".search_parameter_values" in the first ".search_parameter" should contain text "Male"
+    And ".search_parameter_values" in the first ".search_parameter" should not contain text "Unknown"
+
+  @javascript
+  Scenario: Deleted parameter values should be given as options if they are selected
+    Given I create search with name "Awesome search"
+    And value "Female" for parameter "Gender" is marked as deleted
+    When I go to the search edit page
+    Then ".search_parameter_values" in the first ".search_parameter" should contain text "Female"
+
+  @javascript
+  Scenario: Deleted parameter values should be highlighted if they are selected
+    Given I create search with name "Awesome search"
+    And value "Female" for parameter "Gender" is marked as deleted
+    When I go to the search edit page
+    Then ".error" in the first ".search_parameter_values" should contain text "Female"
+
+  @javascript
+  Scenario: It should remove deleted value from the options after it gets unchecked
+    Given I create search with name "Awesome search"
+    And value "Female" for parameter "Gender" is marked as deleted
+    When I go to the search edit page
+    And I uncheck "input[type='checkbox']" within the first ".search_parameter .chosen"
+    And I press "Update search"
+    Then ".search_parameter_values" in the first ".search_parameter" should not contain text "Female"
+
+  @javascript
+  Scenario: Deleted parameters should not be given as options if they are not selected
+    Given I create search with name "Awesome search"
+    And parameter "Text search diagnosis" is marked as deleted
+    When I go to the search edit page
+    Then ".parameter select" in the last ".search_parameter" should not have options "Text search diagnosis"
+
+  @javascript
+  Scenario: Deleted parameters should be given as options if they are selected
+    Given I create search with name "Awesome search"
+    And parameter "Gender" is marked as deleted
+    When I go to the search edit page
+    Then ".parameter select" in the last ".search_parameter" should have options "Gender"
+
+  @javascript
+  Scenario: Deleted parameters should be highlighted if they are selected
+    Given I create search with name "Awesome search"
+    And parameter "Gender" is marked as deleted
+    When I go to the search edit page
+    Then ".search_parameters .error select" should have options "Gender"
+
+  @javascript
+  Scenario: Deleted searches should not be given as options if they are not selected
+    Given search "Awesome search" combines in search "Another search"
+    And I create search with name "One more search"
+    And search with name "One more search" is marked as deleted
+    When I go to the search "Awesome search" edit page
+    Then ".combined_search select" should not have options "One more search"
+
+  @javascript
+  Scenario: Deleted searches should be given as options if they are selected
+    Given search "Awesome search" combines in search "Another search"
+    And search with name "Another search" is marked as deleted
+    When I go to the search "Awesome search" edit page
+    Then ".combined_search select" should have options "Another search"
+
+  @javascript
+  Scenario: Deleted searches should be highlighted if they are selected
+    Given search "Awesome search" combines in search "Another search"
+    And search with name "Another search" is marked as deleted
+    When I go to the search "Awesome search" edit page
+    Then ".search_combinations .error select" should have options "Another search"
+
+  @javascript
+  Scenario: Disabled searches should not be given as options if they are not selected
+    Given search "Awesome search" combines in search "Another search"
+    And I create search with name "One more search"
+    And search "One more search" is disabled
+    When I go to the search "Awesome search" edit page
+    Then ".combined_search select" should not have options "One more search"
+
+  @javascript
+  Scenario: Disabled searches should be given as options if they are selected
+    Given search "Awesome search" combines in search "Another search"
+    And search "Another search" is disabled
+    When I go to the search "Awesome search" edit page
+    Then ".combined_search select" should have options "Another search"
+
+  @javascript
+  Scenario: Disabled searches should be highlighted if they are selected
+    Given search "Awesome search" combines in search "Another search"
+    And search "Another search" is disabled
+    When I go to the search "Awesome search" edit page
+    Then ".combined_search select" should have options "Another search"
+
+  @javascript
+  Scenario: It should not show export link if search is disabled
+    Given I create search with name "Awesome search"
+    And value "Female" for parameter "Gender" is marked as deleted
+    When I am on the search edit page
+    Then ".discerner-buttons" should not contain text "Export options"

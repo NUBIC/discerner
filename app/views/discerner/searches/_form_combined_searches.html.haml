@@ -7,14 +7,14 @@
       %th.remove
       %th
   %tbody.nested_records_search_combinations
-    - if @discerner_searches.blank?
+    - if combined_searches_options(@discerner_search).blank?
       %td{:colspan => '4'}
         No qualifying searches found
     - else
       - @discernerSearchCombinationsTemplate = generate_nested_attributes_template(f, :search_combinations, 'search_combination')
       = f.fields_for :search_combinations, f.object.search_combinations.order(:display_order) do |search_combination|
-        = render :partial => 'search_combination_fields', :locals => { :f => search_combination }      
-        
+        = render :partial => 'search_combination_fields', :locals => { :f => search_combination }
+
       %tfoot
         %tr
           %td{ :colspan => '3', :class => 'add_search_combinations_link' }
@@ -25,7 +25,7 @@
   $(function () {
     var discernerSearchCombinationsTemplate = '#{@discernerSearchCombinationsTemplate}';
     if (discernerSearchCombinationsTemplate) {
-      new Discerner.SearchCombination.UI({ 
+      new Discerner.SearchCombination.UI({
         searchCombinationsTemplate: discernerSearchCombinationsTemplate
       })
     }

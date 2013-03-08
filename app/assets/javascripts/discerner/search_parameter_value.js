@@ -1,20 +1,31 @@
 Discerner.SearchParameterValue.UI = function (config) {
   var that = this,
     parametersUrl = new Discerner.Url(config.parametersUrl),
+    hideValue = function(e){
+      if (!$(e).hasClass('invisible')){
+        $(e).addClass('invisible')
+      }
+    }
+    showValue = function(e){
+      if ($(e).hasClass('invisible')){
+        $(e).removeClass('invisible')
+      }
+    }
     setupOperator = function(o){
       var row = $(o).closest('tr');
       if ($(o).find('option:selected').hasClass('binary')){
-        $(row).find('.additional_value').show()
+        showValue($(row).find('.additional_value'))
       } else {
-        $(row).find('.additional_value').hide()
+        hideValue($(row).find('.additional_value'))
       }
     },
     setupParameterValues = function(){
       var row = $(config.container).find('.nested_records_search_parameter_values .search_parameter_value').last(),
         selectedParameter = $(config.container).find('select.parameters_combobox_autocompleter option:selected:last');
       row.find('td').hide();
+      hideValue($(row).find('.additional_value').show())
       row.find('.parameter_values_boolean_operator').show();
-      
+
       if ($(selectedParameter).hasClass('list')) {                                     // list parameters
         row.find('.chosen, .parameter_value').show();
         $(config.container).find('a.add_search_parameter_values').hide();
@@ -46,7 +57,7 @@ Discerner.SearchParameterValue.UI = function (config) {
         var parameter_classes = ['date', 'numeric', 'text', 'string']
         for (var i in parameter_classes) {
           if ($(selectedParameter).hasClass(parameter_classes[i])) {
-            row.find('.operator option:not(.' + parameter_classes[i] +')').detach();            
+            row.find('.operator option:not(.' + parameter_classes[i] +')').detach();
             row.find('.operator, .value, .remove').show();
             $(config.container).find('a.add_search_parameter_values').show();
             if (parameter_classes[i] == 'date') {
@@ -54,7 +65,7 @@ Discerner.SearchParameterValue.UI = function (config) {
             }
           }
         }
-      }       
+      }
       $(config.container).find('.nested_records_search_parameter_values tr.search_parameter_value:visible:not(:first)')
         .find('.parameter_values_boolean_operator span').html('or');
       $(".parameter_values_combobox_autocompleter").combobox({watermark:'a value', css_class:'autocompleter-dropdown'});
@@ -86,7 +97,7 @@ Discerner.SearchParameterValue.UI = function (config) {
 
   setupParameterValues();
   $.each($('.operator'), function() { setupOperator(this); });
-  
+
   $(document).on('change', '.operator select', function(){
     setupOperator(this);
   });

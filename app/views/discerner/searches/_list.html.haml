@@ -6,7 +6,7 @@
       %th
   %tbody
     - @discerner_searches.each do |search|
-      %tr{:class=>"#{cycle('odd_record','even_record')}"}
+      %tr{:class=>"#{cycle('odd_record','even_record')} #{'error' if search.disabled?}"}
         %td
           = search.display_name
         %td

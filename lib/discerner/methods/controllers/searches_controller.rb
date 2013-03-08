@@ -4,7 +4,6 @@ module Discerner
       module SearchesController
         def self.included(base)
           base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :show]
-          base.send :before_filter, :load_combined_searches, :except => :index
         end
 
         def new
@@ -29,15 +28,19 @@ module Discerner
         end
 
         def edit
-          if dictionary_model
-            dictionary =  dictionary_model.new(@discerner_search)
-            if dictionary.respond_to?('search')
-              @results = dictionary.search(params, dictionary_options)
-            else
-              error_message = "Model '#{dictionary_model_name}' instance does not respond to 'search' method. You need to implement it to be able to run search on this dictionary"
-            end
+          if @discerner_search.disabled?
+            error_message = "There is an issue with the this search that has to be corrected before it can be executed"
           else
-            error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run search on this dictionary"
+            if dictionary_model
+              dictionary =  dictionary_model.new(@discerner_search)
+              if dictionary.respond_to?('search')
+                @results = dictionary.search(params, dictionary_options)
+              else
+                error_message = "Model '#{dictionary_model_name}' instance does not respond to 'search' method. You need to implement it to be able to run search on this dictionary"
+              end
+            else
+              error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run search on this dictionary"
+            end
           end
           flash[:error] = error_message unless error_message.blank?
         end
@@ -55,8 +58,8 @@ module Discerner
         end
 
         def index
-          searches = available_searches
-
+          username = discerner_user.username unless discerner_user.blank?
+          searches = Discerner::Search.not_deleted.by_user(username)
           if params[:query].blank?
             @discerner_searches = searches.all
           else
@@ -73,13 +76,17 @@ module Discerner
         end
 
         def show
-          if dictionary_model
-            dictionary =  dictionary_model.new(@discerner_search)
-            if not dictionary.respond_to?('export')
-              error_message = "Model '#{dictionary_model_name}' instance does not respond to 'export' method. You need to implement it to be able to run export on this dictionary"
-            end
+          if @discerner_search.disabled?
+            error_message = "There is an issue with the this search that has to be corrected before it can be exported"
           else
-            error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run export on this dictionary"
+            if dictionary_model
+              dictionary =  dictionary_model.new(@discerner_search)
+              if not dictionary.respond_to?('export')
+                error_message = "Model '#{dictionary_model_name}' instance does not respond to 'export' method. You need to implement it to be able to run export on this dictionary"
+              end
+            else
+              error_message = "Model '#{dictionary_model_name}' could not be found. You need to create it to be able to run export on this dictionary"
+            end
           end
           flash[:error] = error_message unless error_message.blank?
 
@@ -117,21 +124,6 @@ module Discerner
 
           def dictionary_model
             dictionary_model_name.safe_constantize
-          end
-
-          def load_combined_searches
-            discerner_searches = available_searches
-            if @discerner_search && @discerner_search.persisted?
-              discerner_searches = discerner_searches.
-              where('id != ? and dictionary_id = ?', @discerner_search.id, @discerner_search.dictionary_id).
-              reject{|s| s.nested_searches.include?(@discerner_search)}
-            end
-            @discerner_searches = discerner_searches
-          end
-
-          def available_searches
-            username = discerner_user.username unless discerner_user.blank?
-            Discerner::Search.by_user(username)
           end
 
           def dictionary_options

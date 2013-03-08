@@ -1,5 +1,5 @@
 #discerner_search_header
-  - if @discerner_search.persisted?    
+  - if @discerner_search.persisted?
     #messages
     .discerner_search_name
       %b Search name:
@@ -12,6 +12,9 @@
       %b Dictionary:
       %span{ :class => "#{@discerner_search.dictionary.css_class_name}"}
         #{@discerner_search.dictionary.name}
+      - if @discerner_search.dictionary.deleted?
+        %span{ :style => "color:red;"}
+          %b This dictionary has been deleted. You will not be able to execute or edit this search.
 
   - else
     %div.discerner_search_name
@@ -27,8 +30,8 @@
         = f.hidden_field :dictionary_id, :value => dictionary_options.last[1]
         %span{ :class => "#{dictionary_options.last[2][:css_class_name]}"}
           #{dictionary_options.last[0]}
-        
-        
+
+
   .discerner_dictionary_required_message
     %span
       Select dictionary in order to add search criteria

@@ -12,7 +12,7 @@ module Discerner
 
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :by_user, lambda{|username| base.not_deleted.where(:username => username)})
+          base.send(:scope, :by_user, lambda{|username| base.where(:username => username)})
 
           # Validations
           @@validations_already_included ||= nil
@@ -115,9 +115,9 @@ module Discerner
           return false unless persisted?
           deleted? ||
           dictionary.deleted? ||
-          search_parameters.select{ |sp| sp.disabled? }.any? ||
-          export_parameters.select{ |ep| ep.disabled? }.any? ||
-          search_combinations.select{ |sc| sc.disabled? }.any?
+          search_parameters.select{|sp| sp.disabled?}.any? ||
+          export_parameters.select{|ep| ep.disabled?}.any? ||
+          search_combinations.select{|sc| sc.disabled?}.any?
         end
 
         private

@@ -15,7 +15,9 @@ end
 ENV["RAILS_ROOT"] ||= File.dirname(__FILE__) + "../../../test/dummy"
 
 require 'cucumber/rails'
-require "factory_girl"
+require 'factory_girl'
+require 'selenium/webdriver'
+require 'cucumber/rspec/doubles'
 
 FactoryGirl.find_definitions
 
@@ -69,10 +71,11 @@ end
 # The :transaction strategy is faster, but might give you threading problems.
 # See https://github.com/cucumber/cucumber-rails/blob/master/features/choose_javascript_database_strategy.feature
 Cucumber::Rails::Database.javascript_strategy = :truncation
+
 Capybara.register_driver :chrome do |app|
- Capybara::Selenium::Driver.new(app, :browser => :chrome)
+  profile = Selenium::WebDriver::Chrome::Profile.new
+  profile["download.default_directory"] = DownloadHelpers::PATH.to_s
+  Capybara::Selenium::Driver.new(app, :browser => :chrome, :profile => profile)
 end
+Capybara.default_driver = Capybara.javascript_driver = :chrome
 
-Capybara.javascript_driver = :chrome
-
-require 'cucumber/rspec/doubles'

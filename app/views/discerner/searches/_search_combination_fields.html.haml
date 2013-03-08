@@ -1,6 +1,6 @@
 - unless f.blank?
   - search_combination_id = nested_record_id(f, :search_combination)
-  %tr{ :id => "#{search_combination_id}", :class => "search_combination fields" }
+  %tr{ :id => "#{search_combination_id}", :class => "search_combination fields #{'error' if f.object.combined_search && f.object.combined_search.disabled?}" }
     %td.combined_search_operator
       %span
         restrict to
@@ -9,7 +9,7 @@
         = f.hidden_field :display_order
         = f.hidden_field :operator_id, :value => Discerner::Operator.where(:symbol => 'include').first.id
         -#= f.select(:operator_id, operator_options('search'))
-        = f.select(:combined_search_id, combined_searches_options, { :include_blank => true },{ :class => 'search_combinations_combobox_autocompleter' })
+        = f.select(:combined_search_id, combined_searches_options(@discerner_search), { :include_blank => true },{ :class => 'search_combinations_combobox_autocompleter' })
     %td.remove
       = link_to_remove_fields 'Remove', f, :search_combinations
     %td

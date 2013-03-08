@@ -1,5 +1,5 @@
 - search_parameter_id = nested_record_id(f, :search_parameter)
-%tr{ :id => "#{search_parameter_id}", :class => "search_parameter fields" }
+%tr{ :id => "#{search_parameter_id}", :class => "search_parameter fields #{'error' if f.object.parameter && f.object.parameter.deleted?}" }
   %td.parameter_boolean_operator
     %span
       where

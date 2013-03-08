@@ -1,21 +1,22 @@
-%tr{ :class => 'search_parameter_value fields' }
+%tr{ :class => "search_parameter_value fields #{'error' if f.object.disabled?}" }
   %td.parameter_values_boolean_operator
     = f.hidden_field :display_order
     %span
   - if f.object.new_record?
     %td.operator
       = f.select(:operator_id, operator_options, { :include_blank => true })
-    %td.value
-      = f.text_field :value
-    %td.additional_value
-      = f.text_field :additional_value
     %td.chosen
       = f.check_box :chosen
     %td.parameter_value
       = f.hidden_field :parameter_value_id, :class => 'parameter_value_id'
       %span{ :class => 'parameter_value_text' }
+    %td.value
+      = f.text_field :value
+    %td.additional_value
+      = f.text_field :additional_value
     %td.remove
       = link_to_remove_fields 'Remove', f, :search_parameter_values
+
   - else
     - type = f.object.search_parameter.parameter.parameter_type.name
     - case type
@@ -28,21 +29,21 @@
           = f.object.parameter_value.name
       %td{:class => "remove", :hidden => "true"}
         = link_to_remove_fields 'Remove', f, :search_parameter_values
+
     - when 'combobox'
       %td.parameter_value
         = f.select(:parameter_value_id, f.object.search_parameter.parameter.parameter_values.order('name').map {|q| [q.name, q.id]}, { :include_blank => true },{ :class => 'parameter_values_combobox_autocompleter' })
       %td.remove
         = link_to_remove_fields 'Remove', f, :search_parameter_values
+
     - else
       %td.operator
         - selected = f.object.operator.blank? ? nil : f.object.operator.id
         = f.select(:operator_id, options_for_select([["", ""]] + operator_options(type), selected))
       %td.value
-        = f.text_field :value, :class => "#{type == 'date' ? 'datepicker' : nil}"
-      - css_attributes = {}
-      - css_attributes = { :hidden => true } unless f.object.operator && f.object.operator.binary
-      %td.additional_value{ css_attributes }
-        = f.text_field :additional_value
+        = f.text_field :value, :class => "#{type == 'date' ? 'datepicker' : nil} "
+      %td.additional_value
+        = f.text_field :additional_value, :class => "#{'invisible' unless f.object.operator && f.object.operator.binary}"
       %td.remove
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 

@@ -161,20 +161,9 @@ Given /^only "([^\"]*)" dictionary exists$/ do |name|
   dictionaries.destroy_all
 end
 
-Then /^I should receive a CSV file(?: "([^\"]*)")?/ do |file|
-  result = page.response_headers['Content-Type'].should include("text/csv")
-  if result
-    result = page.response_headers['Content-Disposition'].should include(file)
-  end
-  result
-end
-
-Then /^I should receive a XLS file(?: "([^\"]*)")?/ do |file|
-  result = page.response_headers['Content-Type'].should include("application/xls")
-  if result
-    result = page.response_headers['Content-Disposition'].should include(file)
-  end
-  result
+Then /^I should receive a "([^\"]*)" file(?: with name "([^\"]*)")?/ do |extension, filename|
+  download_extension.should == extension
+  download_filename.should match(filename) unless filename.blank?
 end
 
 When /^I add combined search$/ do
@@ -196,18 +185,58 @@ Given /^value "([^\"]*)" for parameter "([^\"]*)" is marked as deleted$/ do |val
   v.save
 end
 
-Given /^parameter "([^\"]*)" is marked as deleted$/ do |parameter_name|
-  p = Discerner::Parameter.where(:name => parameter_name).first
-  p.deleted_at = Time.now
-  p.save
+Given /^parameter "([^\"]*)" is marked as deleted$/ do |name|
+  r = Discerner::Parameter.where(:name => name).first
+  r.deleted_at = Time.now
+  r.save
 end
 
-Given /^parameter category "([^\"]*)" is marked as deleted$/ do |parameter_name|
-  p = Discerner::ParameterCategory.where(:name => parameter_name).first
-  p.deleted_at = Time.now
-  p.save
+Given /^parameter category "([^\"]*)" is marked as deleted$/ do |name|
+  r = Discerner::ParameterCategory.where(:name => name).first
+  r.deleted_at = Time.now
+  r.save
 end
 
+Given /^parameters in category "([^\"]*)" are marked as deleted$/ do |name|
+  r = Discerner::ParameterCategory.where(:name => name).first
+  r.parameters.each do |p|
+    p.deleted_at = Time.now
+    p.save
+  end
+end
+
+Given /^dictionary "([^\"]*)" is marked as deleted$/ do |name|
+  r = Discerner::Dictionary.where(:name => name).first
+  r.deleted_at = Time.now
+  r.save
+end
+
+Given /^search with name "([^\"]*)" is marked as deleted$/ do |name|
+  r = Discerner::Search.where(:name => name).first
+  r.deleted_at = Time.now
+  r.save
+end
+
+Given /^search with name "([^\"]*)" has exportable parameters "([^\"]*)"$/ do |name, parameter_names|
+  search = Discerner::Search.where(:name => name).first
+  parameter_names.split(', ').each do |name|
+    p = Discerner::Parameter.where(:name => name).first
+    search.export_parameters.create(:parameter_id => p.id)
+  end
+end
+
+Given /^search "([^\"]*)" combines in search "([^\"]*)"$/ do |search_name, anoher_search_name|
+  steps %Q{
+    Given I create search with name "#{anoher_search_name}"
+    And I create search with name "#{search_name}"
+    When I go to the search "#{search_name}" edit page
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "#{anoher_search_name}"
+    And I add "Text search diagnosis" search criteria
+    And I enter value "adenocarcinoma" within the last search criteria
+    And I press "Search"
+  }
+end
 
 def set_sample_dictionary_search_parameters
   steps %Q{

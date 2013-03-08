@@ -3,12 +3,12 @@
   :font-size 13px
   :font-family Helvetica Neue,​Arial,​Helvetica,​sans-serif
   :font-weight 400
-  
+
   .ui-widget
     :font-size 13px
     :font-family Helvetica Neue,​Arial,​Helvetica,​sans-serif
     :font-weight 400
-    
+
   .message
     :padding 0.5em
     :text-align center
@@ -17,8 +17,8 @@
     :border-radius 20px
     :border-radius 20px
 
-  #error
-    :border 1px solid maroon
+  #error, .error
+    :border 1px solid maroon !important
     :color maroon
     :background-color lavenderblush
 
@@ -28,7 +28,17 @@
     :background-color #cfc
   .clear
     :clear both
-    
+
+  tr.error
+    :border 1px solid lightgray !important
+    :background-color lavenderblush !important
+    td
+      :padding-top 2px !important
+    tr.error
+      :border none !important
+.invisible
+  :visibility hidden
+
 .ui-autocomplete
   :max-height 200px
   :overflow-y auto
@@ -36,3 +46,4 @@
 
 * html .ui-autocomplete
   :height 200px
+

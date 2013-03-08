@@ -34,3 +34,12 @@ Feature: Viewing existing searches
     Then I should be on the searches page
     Then "#searches-list" should not contain text "best search ever"
     And "#searches-list" should contain text "another search"
+
+  @javascript
+  Scenario: Vieving disabled searches
+    Given search dictionaries are loaded
+    And search "best search ever" exists
+    And search "best search ever" is disabled
+    When I go to the searches page
+    Then "#searches-list .error" should contain text "best search ever"
+

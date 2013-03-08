@@ -287,7 +287,12 @@ When /^I enter "([^\"]*)" into "([^\"]*)" within(?: the (first|last))? "([^\"]*)
   within_scope(get_scope(position, scope_selector)) {
     elements = all(selector, :visible => true)
     elements.should_not be_empty
-    elements.each{ |e| e.set(value) }
+    elements.each do |e|
+      e.set(value)
+      if e[:class].match('datepicker')
+        page.execute_script "$('##{e[:id]}').datepicker(\"hide\");"
+      end
+    end
   }
 end
 

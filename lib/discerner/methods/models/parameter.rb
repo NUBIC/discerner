@@ -12,8 +12,8 @@ module Discerner
 
           # Scopes
           base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :searchable, base.where('search_model is not null and search_method is not null'))
-          base.send(:scope, :exportable, base.where('export_model is not null and export_method is not null'))
+          base.send(:scope, :searchable, base.where('search_model is not null and search_method is not null and deleted_at is null'))
+          base.send(:scope, :exportable, base.where('export_model is not null and export_method is not null and deleted_at is null'))
 
           #Validations
           @@validations_already_included ||= nil

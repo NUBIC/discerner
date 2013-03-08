@@ -271,9 +271,11 @@ Feature: Viewing existing searches
     Then I should be on the search edit page
     And "div.discerner_search_dictionary" should contain text "Sample dictionary"
 
+  @javascript
   Scenario: It should notify user if there are no searches that can be combined
     Given search dictionaries are loaded
     When I go to the new search page
+    And I select dictionary "Sample dictionary"
     Then ".search_combinations" should contain text "No qualifying searches found"
 
   @javascript
@@ -324,3 +326,69 @@ Feature: Viewing existing searches
     Then ".combined_search select" in the first ".search_combination" should have "Awesome search" selected
     And ".combined_search select" in the first ".search_combination" should not have "Another search" selected
 
+  @javascript
+  Scenario: Deleted parameter values should not be given as options
+    Given search dictionaries are loaded
+    And value "Unknown" for parameter "Gender" is marked as deleted
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add "Gender" search criteria
+    Then ".parameter_values" in the first ".search_parameter" should contain text "Male"
+    And ".parameter_values" in the first ".search_parameter" should not contain text "Unknown"
+
+  @javascript
+  Scenario: Deleted parameters should not be given as parameters options
+    Given search dictionaries are loaded
+    And parameter "Gender" is marked as deleted
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add search criteria
+    And I open criteria dropdown
+    Then ".parameter select" in the first ".search_parameter" should have options "Age at case collection date, Ethnic group, Race, Text search diagnosis"
+    And ".parameter select" in the first ".search_parameter" should not have options "Gender"
+
+  @javascript
+  Scenario: Deleted categories should not be shown in parameters options
+    Given search dictionaries are loaded
+    And parameter category "Case criteria" is marked as deleted
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add search criteria
+    And I open criteria dropdown
+    Then ".div-survey_section-list" should not contain text "Case criteria"
+
+  @javascript
+  Scenario: Categories with all parameters disabled should not be shown in parameters options
+    Given search dictionaries are loaded
+    And parameters in category "Case criteria" are marked as deleted
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add search criteria
+    And I open criteria dropdown
+    Then ".div-survey_section-list" should not contain text "Case criteria"
+
+  @javascript
+  Scenario: Deleted dictionaries should not be given as dictionary options
+    Given search dictionaries are loaded
+    And dictionary "Sample dictionary" is marked as deleted
+    When I go to the new search page
+    Then "div.discerner_search_name" should contain text "Search name"
+    And "div.discerner_search_dictionary" should contain text "Librarian dictionary"
+
+  @javascript
+  Scenario: Deleted searches should not be given as combined search options
+    Given I create search with name "Awesome search"
+    And search with name "Awesome search" is marked as deleted
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    Then ".search_combinations" should contain text "No qualifying searches found"
+
+  @javascript
+  Scenario: Disabled searches should not be given as combined search options
+    Given search dictionaries are loaded
+    And search operators are loaded
+    And search "best search ever" exists
+    And search "best search ever" is disabled
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    Then ".search_combinations" should contain text "No qualifying searches found"
