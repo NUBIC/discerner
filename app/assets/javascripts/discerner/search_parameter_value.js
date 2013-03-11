@@ -13,10 +13,15 @@ Discerner.SearchParameterValue.UI = function (config) {
     }
     setupOperator = function(o){
       var row = $(o).closest('tr');
-      if ($(o).find('option:selected').hasClass('binary')){
+      if ($(o).find('option:selected').hasClass('range')){
         showValue($(row).find('.additional_value'))
       } else {
         hideValue($(row).find('.additional_value'))
+      }
+      if ($(o).find('option:selected').hasClass('presence')){
+        hideValue($(row).find('.value'))
+      } else {
+        showValue($(row).find('.value'))
       }
     },
     setupParameterValues = function(){

@@ -7,7 +7,6 @@ describe Discerner::Parser do
     parser.parse_operators(File.read(file))
 
     Discerner::Operator.all.should_not be_empty
-    Discerner::Operator.where(:text => 'is not like').should_not be_empty
     Discerner::ParameterType.all.should_not be_empty
   end
 
@@ -34,8 +33,7 @@ describe Discerner::Parser do
     dictionary.parameter_categories.last.should have(2).parameters
     dictionary.parameter_categories.last.should_not be_deleted
 
-    Discerner::Parameter.all.count.should == 15
-    Discerner::ParameterValue.all.length.should == 24
+    dictionary.parameter_categories.first.parameters.where(:unique_identifier => 'ethnic_grp').first. should have(5).parameter_values # extra 'None' value added
   end
 
   it "parses parameters with source model and method" do
@@ -63,12 +61,11 @@ describe Discerner::Parser do
     Discerner::Parameter.all.length.should == 1
     p = Discerner::Parameter.last
     p.name.should == 'Ethnic group'
-    p.parameter_values.length.should == 2
 
     ethnic_groups_names = Patient.ethnic_groups.map { |ethnic_group| ethnic_group[:name] }
     ethnic_groups_search_values = Patient.ethnic_groups.map { |ethnic_group| ethnic_group[:search_value] }
-    Set.new(p.parameter_values.map(&:name)).should == Set.new(ethnic_groups_names)
-    Set.new(p.parameter_values.map(&:search_value)).should == Set.new(ethnic_groups_search_values)
+    Set.new(p.parameter_values.map(&:name)).should == Set.new(ethnic_groups_names + ['None'])
+    Set.new(p.parameter_values.map(&:search_value)).should == Set.new(ethnic_groups_search_values + [''])
   end
 
   it "raisers an error message with a source model and method that does not conform to the :name, :search_value interface" do
@@ -121,12 +118,10 @@ describe Discerner::Parser do
     Discerner::Parameter.all.length.should == 1
     p = Discerner::Parameter.last
     p.name.should == 'Gender'
-    p.parameter_values.length.should == 2
 
     genders = Patient.all.map { |patient| patient.gender }
-
-    Set.new(p.parameter_values.map(&:name)).should == Set.new(genders)
-    Set.new(p.parameter_values.map(&:search_value)).should == Set.new(genders)
+    Set.new(p.parameter_values.map(&:name)).should == Set.new(genders + ['None'])
+    Set.new(p.parameter_values.map(&:search_value)).should == Set.new(genders + [''])
   end
 
   it "restores soft deleted dictionaries if they are defined in the dictionary definition" do
@@ -199,9 +194,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     Discerner::Parameter.all.length.should == 1
-    Discerner::Parameter.last.parameter_values.length.should == 2
     Discerner::Parameter.last.parameter_values.each do |pv|
-      ['true', 'false'].should include(pv.name)
+      ['true', 'false', 'None'].should include(pv.name)
     end
   end
 
@@ -217,8 +211,10 @@ describe Discerner::Parser do
                 :unique_identifier: consented
     }
     parser.parse_dictionaries(dictionaries)
-    Discerner::Parameter.all.length.should == 1
-    Discerner::Parameter.last.name.should == 'Consented'
+    p = Discerner::Parameter.where(:unique_identifier => 'consented').first
+    p.should_not be_blank
+    p.name.should == 'Consented'
+    p.parameter_category.name.should == 'Demographic criteria'
 
     dictionaries = %Q{
     :dictionaries:
@@ -229,9 +225,11 @@ describe Discerner::Parser do
               - :name: Consented already
                 :unique_identifier: consented
     }
-  parser.parse_dictionaries(dictionaries)
-  Discerner::Parameter.all.length.should == 1
-  Discerner::Parameter.last.name.should == 'Consented already'
+    parser.parse_dictionaries(dictionaries)
+    p = Discerner::Parameter.where(:unique_identifier => 'consented').first
+    p.should_not be_blank
+    p.name.should == 'Consented already'
+    p.parameter_category.name.should == 'Another criteria'
   end
 
   it "deletes dictionaries that are no longer defined in the definition file and are not used in searches" do
@@ -263,7 +261,9 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 2
     Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 2
+    Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
+    Discerner::Dictionary.where(:name => 'Another dictionary').should_not be_blank
+
     dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
@@ -280,8 +280,8 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 1
     Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 1
-    Discerner::Dictionary.not_deleted.all.length.should == 1
+    Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
+    Discerner::Dictionary.where(:name => 'Another dictionary').should be_blank
   end
 
   it "deletes categories that are no longer defined in the definition file and are not used in searches" do
@@ -312,6 +312,8 @@ describe Discerner::Parser do
     parser.updated_categories.length.should == 2
     Discerner::ParameterCategory.all.should_not be_empty
     Discerner::ParameterCategory.all.length.should == 2
+    Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
+    Discerner::ParameterCategory.where(:name => 'Patient criteria').should_not be_blank
 
     dictionaries = %Q{
     :dictionaries:
@@ -330,7 +332,8 @@ describe Discerner::Parser do
     parser.updated_categories.length.should == 1
     Discerner::ParameterCategory.all.should_not be_empty
     Discerner::ParameterCategory.all.length.should == 1
-    Discerner::ParameterCategory.not_deleted.all.length.should == 1
+    Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
+    Discerner::ParameterCategory.where(:name => 'Patient criteria').should be_blank
   end
 
   it "deletes parameters that are no longer defined in the definition file and are not used in searches" do
@@ -359,6 +362,9 @@ describe Discerner::Parser do
     parser.updated_parameters.length.should == 2
     Discerner::Parameter.all.should_not be_empty
     Discerner::Parameter.all.length.should == 2
+    Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
+    Discerner::Parameter.where(:unique_identifier => 'gender').should_not be_blank
+
     dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
@@ -376,7 +382,8 @@ describe Discerner::Parser do
     parser.updated_parameters.length.should == 1
     Discerner::Parameter.all.should_not be_empty
     Discerner::Parameter.all.length.should == 1
-    Discerner::Parameter.not_deleted.all.length.should == 1
+    Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
+    Discerner::Parameter.where(:unique_identifier => 'gender').should be_blank
   end
 
   it "deletes parameter values that are no longer defined in the definition file and are not used in searches" do
@@ -398,15 +405,15 @@ describe Discerner::Parser do
                       :search_value: hisp_or_latino
                     - :name: NOT Hispanic or Latino
                       :search_value: not_hisp_or_latino
-                    - :name: Unable to answer
-                      :search_value: unknown
-                    - :name: Declined to answer
-                      :search_value: declined
     }
     parser.parse_dictionaries(dictionaries)
-    parser.updated_parameter_values.length.should == 4
+    parser.updated_parameter_values.length.should == 2
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 4
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
+
     dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
@@ -422,14 +429,13 @@ describe Discerner::Parser do
                   :parameter_values:
                     - :name: Hispanic or Latino
                       :search_value: hisp_or_latino
-                    - :name: NOT Hispanic or Latino
-                      :search_value: not_hisp_or_latino
     }
     parser.parse_dictionaries(dictionaries)
-    parser.updated_parameter_values.length.should == 2
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 2
-    Discerner::ParameterValue.not_deleted.all.length.should == 2
+    parser.updated_parameter_values.length.should == 1
+    parser.blank_parameter_values.length.should == 1
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should be_blank
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
   end
 
   it "deletes parameter values that are no longer defined in the definition file and used in list searches as not chosen options" do
@@ -456,8 +462,11 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 3
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
+    parser.blank_parameter_values.length.should == 1
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'unknown').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
     value = Discerner::ParameterValue.where(:search_value => "unknown").first
     s = Factory.build(:search)
@@ -485,9 +494,12 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 2
-    Discerner::ParameterValue.not_deleted.all.length.should == 2
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'unknown').should be_blank
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
   end
 
   it "soft-deletes dictionaries that are no longer defined in the definition file but are used in searches" do
@@ -518,8 +530,9 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 2
-    Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 2
+    Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
+    Discerner::Dictionary.where(:name => 'Another dictionary').should_not be_blank
+    Discerner::Dictionary.where(:name => 'Another dictionary').first.should_not be_deleted
 
     dictionary = Discerner::Dictionary.where(:name => "Another dictionary").first
     s = Factory.build(:search)
@@ -543,9 +556,9 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 1
     Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 2
-    Discerner::Dictionary.not_deleted.all.length.should == 1
-    dictionary.reload.should be_deleted
+    Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
+    Discerner::Dictionary.where(:name => 'Another dictionary').should_not be_blank
+    Discerner::Dictionary.where(:name => 'Another dictionary').first.should be_deleted
   end
 
   it "soft-deletes categories that are no longer defined in the definition file but are used in searches" do
@@ -574,8 +587,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_categories.length.should == 2
-    Discerner::ParameterCategory.all.should_not be_empty
     Discerner::ParameterCategory.all.length.should == 2
+    Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
+    Discerner::ParameterCategory.where(:name => 'Patient criteria').should_not be_blank
+    Discerner::ParameterCategory.where(:name => 'Patient criteria').first.should_not be_deleted
 
     category = Discerner::ParameterCategory.where(:name => "Patient criteria").first
     s = Factory.build(:search)
@@ -597,9 +612,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_categories.length.should == 1
-    Discerner::ParameterCategory.all.should_not be_empty
     Discerner::ParameterCategory.all.length.should == 2
-    Discerner::ParameterCategory.not_deleted.all.length.should == 1
+    Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
+    Discerner::ParameterCategory.where(:name => 'Patient criteria').should_not be_blank
+    Discerner::ParameterCategory.where(:name => 'Patient criteria').first.should be_deleted
   end
 
   it "soft-deletes parameters that are no longer defined in the definition file but are used in searches" do
@@ -626,8 +642,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameters.length.should == 2
-    Discerner::Parameter.all.should_not be_empty
     Discerner::Parameter.all.length.should == 2
+    Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
+    Discerner::Parameter.where(:unique_identifier => 'gender').should_not be_blank
+    Discerner::Parameter.where(:unique_identifier => 'gender').first.should_not be_deleted
 
     parameter = Discerner::Parameter.where(:unique_identifier => "gender").first
     s = Factory.build(:search)
@@ -651,7 +669,9 @@ describe Discerner::Parser do
     parser.updated_parameters.length.should == 1
     Discerner::Parameter.all.should_not be_empty
     Discerner::Parameter.all.length.should == 2
-    Discerner::Parameter.not_deleted.all.length.should == 1
+    Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
+    Discerner::Parameter.where(:unique_identifier => 'gender').should_not be_blank
+    Discerner::Parameter.where(:unique_identifier => 'gender').first.should be_deleted
   end
 
   it "soft-deletes parameter values that are no longer defined in the definition file but are used in searches" do
@@ -678,8 +698,14 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 3
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
+    Discerner::ParameterValue.all.length.should == 4
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'unknown').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'unknown').first.should_not be_deleted
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
     value = Discerner::ParameterValue.where(:search_value => "unknown").first
     s = Factory.build(:search)
@@ -709,12 +735,16 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
-    Discerner::ParameterValue.not_deleted.all.length.should == 2
+    Discerner::ParameterValue.all.length.should == 4
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'unknown').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'unknown').first.should be_deleted
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
   end
 
   it "creates options with newly added values for search parameters linked with updated parameter" do
-    parser = Discerner::Parser.new()
+    parser = Discerner::Parser.new({:trace => true})
     dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
@@ -733,8 +763,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 1
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 1
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
     value = Discerner::ParameterValue.where(:search_value => "not_hisp_or_latino").first
     s = Factory.build(:search)
@@ -764,10 +796,14 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 3
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
-    Discerner::ParameterValue.not_deleted.all.length.should == 3
-    Discerner::SearchParameterValue.all.length.should == 3
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
+    Discerner::ParameterValue.where(:search_value => '').should_not be_blank
+
+    Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').first.search_parameter_values.should_not be_blank
+    Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').first.search_parameter_values.should_not be_blank
   end
 
   it "creates options with un-deleted values for search parameters linked with updated parameter" do
@@ -792,8 +828,9 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 2
+    Discerner::ParameterValue.all.length.should == 3
 
     value = Discerner::ParameterValue.where(:search_value => "hisp_or_latino").first
     s = Factory.build(:search)
@@ -820,9 +857,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 1
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 2
-    Discerner::ParameterValue.not_deleted.all.length.should == 1
+    Discerner::ParameterValue.all.length.should == 3
+    Discerner::ParameterValue.not_deleted.all.length.should == 2
     Discerner::SearchParameterValue.all.length.should == 1 #parameter value is not added or deleted, so no thanges
 
     dictionaries = %Q{
@@ -845,9 +883,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
+    parser.blank_parameter_values.length.should == 1
     Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 2
-    Discerner::ParameterValue.not_deleted.all.length.should == 2
+    Discerner::ParameterValue.all.length.should == 3
+    Discerner::ParameterValue.not_deleted.all.length.should == 3
     Discerner::SearchParameterValue.all.length.should == 1 #parameter value is not added or deleted, so no thanges
   end
 end

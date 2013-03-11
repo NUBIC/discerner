@@ -20,6 +20,7 @@ FactoryGirl.define do
   end
 
   factory :operator, :class => Discerner::Operator do |f|
+    f.operator_type 'comparison'
     f.symbol '>'
     f.text 'is greater than'
   end

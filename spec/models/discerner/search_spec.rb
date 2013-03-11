@@ -58,8 +58,8 @@ describe Discerner::Search do
     p2 = Factory.create(:parameter, :unique_identifier => 'param_two', :search_model => 'Patient', :search_method => 'having_gender', :parameter_type => Factory.create(:parameter_type, :name => 'list'))
     p3 = Factory.create(:parameter, :unique_identifier => 'param_three', :search_model => 'Case', :search_method => 'accessioned_dt_tm', :parameter_type => Factory.create(:parameter_type, :name => 'date'))
 
-    [['is less than','<'], ['is equal to', '='], ['is like','is like'], ['is in the range', 'between']].each do |o|
-      Factory.create(:operator, :symbol => o.last, :text => o.first)
+    [['is less than','<','comparison'], ['is equal to','=','comparison'], ['is like','is like','text_comparison'], ['is in the range','between','range'], ['none', 'is null','presence']].each do |o|
+      Factory.create(:operator, :text => o[0], :symbol => o[1], :operator_type => o[2])
     end
 
     s1 = Factory.build(:search)
@@ -72,6 +72,7 @@ describe Discerner::Search do
 
     sp12.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('between'), :value => '01/02/2009', :additional_value => '02/02/2009')
     sp12.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('='), :value => '03/05/2009')
+    sp12.search_parameter_values.build(:operator => Discerner::Operator.find_by_symbol('is null'))
 
     s1.save!
 
@@ -85,10 +86,11 @@ describe Discerner::Search do
     s2.to_conditions.should_not be_blank
     s2.to_conditions['Case'].should_not be_blank
     s2.to_conditions['Case'][:search_parameters].length.should == 1
-    s2.to_conditions['Case'][:conditions].should include("(accessioned_dt_tm between ? and ? or accessioned_dt_tm = ?)")
+    s2.to_conditions['Case'][:conditions].should include("(accessioned_dt_tm between ? and ? or accessioned_dt_tm = ? or accessioned_dt_tm is null)")
     s2.to_conditions['Case'][:conditions].should include('01/02/2009'.to_date)
     s2.to_conditions['Case'][:conditions].should include('02/02/2009'.to_date)
     s2.to_conditions['Case'][:conditions].should include('03/05/2009'.to_date)
+    s2.to_conditions['Case'][:conditions].should_not include(nil)
 
     s2.to_conditions['Patient'].should_not be_blank
     s2.to_conditions['Patient'][:search_parameters].length.should == 2

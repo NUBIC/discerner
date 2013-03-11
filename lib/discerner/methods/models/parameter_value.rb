@@ -14,7 +14,7 @@ module Discerner
           @@validations_already_included ||= nil
           unless @@validations_already_included
             base.send :validates, :parameter, :presence => true
-            base.send :validates, :search_value, :presence => true, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
+            base.send :validates, :search_value, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
             base.send :validates, :name, :presence => true, :length => { :maximum => 1000 }
             @@validations_already_included = true
           end

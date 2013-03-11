@@ -32,16 +32,18 @@ module Discerner
         def to_sql
           sql = {}
           raise "Search operator has to be defined in order to run 'to_sql' method on search_parameter_value" if operator.blank?
-          case operator.text
-            when 'is less than', 'is not equal to', 'is greater than', 'is equal to'
+          case operator.operator_type
+            when 'comparison'
               sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol} ?"
               sql[:values]    = formatted_values.first
-            when 'is in the range'
+            when 'range'
               sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol} ? and ?"
               sql[:values]    = formatted_values
-            when 'is like', 'is not like'
+            when 'text_comparison'
               sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol} ?"
               sql[:values]    = "%#{formatted_values.first}%"
+            when 'presence'
+              sql[:predicates] = "#{search_parameter.parameter.search_method} #{operator.symbol}"
             end
           sql
         end
@@ -60,7 +62,7 @@ module Discerner
 
         def disabled?
           return false unless persisted?
-          return true if parameter_value.blank? && value.blank?
+          return true if parameter_value.blank? && value.blank? && operator && operator.operator_type != 'presence'
           return true if chosen? && (parameter_value.blank? || parameter_value.deleted?)
           return false
         end

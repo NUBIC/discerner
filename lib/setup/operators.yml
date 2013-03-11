@@ -1,6 +1,7 @@
 ---
 :operators:
   - :unique_identifier: is_equal_to
+    :type: comparison
     :symbol: '='
     :text: is equal to
     :parameter_types:
@@ -8,6 +9,7 @@
       - date
       - string
   - :unique_identifier: is_not_equal_to
+    :type: comparison
     :symbol: '!='
     :text: is not equal to
     :parameter_types:
@@ -15,52 +17,75 @@
       - date
       - string
   - :unique_identifier: is_less_than
+    :type: comparison
     :symbol: '<'
     :text: is less than
     :parameter_types:
       - numeric
       - date
   - :unique_identifier: is_greater_than
+    :type: comparison
     :symbol: '>'
     :text: is greater than
     :parameter_types:
       - numeric
       - date
   - :unique_identifier: is_in_the_range
+    :type: range
     :symbol: between
     :text: is in the range
-    :binary: true
     :parameter_types:
       - numeric
       - date
   - :unique_identifier: is_one_of
+    :type: list
     :symbol: in
     :text: is one of
     :parameter_types:
       - list
   - :unique_identifier: is_not_one_of
+    :type: list
     :symbol: not in
     :text: is not one of
     :parameter_types:
       - list
   - :unique_identifier: is_like
+    :type: text_comparison
     :symbol: like
     :text: is like
     :parameter_types:
       - text
   - :unique_identifier: is_not_like
+    :type: text_comparison
     :symbol: not like
     :text: is not like
     :parameter_types:
       - text
   - :unique_identifier: include
+    :type: list
     :symbol: include
     :text: include
     :parameter_types:
       - search
   - :unique_identifier: exclude
+    :type: list
     :symbol: exclude
     :text: exclude
     :parameter_types:
       - search
-      
+  - :unique_identifier: none
+    :type: presence
+    :symbol: is null
+    :text: none
+    :parameter_types:
+      - numeric
+      - date
+      - string
+  - :unique_identifier: not none
+    :type: presence
+    :symbol: is not null
+    :text: not none
+    :parameter_types:
+      - numeric
+      - date
+      - string

@@ -92,7 +92,7 @@ module Discerner
               sql = search_parameter.to_sql unless search_parameter.search_parameter_values.empty?
               unless sql.nil?
                 predicates << sql[:predicates]
-                arguments << sql[:values]
+                arguments << sql[:values] unless sql[:values].blank?
               end
             end
 

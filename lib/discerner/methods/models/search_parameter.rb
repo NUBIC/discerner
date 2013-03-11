@@ -65,7 +65,7 @@ module Discerner
                   values << v
                 end
               else
-                values << spv[:values]
+                values << spv[:values] unless spv[:values].blank?
               end
             end
           end

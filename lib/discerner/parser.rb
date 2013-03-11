@@ -1,14 +1,11 @@
 module Discerner
   class Parser
-    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_values
+    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_values, :blank_parameter_values
 
     def initialize(options={})
       self.options = options
       self.errors = []
-      self.updated_dictionaries = []
-      self.updated_categories = []
-      self.updated_parameters = []
-      self.updated_parameter_values = []
+      reset_counts
     end
 
     def reset_counts
@@ -16,6 +13,7 @@ module Discerner
       self.updated_categories = []
       self.updated_parameters = []
       self.updated_parameter_values = []
+      self.blank_parameter_values = []
     end
 
     def parse_dictionaries(str)
@@ -57,6 +55,7 @@ module Discerner
                   load_parameter_value_from_source(parameter, search_identifiers[:source])
                 end
               end
+              blank_parameter_values << find_or_create_parameter_value(parameter, '', 'None', true)
             end
           end
         end
@@ -232,11 +231,11 @@ module Discerner
                operator.parameter_types << parameter_type
              end
            end
-           operator.symbol = operator_from_file[:symbol]
-           operator.text = operator_from_file[:text]
-           operator.binary  = operator_from_file[:binary]
-           operator.deleted_at = operator_from_file[:deleted].blank? ? nil : Time.now
-           error_message 'Operator could not be saved:' unless operator.save
+           operator.symbol        = operator_from_file[:symbol]
+           operator.text          = operator_from_file[:text]
+           operator.operator_type = operator_from_file[:type]
+           #operator.deleted_at    = operator_from_file[:deleted].blank? ? nil : Time.now
+           error_message "Operator could not be saved: #{operator.errors.full_messages}" unless operator.save
          end
       end
     end
@@ -257,7 +256,7 @@ module Discerner
       return parameter_type
     end
 
-    def find_or_create_parameter_value(parameter, search_value, name=nil)
+    def find_or_create_parameter_value(parameter, search_value, name=nil, silent=nil)
       error_message "search value was not provided" if search_value.nil?
       search_value = search_value.to_s
       notification_message "processing parameter value '#{search_value}'"
@@ -275,7 +274,7 @@ module Discerner
       parameter_value.deleted_at = nil
       error_message "parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
-      updated_parameter_values << parameter_value
+      updated_parameter_values << parameter_value unless silent
       parameter_value
     end
 
@@ -363,7 +362,7 @@ module Discerner
       # this also marks search_parameter_values that reference this value and are chosen as deleted
       # and destroys search_parameter_values that reference this value but are not chosen (list options)
       def cleanup_parameter_values
-        abandoned_parameter_values = Discerner::ParameterValue.all - updated_parameter_values
+        abandoned_parameter_values = Discerner::ParameterValue.all - updated_parameter_values - blank_parameter_values
         used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
         not_used_parameter_values  = abandoned_parameter_values - used_parameter_values
 

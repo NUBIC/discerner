@@ -27,36 +27,37 @@ describe Discerner::SearchParameterValue do
     lambda {search_parameter_value.to_sql}.should raise_error(RuntimeError, /Search operator has to be defined/)
   end
 
-  it "allows to generate sql for search values with 'is less than', 'is not equal to', 'is greater than', 'is equal to' operators" do
+  it "allows to generate sql for search values with 'comparison' operators" do
     search_parameter_value.value = '50'
-
-    [['is less than','<'], ['is not equal to', '!='], ['is greater than','>'], ['is equal to', '=']].each do |o|
-      search_parameter_value.operator = Discerner::Operator.find_by_symbol(o.last) || Factory.create(:operator, :symbol => o.last, :text => o.first)
-      search_parameter_value.to_sql.should_not == {}
-      search_parameter_value.to_sql[:predicates].should == "age #{o.last} ?"
-      search_parameter_value.to_sql[:values].should == '50'
-    end
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('>') || Factory.create(:operator, :symbol => '>', :text => 'is greater', :operator_type => 'comparison')
+    search_parameter_value.to_sql.should_not == {}
+    search_parameter_value.to_sql[:predicates].should == "age > ?"
+    search_parameter_value.to_sql[:values].should == '50'
   end
 
-  it "allows to generate sql for search values with 'is in the range' operator" do
+  it "allows to generate sql for search values with 'range' operator" do
     search_parameter_value.value = '40'
     search_parameter_value.additional_value = '50'
-
-    search_parameter_value.operator = Discerner::Operator.find_by_symbol('between') || Factory.create(:operator, :symbol => 'between', :text => 'is in the range')
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('between') || Factory.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range')
     search_parameter_value.to_sql.should_not == {}
     search_parameter_value.to_sql[:predicates].should == "age between ? and ?"
     search_parameter_value.to_sql[:values].should == ["40", "50"]
   end
 
-  it "allows to generate sql for search values with 'is like', 'is not like' operators" do
+  it "allows to generate sql for search values with 'text_comparison' operators" do
     search_parameter_value.value = '50'
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('is not like') || Factory.create(:operator, :symbol => 'is not like', :text => 'is not like', :operator_type => 'text_comparison')
+    search_parameter_value.to_sql.should_not == {}
+    search_parameter_value.to_sql[:predicates].should == "age is not like ?"
+    search_parameter_value.to_sql[:values].should == '%50%'
+  end
 
-    [['is like','is like'], ['is not like', 'is not like']].each do |o|
-      search_parameter_value.operator = Discerner::Operator.find_by_symbol(o.last) || Factory.create(:operator, :symbol => o.last, :text => o.first)
-      search_parameter_value.to_sql.should_not == {}
-      search_parameter_value.to_sql[:predicates].should == "age #{o.last} ?"
-      search_parameter_value.to_sql[:values].should == '%50%'
-    end
+  it "allows to generate sql for search values with 'presence' operators" do
+    search_parameter_value.value = '50'
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('none') || Factory.create(:operator, :symbol => 'is not null', :text => 'none', :operator_type => 'presence')
+    search_parameter_value.to_sql.should_not == {}
+    search_parameter_value.to_sql[:predicates].should == "age is not null"
+    search_parameter_value.to_sql[:values].should == nil
   end
 
   it "detects if search parameter value is disabled" do

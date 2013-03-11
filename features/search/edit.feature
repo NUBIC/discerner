@@ -74,9 +74,17 @@ Feature: Viewing existing searches
 
     When I follow "Remove" within the last ".search_parameter_value"
     And I press "Search"
-    And the last search criteria selection value should be "2012-10-22"
+    Then the last search criteria selection value should be "2012-10-22"
     And the element ".additional_value" in the last ".search_parameter_value" should not be visible
     And ".operator select" in the last ".search_parameter_value" should have "is equal to" selected
+
+    When I follow "Add selection" within the last ".search_parameter"
+    And I select "none" from ".operator select" in the last ".search_parameter_value"
+    Then the element ".value" in the last ".search_parameter_value" should not be visible
+    And the element ".additional_value" in the last ".search_parameter_value" should not be visible
+    When I press "Search"
+    Then the element ".value" in the last ".search_parameter_value" should not be visible
+    And the element ".additional_value" in the last ".search_parameter_value" should not be visible
 
   @javascript
   Scenario: It should allow to add and remove combined search from the list

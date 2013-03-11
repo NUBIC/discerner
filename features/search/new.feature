@@ -135,9 +135,9 @@ Feature: Viewing existing searches
     And I select dictionary "Sample dictionary"
     And I add "Date of birth" search criteria
     And I follow "Add selection" within the last ".search_parameter"
-    Then ".operator select" in the first ".search_parameter_value" should have options "is equal to, is not equal to, is less than, is greater than, is in the range"
+    Then ".operator select" in the first ".search_parameter_value" should have options "is equal to, is not equal to, is less than, is greater than, is in the range, none, not none"
     And ".operator select" in the first ".search_parameter_value" should not have options "is like, is not like"
-    Then ".operator select" in the last ".search_parameter_value" should have options "is equal to, is not equal to, is less than, is greater than, is in the range"
+    Then ".operator select" in the last ".search_parameter_value" should have options "is equal to, is not equal to, is less than, is greater than, is in the range, is in the range, none, not none"
     And ".operator select" in the last ".search_parameter_value" should not have options "is like, is not like"
 
     When I select "is less than" from ".operator select" in the first ".search_parameter_value"
@@ -150,6 +150,11 @@ Feature: Viewing existing searches
     When I follow "Remove" within the first ".search_parameter_value"
     And the element ".value" in the first ".search_parameter_value" should be visible
     And the element ".additional_value" in the first ".search_parameter_value" should be visible
+
+    When I follow "Add selection" within the last ".search_parameter"
+    And I select "none" from ".operator select" in the last ".search_parameter_value"
+    Then the element ".value" in the last ".search_parameter_value" should not be visible
+    And the element ".additional_value" in the last ".search_parameter_value" should not be visible
 
   @javascript
   Scenario: It should not allow to add multiple criteria selections for criteria fith fixed number of options

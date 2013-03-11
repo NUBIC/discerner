@@ -44,9 +44,10 @@ describe Discerner::SearchParameter do
       parameter.search_method  = 'age_at_case_collect'
       parameter.save!
       Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => '50', :operator => Factory.create(:operator, :symbol => '<', :text => 'is less than'))
-      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => '60', :additional_value => '70', :operator => Factory.create(:operator, :symbol => 'between', :text => 'is in the range'))
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => '60', :additional_value => '70', :operator => Factory.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range'))
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :operator => Factory.create(:operator, :symbol => 'is null', :text => 'none', :operator_type => 'presence'))
       search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "(age_at_case_collect < ? or age_at_case_collect between ? and ?)"
+      search_parameter.to_sql[:predicates].should == "(age_at_case_collect < ? or age_at_case_collect between ? and ? or age_at_case_collect is null)"
       search_parameter.to_sql[:values].should    ==  [50.0, 60.0, 70.0]
     end
 
@@ -60,9 +61,10 @@ describe Discerner::SearchParameter do
       date2 = '02/03/2009'
       date3 = '02/04/2009'
       Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => date1, :operator => Factory.create(:operator, :symbol => '<', :text => 'is less than'))
-      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => date2, :additional_value => date3, :operator => Factory.create(:operator, :symbol => 'between', :text => 'is in the range'))
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => date2, :additional_value => date3, :operator => Factory.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range'))
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :operator => Factory.create(:operator, :symbol => 'is null', :text => 'none', :operator_type => 'presence'))
       search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "(age_at_case_collect < ? or age_at_case_collect between ? and ?)"
+      search_parameter.to_sql[:predicates].should == "(age_at_case_collect < ? or age_at_case_collect between ? and ? or age_at_case_collect is null)"
       search_parameter.to_sql[:values].should    ==  [date1.to_date, date2.to_date, date3.to_date]
     end
 
@@ -70,15 +72,14 @@ describe Discerner::SearchParameter do
       parameter = search_parameter.parameter
       parameter.search_model   = 'Patient'
       parameter.search_method  = 'age_at_case_collect'
-
-      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => 'first string',  :operator => Factory.create(:operator, :symbol => 'is like', :text => 'is like'))
-      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => 'second string', :operator => Factory.create(:operator, :symbol => 'is not like', :text => 'is not like'))
-
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => 'first string',  :operator => Factory.create(:operator, :symbol => 'is like', :text => 'is like', :operator_type => 'text_comparison'))
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :value => 'second string', :operator => Factory.create(:operator, :symbol => 'is not like', :text => 'is not like', :operator_type => 'text_comparison'))
+      Factory.create(:search_parameter_value, :search_parameter => search_parameter, :operator => Factory.create(:operator, :symbol => 'is null', :text => 'none', :operator_type => 'presence'))
       ['text', 'string'].each do |type|
         parameter.parameter_type = Discerner::ParameterType.find_by_name(type) || Factory(:parameter_type, :name => type)
         parameter.save!
         search_parameter.to_sql.should_not == {}
-        search_parameter.to_sql[:predicates].should == "(age_at_case_collect is like ? or age_at_case_collect is not like ?)"
+        search_parameter.to_sql[:predicates].should == "(age_at_case_collect is like ? or age_at_case_collect is not like ? or age_at_case_collect is null)"
         search_parameter.to_sql[:values].should    ==  ['%first string%', '%second string%']
       end
     end
