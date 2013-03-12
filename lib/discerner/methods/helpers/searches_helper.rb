@@ -125,9 +125,12 @@ module Discerner
           search_parameter_values = search_parameter.parameter.parameter_type.name == 'list' ? search_parameter.search_parameter_values.chosen : search_parameter.search_parameter_values
           display_values = []
           search_parameter_values.each do |spv|
+            string = ''
             value = spv.parameter_value.blank? ? spv.value : spv.parameter_value.name
-            operator = spv.operator.text unless spv.operator.blank?
-            display_values << "#{operator} \"#{value}\" #{spv.additional_value}"
+            string += spv.operator.text unless spv.operator.blank?
+            string += " \"#{value}\"" unless value.blank?
+            string += " \"#{spv.additional_value}\"" unless spv.additional_value.blank?
+            display_values << string
           end
           display_values.join(' or ')
         end

@@ -8,7 +8,7 @@
   - unless @discerner_search.disabled? && @discerner_search.export_parameters && @discerner_search.export_parameters.select{|ep| ep.disabled?}.empty?
     #discerner_exportable_fields
       %h3
-        %b Fields to be exported:
+        Fields to be exported
 
       - exportable_parameter_categories = exportable_parameter_categories(@discerner_search)
       - if exportable_parameter_categories.blank?

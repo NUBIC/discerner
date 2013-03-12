@@ -1,19 +1,22 @@
 #discerner_search_summary
-  %h3 Your search criteria:
-  
-  %div
-    %b Included searches:
-    = @discerner_search.combined_searches.map{|cs| cs.name}.join(', ')
-  
-  - @discerner_search.parameter_categories.each do |category|
-    - search_parameters = @discerner_search.search_parameters.by_parameter_category(category)
-    - unless search_parameters.blank?
-      %div.parameter_category_column
-        %h4 
-          = category.name
-        - search_parameters.each do |sp|
-          %b #{sp.parameter.name}:
-          = search_parameter_values(sp)
-          %br
+  %h3 Search summary
+
+  - if @discerner_search.combined_searches.any?
+    .discerner_combined_searches_summary
+      %b Included searches:
+      = @discerner_search.combined_searches.map{|cs| cs.name}.join(', ')
+  .discerner_search_parameters_summary
+    - @discerner_search.parameter_categories.each do |category|
+      - search_parameters = @discerner_search.search_parameters.by_parameter_category(category)
+      - unless search_parameters.blank?
+        %div.parameter_category
+          %h4
+            = category.name
+          - search_parameters.each do |sp|
+            .search_parameter_summary
+              %span.parameter_name
+                #{sp.parameter.name}:
+              %span.parameter_value
+                = search_parameter_values(sp)
 .clear
 
