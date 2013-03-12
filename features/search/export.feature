@@ -18,7 +18,6 @@ Feature: Exporting results for existing searches
     Then ".discerner" should not contain text "There is an issue with the this export that has to be corrected before it can be executed"
     And "#discerner_exportable_fields" should not contain text "Age based on current date"
 
-
   @javascript
   Scenario: It should display and highlight deleted parameters as export options if they are checked
     Given I create search with name "Awesome search"
@@ -91,8 +90,6 @@ Feature: Exporting results for existing searches
     Then "#discerner_search_summary" should contain text "Demographic criteria"
     And "#discerner_search_summary" should not contain text "Case criteria"
     And "#discerner_search_summary" should not contain text "Age at case collection date"
-    And the "Gender" checkbox should be checked
-    And the "Date of birth" checkbox should be checked
     And "#discerner_search_summary" should contain text "Female"
     And "#discerner_search_summary" should contain text "is equal to "2012-10-22""
     And "#discerner_search_summary" should not contain text "Male"
@@ -104,7 +101,6 @@ Feature: Exporting results for existing searches
     When I am on the search export page
     Then "#discerner_search_summary" should contain text "Awesome search"
 
-  @javascript
   Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists
     And an executed search should pass the username to dictionary instance
@@ -122,6 +118,29 @@ Feature: Exporting results for existing searches
     Then I should receive a ".xls" file with name "no_name_specified_"
 
   @javascript
+  Scenario: It should pre-select export options based on search parameters
+   Given I create search with name "Awesome search"
+    When I am on the search export page
+    And the "Gender" checkbox should be checked
+    And the "Date of birth" checkbox should be checked
+
+  @javascript
+  Scenario: It should pre-select export options based on combined searches parameters
+    Given I create search for dictionary "Sample dictionary" with name "Awesome search"
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I add "Race" search criteria
+    And I wait 1 seconds
+    And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
+    And I press "Search"
+    And I follow "Export options"
+    Then the "Gender" checkbox should be checked
+    And the "Date of birth" checkbox should be checked
+    And the "Race" checkbox should be checked
+
+  @javascript
   Scenario: It should allow to change and save export parameters
     Given I create search with name "Awesome search"
     When I am on the search export page
@@ -133,4 +152,27 @@ Feature: Exporting results for existing searches
     Then the "Date of birth" checkbox should not be checked
     And the "Gender" checkbox should be checked
     And the "Age based on current date" checkbox should be checked
+
+  @javascript
+  Scenario: It should allow to change and save export parameters for combined searches
+    Given I create search for dictionary "Sample dictionary" with name "Awesome search"
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add combined search
+    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I add "Race" search criteria
+    And I wait 1 seconds
+    And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
+    And I press "Search"
+    And I follow "Export options"
+    And I check "Age based on current date"
+    And I uncheck "Date of birth"
+    And I uncheck "Race"
+    And I press "Export"
+    And I follow "Back to search"
+    And I follow "Export"
+    Then the "Date of birth" checkbox should not be checked
+    And the "Race" checkbox should not be checked
+    And the "Age based on current date" checkbox should be checked
+    And the "Gender" checkbox should be checked
 

@@ -14,6 +14,9 @@
       - if exportable_parameter_categories.blank?
         = "-- No exportable parameters detected --"
       - else
+        - selected_parameters = @discerner_search.export_parameters.all
+        - selected_parameters = @discerner_search.search_parameters.all + @discerner_search.nested_searches.map{|s| s.search_parameters}.flatten if selected_parameters.empty?
+
         = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
           - exportable_parameter_categories.each do |c|
             %div{ :style => "clear:both;"}
@@ -22,9 +25,7 @@
                 = c.name
               - exportable_parameters(@discerner_search, c).each do |p|
                 %div{ :class => "column #{'error' if p.deleted?}"}
-                  - selected_parameters = @discerner_search.export_parameters
-                  - selected_parameters = @discerner_search.search_parameters if selected_parameters.empty?
-                  - is_checked = selected_parameters.where(:parameter_id => p.id).blank? ? false : true
+                  - is_checked = selected_parameters.select{ |cp| cp.parameter_id == p.id }.blank? ? false : true
                   = check_box_tag "parameter_ids[]", p.id, is_checked, :id => "parameter_ids_#{p.id}"
                   = label_tag "parameter_ids_#{p.id}", p.name
           .clear
