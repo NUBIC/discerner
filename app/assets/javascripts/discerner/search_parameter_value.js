@@ -34,8 +34,10 @@ Discerner.SearchParameterValue.UI = function (config) {
       if ($(selectedParameter).hasClass('list')) {                                     // list parameters
         row.find('.chosen, .parameter_value').show();
         $(config.container).find('a.add_search_parameter_values').hide();
+        $(config.container).find('.additional_value').hide();
       } else if ($(selectedParameter).hasClass('combobox')) {                         // combobox parameters
         var input = $(row).find('input.parameter_value_id');
+        $(config.container).find('.additional_value').hide();
         if (input.length > 0) {
           var select = $('<select>').attr('id', input.attr('id'))
             .attr('name', input.attr('name'))
