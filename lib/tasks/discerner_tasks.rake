@@ -16,9 +16,7 @@ namespace :discerner do
   end
   desc 'Unload all dictionaries'
   task :unload_dictionaries => :environment do
-    Discerner::ParameterValue.destroy_all
-    Discerner::Parameter.destroy_all
-    Discerner::ParameterCategory.destroy_all
+    Discerner::Search.destroy_all
     Discerner::Dictionary.destroy_all
   end
 end
