@@ -48,6 +48,10 @@ module Discerner
           parameters.exportable
         end
 
+        def css_class_name
+          "parameter_category_#{parameterized_name}"
+        end
+
         private
           def update_parameters
             return unless deleted?

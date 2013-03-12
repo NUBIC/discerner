@@ -5,6 +5,7 @@ Discerner.SearchParameter = {};
 Discerner.SearchParameterValue = {}
 Discerner.SearchCombination = {};
 Discerner.CategorizedAutocomplter = {};
+Discerner.ExportParameters = {};
 Discerner.Url = {};
 NestedAttributes = {};
 

@@ -19,10 +19,12 @@
 
         = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
           - exportable_parameter_categories.each do |c|
-            %div{ :style => "clear:both;"}
-              %br
+            .clear
+            %div{ :class => "#{c.css_class_name}"}
               %h4
                 = c.name
+                %a{ :class => "select_all_parameters", :href => "#"}
+                  Select all
               - exportable_parameters(@discerner_search, c).each do |p|
                 %div{ :class => "column #{'error' if p.deleted?}"}
                   - is_checked = selected_parameters.select{ |cp| cp.parameter_id == p.id }.blank? ? false : true
@@ -34,3 +36,7 @@
               = submit_tag 'Update and export', :class => "button-discerner positive"
             - else
               = submit_tag 'Export', :class => "button-discerner positive"
+:javascript
+  $(function () {
+    new Discerner.ExportParameters.UI();
+  });
