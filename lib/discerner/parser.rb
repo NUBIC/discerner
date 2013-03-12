@@ -60,6 +60,7 @@ module Discerner
           end
         end
       end
+      notification_message "cleaing up ..."
       cleanup
     end
 
