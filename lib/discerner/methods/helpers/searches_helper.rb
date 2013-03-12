@@ -113,10 +113,10 @@ module Discerner
           parameter_categories.sort{|a,b| a.parameters.length <=> b.parameters.length}
         end
 
-        def exportable_parameters(search, category=nil)
+        def exportable_parameters(search, category)
           return if search.blank? || !search.persisted?
           parameters_available = category.parameters.exportable.all
-          parameters_used      = search.export_parameters.map{ |ep| ep.parameter }.flatten
+          parameters_used      = search.export_parameters.map{|ep| ep.parameter}.reject{|p| p.parameter_category != category }.flatten
           parameters           = parameters_available | parameters_used
           parameters.sort{|a,b| a.name <=> b.name}
         end
