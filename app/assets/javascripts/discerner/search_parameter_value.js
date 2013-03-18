@@ -39,24 +39,14 @@ Discerner.SearchParameterValue.UI = function (config) {
         var input = $(row).find('input.parameter_value_id');
         $(config.container).find('.additional_value').hide();
         if (input.length > 0) {
-          var select = $('<select>').attr('id', input.attr('id'))
-            .attr('name', input.attr('name'))
-            .addClass('parameter_values_combobox_autocompleter')
-            .insertBefore(input);
-
-          var optionNone = $('<option>').val('').html('');
-          optionNone.appendTo(select);
-
-          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (data) {
-            $.each(data.parameter_values, function() {
-              var option = $('<option>').val(this.parameter_value_id).html(this.name);
-              if (this.parameter_value_id == input.val()){
-                option.attr('selected', true);
-              }
-              option.appendTo(select);
-            });
+          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (html) {
+            var select = $(html).find('select').attr('name', input.attr('name')).attr('id', input.attr('id'));
+            $(select).find('option[value="' + input.val() + '"]').attr('selected', true);
+            select.addClass('parameter_values_combobox_autocompleter')
+            .insertBefore(input)
+            .combobox({ watermark:'a value', css_class:'autocompleter-dropdown' });
+            input.detach();
           });
-          input.detach();
         }
         $(config.container).find('.parameter_value, .remove').show();
         $(config.container).find('a.add_search_parameter_values').show();
@@ -75,7 +65,6 @@ Discerner.SearchParameterValue.UI = function (config) {
       }
       $(config.container).find('.nested_records_search_parameter_values tr.search_parameter_value:visible:not(:first)')
         .find('.parameter_values_boolean_operator span').html('or');
-      $(".parameter_values_combobox_autocompleter").combobox({watermark:'a value', css_class:'autocompleter-dropdown'});
 
       var i = 0,
           display_orders = config.container.find('input[name*="search_parameter_values_attributes"][name$="[display_order]"]');

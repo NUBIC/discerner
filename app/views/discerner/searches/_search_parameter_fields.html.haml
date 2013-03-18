@@ -37,6 +37,6 @@
   $(function () {
     var searchParameterValuesTemplate = '#{generate_nested_attributes_template(f, :search_parameter_values, "search_parameter_value")}',
       container = $('##{search_parameter_id}'),
-      parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}'),
+      parametersUrl = decodeURIComponent('#{parameter_url(':question_id')}'), // used to generate parameter values for combobox parameters
       searchParameterUI = new Discerner.SearchParameterValue.UI({ container: container, searchParameterValuesTemplate: searchParameterValuesTemplate, parametersUrl: parametersUrl });
   });

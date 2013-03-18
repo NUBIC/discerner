@@ -1,0 +1,5 @@
+%select
+  %option
+  - @parameter_values.each do |v|
+    %option{ :value => "#{v.id}"}
+      = v.name
