@@ -5,15 +5,15 @@ module Discerner
   class InstallGenerator < Rails::Generators::Base
     class_option "no-migrate", :type => :boolean
     class_option "current-user-helper", :type => :string
-    
+
     def self.source_paths
       paths = self.superclass.source_paths
       paths << File.expand_path("../templates", __FILE__)
       paths.flatten
     end
-    
+
     desc "Used to install Discerner"
-    
+
     def install_migrations
       unless options["no-migrations"]
         puts "Copying over Discerner migrations..."
@@ -22,7 +22,7 @@ module Discerner
         end
       end
     end
-    
+
     ## shameless steal from forem git://github.com/radar/forem.git
     def add_discerner_user_method
       current_user_helper = options["current-user-helper"].presence ||
@@ -40,7 +40,7 @@ module Discerner
                        discerner_user_method,
                        :after => "ActionController::Base\n")
     end
-    
+
     def add_discerner_view_helpers
       puts "Defining discerner view helpers inside ApplicationHelper..."
 
@@ -48,11 +48,11 @@ module Discerner
   def export_discerner_results?
     true
   end
-    
+
   def show_discerner_results?
     true
   end
-  
+
   def enable_combined_searches?
     true
   end
@@ -61,33 +61,33 @@ module Discerner
                        discerner_helper_methods,
                        :after => "ApplicationHelper\n")
     end
-    
+
     def run_migrations
       unless options["no-migrate"]
         puts "Running rake db:migrate"
         `rake db:migrate`
       end
     end
-    
+
     def seed_database_with_operators
       unless options["no-migrate"]
-        puts "Creating default operators"
-        Discerner::Engine.load_seed
+        puts "Running rake discerner:setup:operators"
+        `rake discerner:setup:operators`
       end
     end
-    
+
     def mount_engine
       puts "Mounting Discerner::Engine at \"/\" in config/routes.rb..."
       insert_into_file("#{Rails.root}/config/routes.rb", :after => /routes.draw.do\n/) do
         %Q{  mount Discerner::Engine, :at => "/"\n}
       end
     end
-    
+
     def sample_dictionary
       empty_directory "#{Discerner::Engine.paths['lib']}/setup"
       copy_file "dictionaries.yml", "#{Discerner::Engine.paths['lib']}/setup/dictionaries.yml"
     end
-    
+
     def finished
       output = "\n\n" + ("*" * 53)
       output += "\nDone! Discerner has been successfully installed. Here's what happened:\n\n"
