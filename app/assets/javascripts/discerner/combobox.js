@@ -280,14 +280,17 @@
 
     // custom part - setting combobox value
     setValue: function (value) {
-      var $input = $(this.element[0]).next();
-      $("option", this.element).each(function () {
-        if ($(this).text() === value) {
-          this.selected = true;
-          $input.val(this.text);
+      var $input = $(this.element[0]).next(),
+          selectEl = document.getElementById(this.element.attr('id')),
+          options = selectEl.options,
+          length = options.length;
+      for (var a = 0; a < length; a += 1) {
+        if (options[a].text === value) {
+          selectEl.selectedIndex = a;
+          $input.val(options[a].text);
           return false;
         }
-      });
+      };
     }
     // end of custom part
   });

@@ -39,14 +39,43 @@ Discerner.SearchParameterValue.UI = function (config) {
         var input = $(row).find('input.parameter_value_id');
         $(config.container).find('.additional_value').hide();
         if (input.length > 0) {
-          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (html) {
-            var select = $(html).find('select').attr('name', input.attr('name')).attr('id', input.attr('id'));
-            $(select).find('option[value="' + input.val() + '"]').attr('selected', true);
-            select.addClass('parameter_values_combobox_autocompleter')
-            .insertBefore(input)
-            .combobox({ watermark:'a value', css_class:'autocompleter-dropdown' });
-            input.detach();
+          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (data) {
+            // optimized version. courtesy of http://www.learningjquery.com/2009/03/43439-reasons-to-use-append-correctly
+            var select = '<select id="' + input.attr('id') +'" name="' + input.attr('name') + '" class="parameter_values_combobox_autocompleter">',
+                parameter_values = data.parameter_values,
+                length = parameter_values.length,
+                textToInsert = [select, '<option></option>'],
+                i = textToInsert.length;
+            for (var a = 0; a <length; a += 1) {
+                textToInsert[i++]  = '<option value="';
+                textToInsert[i++]  = parameter_values[a].parameter_value_id;
+                textToInsert[i++]  = '">';
+                textToInsert[i++] = parameter_values[a].name;
+                textToInsert[i++] = '</option>' ;
+            }
+            textToInsert[i++] = '</select>'
+            $(input).closest('td').append(textToInsert.join(''));
+            $(input).detach();
+            $(row).find('select').combobox({ watermark:'a value'});
           });
+          /* old version
+          var select = $('<select>').attr('id', input.attr('id'))
+            .attr('name', input.attr('name'))
+            .addClass('parameter_values_combobox_autocompleter')
+            .insertBefore(input);
+
+          var optionNone = $('<option>').val('').html('');
+          optionNone.appendTo(select);
+
+          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (data) {
+            $.each(data.parameter_values, function() {
+              var option = $('<option>').val(this.parameter_value_id).html(this.name);
+              if (this.parameter_value_id == input.val()){
+                option.attr('selected', true);
+              }
+              option.appendTo(select);
+            });
+          */
         }
         $(config.container).find('.parameter_value, .remove').show();
         $(config.container).find('a.add_search_parameter_values').show();
