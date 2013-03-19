@@ -48,11 +48,30 @@
 
     .parameter_boolean_operator, td.remove, th.remove,
     .combined_search_operator, .combined_search_operator
-      :width 4.5em
+      :width 68px
 
     .parameter_values
+      :padding-right 0 !important
+      table
+        :margin-bottom 0
+        :width 100%
+
+        td
+          :border none
+          :padding-top 0
+
+      .records
+        input[type="text"]
+          :width 143px
+        td.operator, td.value, td.additional_value
+          :width 113px
+
+        td.operator select, td.value input, td.additional_value input
+          :margin-top 0
+          :padding-top 0
+
       .parameter_values_boolean_operator, .chosen
-        :width 1em
+        :width 14px
 
     input.ui-autocomplete-input
       :border 1px solid #CCCCCC
@@ -78,11 +97,11 @@
     .combined_search_combobox button
       :border-width 0
       :padding 0 !important
-    .combined_search input.ui-autocomplete-input
-      :width 25em !important
+    .parameter_value input.ui-autocomplete-input
+      :width 380px !important
 
     .parameter, .combined_search
-      :width 31em
+      :width 395px
 
       .categorized_autocompleter, .combined_search_combobox
         :border 1px solid #CCCCCC
@@ -90,7 +109,7 @@
         :position relative
 
         input.ui-autocomplete-input
-          :width 25em !important
+          :width 326px !important
           :border none
           :border-right 1px solid #CCCCCC
           :padding-left 0.2em
@@ -138,27 +157,6 @@
 
         .selection_disabled
           :color #cccccc
-
-    td.parameter_values
-      :padding-right 0 !important
-      table
-        :margin-bottom 0
-        :width 100%
-
-        td
-          :border none
-          :padding-top 0
-
-      .records
-        input[type="text"]
-          :width 13em
-        td.operator, td.value, td.additional_value
-          :width 6em
-
-        td.operator select
-          :width 10em
-          :margin-top 0
-          :padding-top 0
 
       .combined_search_combobox
         button.ui-button

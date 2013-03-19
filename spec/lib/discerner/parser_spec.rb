@@ -12,7 +12,7 @@ describe Discerner::Parser do
 
   it "parses dictionaries" do
     file = 'test/dummy/lib/setup/dictionaries.yml'
-    parser = Discerner::Parser.new(:trace => true)
+    parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
 
     Discerner::Dictionary.all.should_not be_empty
@@ -744,7 +744,7 @@ describe Discerner::Parser do
   end
 
   it "creates options with newly added values for search parameters linked with updated parameter" do
-    parser = Discerner::Parser.new({:trace => true})
+    parser = Discerner::Parser.new()
     dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
@@ -807,7 +807,7 @@ describe Discerner::Parser do
   end
 
   it "creates options with un-deleted values for search parameters linked with updated parameter" do
-    parser = Discerner::Parser.new({:trace => true})
+    parser = Discerner::Parser.new()
     dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary

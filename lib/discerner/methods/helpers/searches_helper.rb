@@ -138,6 +138,14 @@ module Discerner
         def discerner_export_link
           link_to "Export options", export_parameters_path(@discerner_search), :class => "button-discerner positive"
         end
+
+        def format_datetime(datetime)
+          datetime.strftime("%m/%d/%Y %I:%M %p") if datetime
+        end
+
+        def format_date(date)
+          date.strftime("%m/%d/%Y") if date
+        end
       end
     end
   end

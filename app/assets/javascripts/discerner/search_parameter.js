@@ -52,11 +52,10 @@ Discerner.SearchParameter.UI = function (config) {
   $(document).on('click', '.categorized_autocompleter_link', function () {
     var select = $(this).siblings('select').first(),
         sibling_selects = $('select.' + select.attr('class')).filter(function(){
-          return $(this).closest('tr').find('td.remove input[name$="[_destroy]"]:not([name*="[search_parameter_values_attributes]"])[value="1"]').length == 0 // exclude rows marked for destroy
+          return $(this).closest('tr').find('td.remove input[name$="[_destroy]"]:not([name*="[search_parameter_values_attributes]"])').filter(function() { return this.value === '1'; }).length == 0 // exclude rows marked for destroy
         }),  // get all the "sibling" dropdowns
         matching_selected_options = sibling_selects.find('option.exclusive:selected'),
         popup = $(this).siblings('.div-criteria-popup'); // find selected options in "sibling" dropdowns that match current option value (do not count if option text matches "Text search diagnosis")
-
     popup.find('.criteria a.categorized_autocompleter_item_link').removeClass('selection_disabled');
     $.each(matching_selected_options, function(){
       popup.find('.criteria a.categorized_autocompleter_item_link[rel="' + $(this).html() + '"]').addClass('selection_disabled');

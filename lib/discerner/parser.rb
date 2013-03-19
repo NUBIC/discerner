@@ -281,13 +281,13 @@ module Discerner
 
     def error_message(str, target=nil)
       errors << "#{target}: #{str}"
-      puts "ERROR: #{str}" if self.options.has_key?(:trace)
+      puts "ERROR: #{str}" unless self.options[:trace].blank?
       reset_counts
       raise ActiveRecord::Rollback
     end
 
     def notification_message(str)
-      puts str if self.options.has_key?(:trace)
+      puts str unless self.options[:trace].blank?
     end
 
     def to_bool(s)
