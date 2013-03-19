@@ -106,7 +106,7 @@ Given /^I create combined search(?: for dictionary "([^\"]*)")?(?: with name "([
     When I go to the new search page
     And I select dictionary "#{dictionary}"
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
   }
   if dictionary == "Sample dictionary"
     set_sample_dictionary_search_parameters
@@ -231,7 +231,7 @@ Given /^search "([^\"]*)" combines in search "([^\"]*)"$/ do |search_name, anohe
     And I create search with name "#{search_name}"
     When I go to the search "#{search_name}" edit page
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "#{anoher_search_name}"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "#{anoher_search_name}"
     And I add "Text search diagnosis" search criteria
     And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"

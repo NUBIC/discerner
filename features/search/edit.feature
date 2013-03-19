@@ -93,7 +93,7 @@ Feature: Viewing existing searches
 
     When I go to the search edit page
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Text search diagnosis" search criteria
     And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"
@@ -107,7 +107,7 @@ Feature: Viewing existing searches
     And I create search with name "One more search"
     When I go to the search "Another search" edit page
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Text search diagnosis" search criteria
     And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"

@@ -56,7 +56,7 @@ Discerner.SearchParameterValue.UI = function (config) {
             textToInsert[i++] = '</select>'
             $(input).closest('td').append(textToInsert.join(''));
             $(input).detach();
-            $(row).find('select').combobox({ watermark:'a value'});
+            $('#' + input.attr('id')).combobox({ watermark:'a value'});
           });
           /* old version
           var select = $('<select>').attr('id', input.attr('id'))
@@ -110,6 +110,7 @@ Discerner.SearchParameterValue.UI = function (config) {
           $(this).val(i);
         }
       });
+    $(config.container).find(".parameter_values_combobox_autocompleter").combobox({watermark:'a value'});
 
     },
     searchParameterValuesNestedAttributesForm = new NestedAttributes({

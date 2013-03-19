@@ -51,7 +51,7 @@ Feature: Exporting results for existing searches
     When I go to the new search page
     And I select dictionary "Sample dictionary"
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Gender" search criteria
     And I press "Search"
     And search with name "Awesome search" is marked as deleted
@@ -130,7 +130,7 @@ Feature: Exporting results for existing searches
     When I go to the new search page
     And I select dictionary "Sample dictionary"
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Race" search criteria
     And I wait 1 seconds
     And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
@@ -159,7 +159,7 @@ Feature: Exporting results for existing searches
     When I go to the new search page
     And I select dictionary "Sample dictionary"
     And I add combined search
-    And I fill in "input.autocompleter-dropdown" autocompleter within the first ".search_combination" with "Awesome search"
+    And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Race" search criteria
     And I wait 1 seconds
     And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
