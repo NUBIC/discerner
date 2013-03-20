@@ -5,7 +5,7 @@
 
 namespace :discerner do
   namespace :setup do
-    desc 'Load dictionaries'
+    desc 'Load dictionaries (specify file to parse with FILE=myfile.yml) '
     task :dictionaries => :environment do
       file = ENV["FILE"]
       raise "File name has to be provided" if file.blank?
