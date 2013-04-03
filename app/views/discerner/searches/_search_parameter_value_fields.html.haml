@@ -1,4 +1,11 @@
-%tr{ :class => "search_parameter_value fields #{'error' if f.object.disabled?}" }
+- if f.object.disabled? && f.object.warnings
+  %tr.error
+    %td
+    %td.warnings{:colspan => "6"}
+      %span
+        = f.object.warnings.full_messages
+
+%tr{ :class => "search_parameter_value fields #{'error' if f.object.warnings.any?}" }
   %td.parameter_values_boolean_operator
     = f.hidden_field :display_order
     %span

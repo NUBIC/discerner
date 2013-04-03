@@ -15,11 +15,11 @@ describe Discerner::SearchParameter do
     search_parameter.should be_valid
   end
 
-  it "allows to access matching search criteria values" do
+  it "allows to access matching search parameter values" do
     search_parameter.should respond_to :search_parameter_values
   end
 
-  it "should accept attributes for search criteria values" do
+  it "should accept attributes for search parameter values" do
     s = Discerner::SearchParameter.new( :search => Factory.build(:search),
       :search_parameter_values_attributes => { "0" => { :operator => Factory.build(:operator), :parameter_value => Factory.build(:parameter_value, :parameter => Discerner::Parameter.last)}})
     s.should be_valid
@@ -152,18 +152,21 @@ describe Discerner::SearchParameter do
       search_parameter.should_not be_disabled
       search_parameter.parameter = nil
       search_parameter.should be_disabled
+      search_parameter.warnings.full_messages.should include("Parameter has to be selected")
     end
 
     it "disables search parameter with deleted parameter" do
       search_parameter.should_not be_disabled
       search_parameter.parameter.deleted_at = Time.now
       search_parameter.should be_disabled
+      search_parameter.warnings.full_messages.should include("Parameter has been deleted and has to be removed from the search")
     end
 
     it "disables search parameter without search parameter value" do
       search_parameter.should_not be_disabled
       search_parameter.search_parameter_values = []
       search_parameter.should be_disabled
+      search_parameter.warnings.full_messages.should include("Parameter value has to be selected")
     end
 
     it "disables search parameter with disabled search parameter value" do
@@ -180,6 +183,7 @@ describe Discerner::SearchParameter do
 
       search_parameter.search_parameter_values.first.chosen = true
       search_parameter.should be_disabled
+      search_parameter.warnings.should be_blank
     end
   end
 end

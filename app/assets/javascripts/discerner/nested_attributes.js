@@ -48,6 +48,7 @@ NestedAttributes.prototype = {
     $(link).prev("input[type=hidden]").val("1");
     if (removeStyle === 'hide' ) {
       $(link).closest(".fields").hide();
+      $(link).closest(".fields").prev('.error').hide();
     }
     else if (removeStyle === 'clear' ) {
       $(link).closest(".fields").find('input').clearFields();

@@ -137,7 +137,8 @@ Feature: Viewing existing searches
     Given I create search with name "Awesome search"
     And value "Female" for parameter "Gender" is marked as deleted
     When I go to the search edit page
-    Then ".error" in the first ".search_parameter_values" should contain text "Female"
+    Then "td.warnings" in the first ".search_parameter_values .error" should contain text "Parameter value has been deleted and has to be removed from the search"
+    And "td.parameter_value" in the last ".search_parameter_values .error" should contain text "Female"
 
   @javascript
   Scenario: It should remove deleted value from the options after it gets unchecked
@@ -168,6 +169,7 @@ Feature: Viewing existing searches
     And parameter "Gender" is marked as deleted
     When I go to the search edit page
     Then ".search_parameters .error select" should have options "Gender"
+    And "td.warnings" in the first ".search_parameters .error" should contain text "Parameter has been deleted and has to be removed from the search"
 
   @javascript
   Scenario: Deleted searches should not be given as options if they are not selected
@@ -190,6 +192,7 @@ Feature: Viewing existing searches
     And search with name "Another search" is marked as deleted
     When I go to the search "Awesome search" edit page
     Then ".search_combinations .error select" should have options "Another search"
+    And "td.warnings" in the first ".search_combinations .error" should contain text "Combined search has been deleted and has to be removed from the search"
 
   @javascript
   Scenario: Disabled searches should not be given as options if they are not selected
@@ -212,6 +215,7 @@ Feature: Viewing existing searches
     And search "Another search" is disabled
     When I go to the search "Awesome search" edit page
     Then ".combined_search select" should have options "Another search"
+    And "td.warnings" in the first ".search_combinations .error" should contain text "Combined search has been disabled and has to be removed from the search"
 
   @javascript
   Scenario: It should not show export link if search is disabled

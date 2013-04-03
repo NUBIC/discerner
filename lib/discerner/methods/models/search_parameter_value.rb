@@ -3,6 +3,7 @@ module Discerner
     module Models
       module SearchParameterValue
         def self.included(base)
+          #base.send :include, Warnings
           # Associations
           base.send :belongs_to, :search_parameter
           base.send :belongs_to, :parameter_value
@@ -27,6 +28,10 @@ module Discerner
 
         def deleted?
           not deleted_at.blank?
+        end
+
+        def warnings
+          @warnings ||= ActiveModel::Errors.new(self)
         end
 
         def to_sql
@@ -62,9 +67,24 @@ module Discerner
 
         def disabled?
           return false unless persisted?
-          return true if parameter_value.blank? && value.blank? && operator && operator.operator_type != 'presence'
-          return true if chosen? && (parameter_value.blank? || parameter_value.deleted?)
+          if parameter_value.blank? && value.blank? && operator && operator.operator_type != 'presence'
+            warnings.add(:base, "Parameter value has to be selected")
+            return true
+          end
+          if chosen? && (parameter_value.blank? || parameter_value.deleted?)
+            warnings.add(:base, "Parameter value has been deleted and has to be removed from the search")
+            return true
+          end
+          if search_parameter && search_parameter.parameter && search_parameter.parameter.parameter_type.name == 'date' && !validate_dates_format
+            warnings.add(:base, "Provided date is not valid")
+            return true
+          end
+          warnings.clear
           return false
+        end
+
+        def validate_dates_format
+          validate_date(value) && validate_date(additional_value)
         end
 
         private
@@ -72,6 +92,15 @@ module Discerner
             return if parameter_value.blank? || search_parameter.blank? || search_parameter.parameter.blank? || search_parameter.parameter.parameter_type.blank?
             return unless ['list', 'combobox'].include?(search_parameter.parameter.parameter_type.name)
             destroy if parameter_value.deleted? && !chosen?
+          end
+
+          def validate_date(date)
+            begin
+              Date.parse(date) unless date.blank?
+            rescue => e
+              return false
+            end
+            return true
           end
       end
     end

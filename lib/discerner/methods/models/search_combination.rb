@@ -32,6 +32,10 @@ module Discerner
           not deleted_at.blank?
         end
 
+        def warnings
+          @warnings ||= ActiveModel::Errors.new(self)
+        end
+
         def validate_searches
           return if self.search_id.blank? || self.combined_search_id.blank?
           errors.add(:base,"Search cannot be combined with itself.") if self.search_id == self.combined_search_id
@@ -39,7 +43,15 @@ module Discerner
 
         def disabled?
           return false unless persisted?
-          deleted? || combined_search.deleted? || combined_search.disabled?
+          return true if deleted?
+          if combined_search.deleted?
+            warnings.add(:base, "Combined search has been deleted and has to be removed from the search")
+            return true
+          elsif combined_search.disabled?
+            warnings.add(:base, "Combined search has been disabled and has to be removed from the search")
+            return true
+          end
+          return false
         end
       end
     end

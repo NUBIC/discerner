@@ -31,6 +31,10 @@ module Discerner
           not deleted_at.blank?
         end
 
+        def warnings
+          @warnings ||= ActiveModel::Errors.new(self)
+        end
+
         def check_search_parameters
           if self.search_parameters.size < 1 || self.search_parameters.all?{|search_parameter| search_parameter.marked_for_destruction? }
             errors.add(:base,"Search should have at least one search criteria.")
@@ -96,9 +100,18 @@ module Discerner
 
         def disabled?
           return false unless persisted?
-          deleted? ||
-          parameter.blank? || parameter.deleted? ||
-          search_parameter_values.blank? || search_parameter_values.select{ |spv| spv.disabled?}.any?
+          if parameter.blank?
+            warnings.add(:base, "Parameter has to be selected")
+            return true
+          elsif parameter.deleted?
+            warnings.add(:base, "Parameter has been deleted and has to be removed from the search")
+            return true
+          elsif search_parameter_values.blank?
+            warnings.add(:base, "Parameter value has to be selected")
+            return true
+          elsif deleted? || search_parameter_values.select{ |spv| spv.disabled?}.any?
+            return true
+          end
         end
 
         private

@@ -58,23 +58,53 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.to_sql.should_not == {}
     search_parameter_value.to_sql[:predicates].should == "age is not null"
     search_parameter_value.to_sql[:values].should == nil
+    search_parameter_value.should_not be_disabled
+    search_parameter_value.warnings.full_messages.should be_blank
   end
 
-  it "detects if search parameter value is disabled" do
+  it "detects if value is blank" do
     search_parameter_value.should_not be_disabled
-
+    search_parameter_value.warnings.full_messages.should be_blank
     search_parameter_value.value = nil
     search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Parameter value has to be selected')
+  end
+
+  it "detects if chosen value is deleted" do
+    search_parameter_value.should_not be_disabled
 
     search_parameter_value.parameter_value = Factory.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
     search_parameter_value.should_not be_disabled
+    search_parameter_value.warnings.full_messages.should be_blank
 
     search_parameter_value.parameter_value.deleted_at = Time.now
     search_parameter_value.should_not be_disabled
+    search_parameter_value.warnings.full_messages.should be_blank
 
     search_parameter_value.chosen = true
     search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Parameter value has been deleted and has to be removed from the search')
   end
+
+  it "detects if search parameter value is in a wrong format" do
+    search_parameter_value.search_parameter.parameter.parameter_type.name = 'date'
+    search_parameter_value.value = '99-99-009'
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
+
+    search_parameter_value.additional_value = '99-99-009'
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
+
+    search_parameter_value.value = '01-02-2003'
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
+
+    search_parameter_value.additional_value = '01-02-2003'
+    search_parameter_value.should_not be_disabled
+    search_parameter_value.warnings.full_messages.should be_blank
+  end
+
 
   it "self-destroyes if belongs to list or combobox parameter and references deleted value and not chosen" do
     search_parameter_value.parameter_value = Factory.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
@@ -87,4 +117,5 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.save
     search_parameter_value.class.should_not exist(search_parameter_value)
   end
+
 end
