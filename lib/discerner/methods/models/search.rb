@@ -54,6 +54,10 @@ module Discerner
           display_name.parameterize.underscore
         end
 
+        def warnings
+          @warnings ||= ActiveModel::Errors.new(self)
+        end
+
         def traverse
           return unless combined_searches.any?
           searches = []
@@ -113,10 +117,13 @@ module Discerner
 
         def disabled?
           return false unless persisted?
+          if export_parameters.select{|ep| ep.disabled?}.any?
+            warnings.add(:base, "Search uses deleted export parameters")
+            return true
+          end
           deleted? ||
           dictionary.deleted? ||
           search_parameters.select{|sp| sp.disabled?}.any? ||
-          export_parameters.select{|ep| ep.disabled?}.any? ||
           search_combinations.select{|sc| sc.disabled?}.any?
         end
 

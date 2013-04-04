@@ -30,6 +30,10 @@ module Discerner
         def edit
           if @discerner_search.disabled?
             error_message = "There is an issue with the this search that has to be corrected before it can be executed"
+            if @discerner_search.warnings.any?
+              error_message << ': '
+              error_message << @discerner_search.warnings.full_messages.join(',')
+            end
           else
             if dictionary_model
               dictionary =  dictionary_model.new(@discerner_search)
@@ -78,6 +82,10 @@ module Discerner
         def show
           if @discerner_search.disabled?
             error_message = "There is an issue with the this search that has to be corrected before it can be exported"
+            if @discerner_search.warnings.any?
+              error_message << ': '
+              error_message << @discerner_search.warnings.full_messages.join(',')
+            end
           else
             if dictionary_model
               dictionary =  dictionary_model.new(@discerner_search)

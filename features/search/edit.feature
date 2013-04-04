@@ -216,10 +216,3 @@ Feature: Viewing existing searches
     When I go to the search "Awesome search" edit page
     Then ".combined_search select" should have options "Another search"
     And "td.warnings" in the first ".search_combinations .error" should contain text "Combined search has been disabled and has to be removed from the search"
-
-  @javascript
-  Scenario: It should not show export link if search is disabled
-    Given I create search with name "Awesome search"
-    And value "Female" for parameter "Gender" is marked as deleted
-    When I am on the search edit page
-    Then ".discerner-buttons" should not contain text "Export options"

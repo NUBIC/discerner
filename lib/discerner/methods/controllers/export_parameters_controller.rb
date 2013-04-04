@@ -8,7 +8,14 @@ module Discerner
         end
 
         def index
-          flash[:error] = "There is an issue with the this export that has to be corrected before it can be executed" if @discerner_search.disabled?
+          if @discerner_search.disabled?
+            error_message = "There is an issue with the this export that has to be corrected before it can be executed"
+            if @discerner_search.warnings.any?
+              error_message << ': '
+              error_message << @discerner_search.warnings.full_messages.join(',')
+            end
+          end
+          flash[:error] = error_message unless error_message.blank?
         end
 
         def assign
