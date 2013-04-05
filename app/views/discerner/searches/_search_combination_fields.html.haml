@@ -1,9 +1,9 @@
-- if f.object.disabled? && f.object.warnings
+- if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
     %td.warnings{:colspan => "4"}
       %span
-        = f.object.warnings.full_messages
+        = f.object.warnings.full_messages.join(', ')
 
 - unless f.blank?
   - search_combination_id = nested_record_id(f, :search_combination)

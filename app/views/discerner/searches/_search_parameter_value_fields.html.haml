@@ -1,9 +1,9 @@
-- if f.object.disabled? && f.object.warnings
+- if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
     %td.warnings{:colspan => "6"}
       %span
-        = f.object.warnings.full_messages
+        = f.object.warnings.full_messages.join(', ')
 
 %tr{ :class => "search_parameter_value fields #{'error' if f.object.warnings.any?}" }
   %td.parameter_values_boolean_operator
