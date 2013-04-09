@@ -96,12 +96,14 @@ module Discerner
 
           def validate_date(date)
             begin
-              date.to_date unless date.blank?
+              unless date.blank?
+                parsed_date = date.to_date
+                #http://www.karaszi.com/sqlserver/info_datetime.asp#Why1753
+                return false if parsed_date.year < 1753
+              end
             rescue => e
               return false
             end
-            #http://www.karaszi.com/sqlserver/info_datetime.asp#Why1753
-            return false if date && date.to_date.year < 1753
             return true
           end
       end
