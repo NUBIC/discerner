@@ -103,6 +103,14 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.additional_value = '01-02-2003'
     search_parameter_value.should_not be_disabled
     search_parameter_value.warnings.full_messages.should be_blank
+
+    search_parameter_value.value = '01---02-2003'
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
+
+    search_parameter_value.value = 'xx'
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
   end
 
 

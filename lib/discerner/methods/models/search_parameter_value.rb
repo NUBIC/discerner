@@ -96,7 +96,7 @@ module Discerner
 
           def validate_date(date)
             begin
-              Date.parse(date) unless date.blank?
+              date.to_date unless date.blank?
             rescue => e
               return false
             end

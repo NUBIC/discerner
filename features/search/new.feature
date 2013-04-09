@@ -201,6 +201,17 @@ Feature: Viewing existing searches
     Then the last search criteria selection value should be "2012-10-22"
 
   @javascript
+  Scenario: It should validate date format
+    Given search dictionaries are loaded
+    And search operators are loaded
+    When I go to the new search page
+    And I select dictionary "Sample dictionary"
+    And I add "Date of birth" search criteria
+    And I enter value "2012-10--" within the last search criteria
+    And I press "Search"
+    Then "td.warnings" in the first ".search_parameter_values .error" should contain text "Provided date is not valid"
+
+  @javascript
   Scenario: It should not allow to save search without criteria
     Given search dictionaries are loaded
     And search operators are loaded
