@@ -100,6 +100,8 @@ module Discerner
             rescue => e
               return false
             end
+            #http://www.karaszi.com/sqlserver/info_datetime.asp#Why1753
+            return false if date.to_date.year < 1753
             return true
           end
       end
