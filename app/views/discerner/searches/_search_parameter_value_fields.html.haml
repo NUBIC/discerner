@@ -47,10 +47,12 @@
       %td.operator
         - selected = f.object.operator.blank? ? nil : f.object.operator.id
         = f.select(:operator_id, options_for_select([["", ""]] + operator_options(type), selected))
-      %td.value
-        = f.text_field :value, :class => "#{type == 'date' ? 'datepicker' : nil} #{'invisible' if f.object.operator && f.object.operator.operator_type == 'presence'}"
-      %td.additional_value
-        = f.text_field :additional_value, :class => "#{'invisible' unless f.object.operator && f.object.operator.operator_type == 'range'}"
+
+      %td{:class => "value #{'invisible' if f.object.operator && f.object.operator.operator_type == 'presence'}"}
+        = f.text_field :value, :class => "#{type == 'date' ? 'datepicker' : nil}"
+
+      %td{:class => "additional_value #{'invisible' unless f.object.operator && f.object.operator.operator_type == 'range'}"}
+        = f.text_field :additional_value, :class => "#{type == 'date' ? 'datepicker' : nil}"
       %td.remove
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 

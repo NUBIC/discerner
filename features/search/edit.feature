@@ -87,6 +87,22 @@ Feature: Viewing existing searches
     And the element ".additional_value" in the last ".search_parameter_value" should not be visible
 
   @javascript
+  Scenario: It should display appropriate criteria selections
+    Given I create search with name "Awesome search"
+
+    When I select "is in the range" from ".operator select" in the last ".search_parameter_value"
+    Then the element ".search_parameter_value .value" should be visible
+    And the element ".search_parameter_value .additional_value" should be visible
+
+    When I select "none" from ".operator select" in the last ".search_parameter_value"
+    Then the element ".search_parameter_value .value" should not be visible
+    And the element ".search_parameter_value .additional_value" should not be visible
+
+    When I select "is less than" from ".operator select" in the last ".search_parameter_value"
+    Then the element ".search_parameter_value .value" should be visible
+    And the element ".search_parameter_value .additional_value" should not be visible
+
+  @javascript
   Scenario: It should allow to add and remove combined search from the list
     Given I create search with name "Awesome search"
     And I create search with name "Another search"

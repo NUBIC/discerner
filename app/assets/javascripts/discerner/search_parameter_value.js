@@ -7,18 +7,20 @@ Discerner.SearchParameterValue.UI = function (config) {
       }
     }
     showValue = function(e){
+      console.log(e)
       if ($(e).hasClass('invisible')){
         $(e).removeClass('invisible')
       }
     }
     setupOperator = function(o){
       var row = $(o).closest('tr');
-      if ($(o).find('option:selected').hasClass('range')){
+      option = $(o).find('option:selected')
+      if (option.hasClass('range')){
         showValue($(row).find('.additional_value'))
       } else {
         hideValue($(row).find('.additional_value'))
       }
-      if ($(o).find('option:selected').hasClass('presence')){
+      if (option.hasClass('presence')){
         hideValue($(row).find('.value'))
       } else {
         showValue($(row).find('.value'))

@@ -181,6 +181,9 @@ end
 Then /^the element "([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? be visible$/ do |selector, position, scope_selector, negation|
   within_scope(get_scope(position, scope_selector)) {
     elements = all(selector, :visible => true)
+    elements.each do |e|
+      e.should_not have_css('.invisible')
+    end
     if negation.blank?
       elements.length.should > 0
     else
