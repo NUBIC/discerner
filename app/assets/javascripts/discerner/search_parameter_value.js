@@ -7,7 +7,6 @@ Discerner.SearchParameterValue.UI = function (config) {
       }
     }
     showValue = function(e){
-      console.log(e)
       if ($(e).hasClass('invisible')){
         $(e).removeClass('invisible')
       }
