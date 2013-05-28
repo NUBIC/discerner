@@ -5,3 +5,6 @@ Setup:
 
 rails generate discerner:install
 rake discerner:setup:dictionaries FILE=lib/setup/dictionaries.yml
+
+to enable default discerner styling:
+  add "discerner" class to page container

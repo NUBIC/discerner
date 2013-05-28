@@ -281,7 +281,7 @@ module Discerner
 
     def error_message(str, target=nil)
       errors << "#{target}: #{str}"
-      puts "ERROR: #{str}" unless self.options[:trace].blank?
+      puts "ERROR: #{str}"
       reset_counts
       raise ActiveRecord::Rollback
     end
