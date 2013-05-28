@@ -33,6 +33,8 @@ module Discerner
           base.send :attr_accessible, :deleted_at, :name, :username, :search_parameters, :search_parameters_attributes,
           :dictionary, :dictionary_id, :search_combinations_attributes
 
+          base.send :attr_accessor, :conditions
+
           # Hooks
           base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
@@ -40,6 +42,7 @@ module Discerner
         # Instance Methods
         def initialize(*args)
           super(*args)
+          self.conditions = to_conditions
         end
 
         def deleted?
@@ -125,6 +128,11 @@ module Discerner
           dictionary.deleted? ||
           search_parameters.select{|sp| sp.disabled?}.any? ||
           search_combinations.select{|sc| sc.disabled?}.any?
+        end
+
+        def searched_model?(model_name)
+          self.conditions = self.to_conditions if self.conditions.blank?
+          self.conditions.has_key?(model_name)
         end
 
         private

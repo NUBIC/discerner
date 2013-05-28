@@ -53,6 +53,13 @@ describe Discerner::Search do
     search.reload.combined_searches.length.should == 1
   end
 
+  it "populates conditions" do
+    s = Discerner::Search.new(:search_parameters_attributes => { "0" => { :parameter => Discerner::Parameter.last}})
+    s.dictionary = Discerner::Dictionary.last
+    s.should be_valid
+    s.conditions.should_not be_blank
+  end
+
   it "returns search conditions grouped by search model" do
     p1 = Factory.create(:parameter, :unique_identifier => 'param_one', :search_model => 'Patient', :search_method => 'age_at_case_collect', :parameter_type => Factory.create(:parameter_type, :name => 'numeric'))
     p2 = Factory.create(:parameter, :unique_identifier => 'param_two', :search_model => 'Patient', :search_method => 'having_gender', :parameter_type => Factory.create(:parameter_type, :name => 'list'))
@@ -160,5 +167,26 @@ describe Discerner::Search do
       search.export_parameters.first.parameter.deleted_at = Time.now
       search.should be_disabled
     end
+  end
+
+  it "detects if model have been used in search" do
+    p = Factory.create(:parameter, :unique_identifier => 'param_one', :search_model => 'Patient', :search_method => 'age_at_case_collect', :parameter_type => Factory.create(:parameter_type, :name => 'numeric'))
+    s = Factory.build(:search)
+    sp = s.search_parameters.build(:parameter => p)
+
+    s.searched_model?('Patient').should be_true
+    s.searched_model?('Surgery').should be_false
+  end
+
+  it "calls to_conditions only when conditions are not set or are called directly" do
+    p = Factory.create(:parameter, :unique_identifier => 'param_one', :search_model => 'Patient', :search_method => 'age_at_case_collect', :parameter_type => Factory.create(:parameter_type, :name => 'numeric'))
+    s = Factory.build(:search)
+    s.should_receive(:to_conditions).once.and_return({:hello => 'world'})
+
+    sp = s.search_parameters.build(:parameter => p)
+    s.conditions
+    s.save
+    s.searched_model?('Patient')
+    s.searched_model?('Surgery')
   end
 end
