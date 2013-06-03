@@ -284,14 +284,14 @@
 
     // custom part - setting combobox value
     setValue: function (value) {
-      var $input = $(this.element[0]).next(),
+      var input = $(this.element[0]).siblings('input.ui-autocomplete-input').first(),
           selectEl = document.getElementById(this.element.attr('id')),
           options = selectEl.options,
           length = options.length;
       for (var a = 0; a < length; a += 1) {
         if (options[a].text === value) {
           selectEl.selectedIndex = a;
-          $input.val(options[a].text);
+          input.val(options[a].text);
           return false;
         }
       };
