@@ -159,10 +159,20 @@
               :method: country
               :parameter_type: text
 
+          - :name: "Type"
+            :unique_identifier: author_type
+            :search:
+              :model: Book
+              :method: type
+              :parameter_type: list
+              :parameter_values:
+                - :search_value: author
+                - :search_value: co-author
+                - :search_value: reviewer
       - :name: Book criteria
         :parameters:
           - :name: "Type"
-            :unique_identifier: type
+            :unique_identifier: book_type
             :search:
               :model: Book
               :method: type

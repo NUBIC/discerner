@@ -12,6 +12,21 @@ Discerner.SearchParameter.UI = function (config) {
     i = 0;
 
     search_parameters.filter(':visible:not(:first)').find('.parameter_boolean_operator span').html('and');
+
+    // remove parameter options that do not belong to selected dictionary
+    if (dictionarySelector.length > 0){
+      dictionary_class = $(dictionarySelector).find('option:selected:last').attr('class')
+      $.each($('div.parameter_category'), function(){
+        if (!$(this).hasClass(dictionary_class)) {
+          $(this).remove();
+        }
+      })
+      $.each($('select.parameters_combobox_autocompleter option'), function(){
+        if (!($(this).hasClass(dictionary_class) || $(this).val() == '')) {
+          $(this).remove();
+        }
+      })
+    };
     $(".parameters_combobox_autocompleter").combobox({watermark:'a question'});
 
     // get max display order
@@ -27,18 +42,6 @@ Discerner.SearchParameter.UI = function (config) {
         $(this).val(i);
       }
     })
-
-    // hide parameter options that do not belong to selected dictionary
-    if (dictionarySelector.length > 0){
-      $.each($('div.parameter_category'), function(){
-        dictionary_class = $(dictionarySelector).find('option:selected:last').attr('class')
-        if ($(this).hasClass(dictionary_class)) {
-          $(this).show();
-        } else {
-          $(this).hide();
-        }
-      })
-    };
   },
   searchParametersNestedAttributesForm = new NestedAttributes({
     container: $('.search_parameters'),
@@ -50,25 +53,30 @@ Discerner.SearchParameter.UI = function (config) {
 
   // handle criteria autocompleter button click
   $(document).on('click', '.categorized_autocompleter_link', function () {
-    var select = $(this).siblings('select').first(),
+    var popup = $(this).siblings('.div-criteria-popup'),
+        select = $(this).siblings('select').first(),
+        // get all the "sibling" dropdowns
         sibling_selects = $('select.' + select.attr('class')).filter(function(){
           return $(this).closest('tr').find('td.remove input[name$="[_destroy]"]:not([name*="[search_parameter_values_attributes]"])').filter(function() { return this.value === '1'; }).length == 0 // exclude rows marked for destroy
-        }),  // get all the "sibling" dropdowns
-        matching_selected_options = sibling_selects.find('option.exclusive:selected'),
-        popup = $(this).siblings('.div-criteria-popup'); // find selected options in "sibling" dropdowns that match current option value (do not count if option text matches "Text search diagnosis")
+        }),
+        // get all selected parameter options from sibling selects
+        matching_selected_options = sibling_selects.find('option.exclusive:selected');
+    // match selected options from sibling selects with the source select options
+    // (they will have different base ids for each set but same value)
     popup.find('.criteria a.categorized_autocompleter_item_link').removeClass('selection_disabled');
     $.each(matching_selected_options, function(){
-      popup.find('.criteria a.categorized_autocompleter_item_link[rel="' + $(this).html() + '"]').addClass('selection_disabled');
+      option = select.find('option[value=' + $(this).val() + ']');
+      popup.find('.criteria a.categorized_autocompleter_item_link[rel="' + $(option).attr('id') + '"]').addClass('selection_disabled');
     })
     toggleCategorizedAutocompleterPopup(this);
   });
 
   // handle criteria popup list link click
   $(document).on('click', '.categorized_autocompleter_item_link:not(.selection_disabled)', function () {
-    var autocompleter = $(this).parents('.categorized_autocompleter').find('.parameters_combobox_autocompleter'),
-      categorizedItem = $(this).attr('rel'),
-      categorizedAutocompleterLink = $(this).parents('.categorized_autocompleter').find('.categorized_autocompleter_link');
-    autocompleter.combobox('setValue', categorizedItem);
+    var autocompleter = $(this).parents('.categorized_autocompleter').find('select.parameters_combobox_autocompleter'),
+        categorizedItemEl = document.getElementById($(this).attr('rel'));
+        categorizedAutocompleterLink = $(this).parents('.categorized_autocompleter').find('.categorized_autocompleter_link');
+    autocompleter.combobox('setValue', categorizedItemEl.text);
     autocompleter.change();
     toggleCategorizedAutocompleterPopup(categorizedAutocompleterLink);
   });

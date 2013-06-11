@@ -65,7 +65,17 @@ Feature: Viewing existing searches
     And I select dictionary "Sample dictionary"
     And I add "Age at case collection date" search criteria
     Then the element ".div-criteria-popup" should not be visible
-    And ".parameter input.ui-autocomplete-input" in the first ".search_parameter" should contain "Age at case collection date"
+    And ".parameter input.ui-autocomplete-input" in the first ".search_parameter" should contain "Demographic criteria - Age at case collection date"
+
+  @javascript
+  Scenario: It should correctly select critetia that have the same name
+    Given search dictionaries are loaded
+    When I go to the new search page
+    And I select dictionary "Librarian dictionary"
+    And I follow "Add criteria"
+    And I open criteria dropdown
+    And I follow "Type" within the last ".parameter_category"
+    And ".parameter input.ui-autocomplete-input" in the first ".search_parameter" should contain "By author - Type"
 
   @javascript
   Scenario: It should filter operators by the type of the selected criteria
@@ -269,7 +279,7 @@ Feature: Viewing existing searches
     When I open criteria dropdown
     And I follow "Text search diagnosis" within the last ".search_parameter"
     Then the element ".div-criteria-popup" should not be visible
-    And ".parameter input.ui-autocomplete-input" in the last ".search_parameter" should contain "Text search diagnosis"
+    And ".parameter input.ui-autocomplete-input" in the last ".search_parameter" should contain "Case criteria - Text search diagnosis"
 
   @javascript
   Scenario: It should pre-select search dictionary if there is only one available
@@ -408,3 +418,5 @@ Feature: Viewing existing searches
     When I go to the new search page
     And I select dictionary "Sample dictionary"
     Then ".search_combinations" should contain text "No qualifying searches found"
+
+

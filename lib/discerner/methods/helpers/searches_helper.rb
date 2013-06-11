@@ -98,8 +98,26 @@ module Discerner
           parameters
         end
 
-        def searchable_parameters_options
-          searchable_parameters(@discerner_search).map {|p| [p.name, p.id, {:class => "#{p.parameter_type.name} #{'exclusive' if p.exclusive}"}]}
+        def searchable_parameters_options(base_id=nil)
+          options = []
+          searchable_parameters(@discerner_search).each do |p|
+            option = ["#{p.parameter_category.name} - #{p.name}", p.id]
+            html_options = {:class => searchable_parameter_css_class(p)}
+            html_options[:id] = searchable_parameter_index(p, base_id) unless base_id.blank?
+            option << html_options
+            options << option
+          end
+          options
+        end
+
+        def searchable_parameter_index(parameter, base_id=nil)
+          "#{base_id}_#{parameter.id}"
+        end
+
+        def searchable_parameter_css_class(parameter)
+          class_array = [parameter.parameter_type.name, parameter.parameter_category.css_class_name, parameter.parameter_category.dictionary.css_class_name]
+          class_array << 'exclusive' if parameter.exclusive
+          class_array.join(' ')
         end
 
         def exportable_parameter_categories(search=nil)
