@@ -114,7 +114,13 @@ module Discerner
                   :disposition => "attachment; filename=#{filename}.csv"
               end
               format.xls do
+                headers["Content-type"] = "application/vnd.ms-excel"
+                headers['Content-Transfer-Encoding'] = 'binary'
+                headers['Expires'] = '0'
+                headers['Pragma'] = 'public'
+                headers["Cache-Control"] = "must-revalidate, post-check=0, pre-check=0"
                 headers["Content-Disposition"] = "attachment; filename=\"#{filename}.xls\""
+                headers['Content-Description'] = 'File Transfer'
                 render "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/show"
               end
             end
