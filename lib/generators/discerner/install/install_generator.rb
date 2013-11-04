@@ -88,13 +88,14 @@ module Discerner
     end
 
     def sample_dictionary
-      empty_directory "#{Discerner::Engine.paths['lib']}/setup"
-      copy_file "dictionaries.yml", "#{Discerner::Engine.paths['lib']}/setup/dictionaries.yml"
+      path = "#{Rails.root}/lib"
+      empty_directory "#{path}/setup"
+      copy_file "dictionaries.yml", "#{path}/setup/dictionaries.yml"
     end
 
     def make_customizable
       if options["customize-all"] || options["customize-controllers"]
-        controllers_directory = "#{Discerner::Engine.paths['app']}/controllers/discerner"
+        path = "#{Rails.root}/controllers/discerner"
         empty_directory controllers_directory
         copy_file "controllers/searches_controller.rb", "#{controllers_directory}/searches_controller.rb"
         copy_file "controllers/parameters_controller.rb", "#{controllers_directory}/parameters_controller.rb"
@@ -102,23 +103,25 @@ module Discerner
       end
 
       if options["customize-all"] || options["customize-helpers"]
-        empty_directory "#{Discerner::Engine.paths['app']}/helpers/discerner"
-        copy_file "helpers/searches_helper.rb", "#{Discerner::Engine.paths['app']}/helpers/discerner/searches_helper.rb"
+        path = "#{Rails.root}/app"
+        empty_directory "#{path}/helpers/discerner"
+        copy_file "helpers/searches_helper.rb", "#{path}/helpers/discerner/searches_helper.rb"
       end
 
       if options["customize-all"] || options["customize-models"]
-        empty_directory "#{Discerner::Engine.paths['app']}/models/discerner"
-        copy_file "models/dictionary.rb", "#{Discerner::Engine.paths['app']}/models/discerner/dictionary.rb"
-        copy_file "models/export_parameter.rb", "#{Discerner::Engine.paths['app']}/models/discerner/export_parameter.rb"
-        copy_file "models/operator.rb", "#{Discerner::Engine.paths['app']}/models/discerner/operator.rb"
-        copy_file "models/parameter_category.rb", "#{Discerner::Engine.paths['app']}/models/discerner/parameter_category.rb"
-        copy_file "models/parameter_type.rb", "#{Discerner::Engine.paths['app']}/models/discerner/parameter_type.rb"
-        copy_file "models/parameter_value.rb", "#{Discerner::Engine.paths['app']}/models/discerner/parameter_value.rb"
-        copy_file "models/parameter.rb", "#{Discerner::Engine.paths['app']}/models/discerner/parameter.rb"
-        copy_file "models/search_combination.rb", "#{Discerner::Engine.paths['app']}/models/discerner/search_combination.rb"
-        copy_file "models/search_parameter_value.rb", "#{Discerner::Engine.paths['app']}/models/discerner/search_parameter_value.rb"
-        copy_file "models/search_parameter.rb", "#{Discerner::Engine.paths['app']}/models/discerner/search_parameter.rb"
-        copy_file "models/search.rb", "#{Discerner::Engine.paths['app']}/models/discerner/search.rb"
+        path = "#{Rails.root}/app"
+        empty_directory "#{path}/models/discerner"
+        copy_file "models/dictionary.rb", "#{path}/models/discerner/dictionary.rb"
+        copy_file "models/export_parameter.rb", "#{path}/models/discerner/export_parameter.rb"
+        copy_file "models/operator.rb", "#{path}/models/discerner/operator.rb"
+        copy_file "models/parameter_category.rb", "#{path}/models/discerner/parameter_category.rb"
+        copy_file "models/parameter_type.rb", "#{path}/models/discerner/parameter_type.rb"
+        copy_file "models/parameter_value.rb", "#{path}/models/discerner/parameter_value.rb"
+        copy_file "models/parameter.rb", "#{path}/models/discerner/parameter.rb"
+        copy_file "models/search_combination.rb", "#{path}/models/discerner/search_combination.rb"
+        copy_file "models/search_parameter_value.rb", "#{path}/models/discerner/search_parameter_value.rb"
+        copy_file "models/search_parameter.rb", "#{path}/models/discerner/search_parameter.rb"
+        copy_file "models/search.rb", "#{path}/models/discerner/search.rb"
       end
     end
 
