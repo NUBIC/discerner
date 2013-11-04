@@ -63,11 +63,15 @@ module Discerner
 
         def index
           username = discerner_user.username unless discerner_user.blank?
-          searches = Discerner::Search.not_deleted.by_user(username)
+          searches = Discerner::Search.not_deleted.by_user(username).includes(
+            :dictionary,
+            :export_parameters   => [:parameter => [:parameter_type]],
+            :search_combinations => [:combined_searches => [:search_parameters => [:parameter => [:parameter_type], :search_parameter_values => [:parameter_value]]]],
+            :search_parameters   => [:parameter => [:parameter_type], :search_parameter_values => [:parameter_value]])
           if params[:query].blank?
             @discerner_searches = searches.all
           else
-            @discerner_searches = searches.where('name like ?', '%' + params[:query] + '%')
+            @discerner_searches = searches.where('name like ?', '%' + params[:query] + '%').all
           end
         end
 
