@@ -32,7 +32,7 @@ module Discerner
         @dictionary_name = dictionary.name
         empty_directory "#{Rails.root}/app/views/discerner/dictionaries/#{dictionary.parameterized_name}"
         template "view.html.haml", "#{Rails.root}/app/views/discerner/dictionaries/#{dictionary.parameterized_name}/_results.html.haml"
-        template "show.xls.erb", "#{Rails.root}/app/views'/discerner/dictionaries/#{dictionary.parameterized_name}/show.xls.erb"
+        template "show.xls.erb", "#{Rails.root}/app/views/discerner/dictionaries/#{dictionary.parameterized_name}/show.xls.erb"
       end
   end
 end
