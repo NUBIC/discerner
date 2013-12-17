@@ -71,7 +71,7 @@ module Discerner
             warnings.add(:base, "Parameter value has to be selected")
             return true
           end
-          if chosen? && (parameter_value.blank? || parameter_value.deleted?)
+          if chosen? && parameter_value.blank? || parameter_value && parameter_value.deleted?
             warnings.add(:base, "Parameter value has been deleted and has to be removed from the search")
             return true
           end
@@ -90,8 +90,8 @@ module Discerner
         private
           def destroy_if_deleted_parameter_value
             return if parameter_value.blank? || search_parameter.blank? || search_parameter.parameter.blank? || search_parameter.parameter.parameter_type.blank?
-            return unless ['list', 'combobox'].include?(search_parameter.parameter.parameter_type.name)
-            destroy if parameter_value.deleted? && !chosen?
+            #return unless ['list', 'combobox'].include?(search_parameter.parameter.parameter_type.name)
+            destroy if parameter_value.deleted? && search_parameter.parameter.parameter_type.name == 'list' && !chosen?
           end
 
           def validate_date(date)

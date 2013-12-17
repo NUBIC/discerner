@@ -37,19 +37,24 @@ module Discerner
         end
 
         def used_in_search?
-          search_parameter_values.chosen.any?
+          if parameter.parameter_type.name == 'list'
+            search_parameter_values.chosen.any?
+          else
+            search_parameter_values.any?
+          end
         end
 
         private
           def create_search_parameter_values
-            # create additional search_parameter_values for list and combobox search_parameters
+            # create additional search_parameter_values for list search_parameters so they can be dislayed as nested attribures
             return if parameter.blank? || parameter.parameter_type.blank?
-            return unless ['list', 'combobox'].include?(parameter.parameter_type.name)
-            parameter.search_parameters.each do |sp|
-              if sp.search_parameter_values.where(:parameter_value_id => id).blank?
-                max_display_order = sp.search_parameter_values.order(:display_order).last.display_order || -1
-                sp.search_parameter_values.build(:parameter_value_id => id, :display_order => max_display_order + 1)
-                sp.save
+            if parameter.parameter_type.name == 'list'
+              parameter.search_parameters.each do |sp|
+                if sp.search_parameter_values.where(:parameter_value_id => id).blank?
+                  max_display_order = sp.search_parameter_values.order(:display_order).last.display_order || -1
+                  sp.search_parameter_values.build(:parameter_value_id => id, :display_order => max_display_order + 1)
+                  sp.save
+                end
               end
             end
           end
@@ -59,7 +64,7 @@ module Discerner
             # destroy search_parameter_values that reference this value but are not chosen (list options)
             return unless deleted?
             search_parameter_values.each do |spv|
-              spv.destroy unless spv.chosen
+              spv.destroy if parameter.parameter_type.name == 'list' && !spv.chosen
             end
           end
       end

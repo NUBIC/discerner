@@ -89,11 +89,28 @@ describe Discerner::ParameterValue do
     v.reload.should be_used_in_search
   end
 
-  it "destroys linked search_parameter_values on soft delete if it is not chosen" do
+  it "does not destroy linked search_parameter_values on soft delete if it is used in search " do
     v = parameter_value
     p = v.parameter
     s = FactoryGirl.build(:search)
 
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => p)
+    s.save!
+    spv = FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
+
+    v.deleted_at = Time.now
+    v.save
+    v.should be_deleted
+    spv.class.should exist(spv)
+  end
+
+  it "destroys linked search_parameter_values on soft delete if it is used in search but not chosen from 'list' parameter values" do
+    v = parameter_value
+    p = v.parameter
+    p.parameter_type = FactoryGirl.create(:parameter_type, :name => 'list')
+    p.save!
+
+    s = FactoryGirl.build(:search)
     s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => p)
     s.save!
     spv = FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)

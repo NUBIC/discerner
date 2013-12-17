@@ -71,17 +71,18 @@ describe Discerner::SearchParameterValue do
   end
 
   it "detects if chosen value is deleted" do
-    search_parameter_value.should_not be_disabled
-
-    search_parameter_value.should_not be_disabled
-    search_parameter_value.warnings.full_messages.should be_blank
+    search_parameter_value.search_parameter.parameter.parameter_type.name = 'list'
     search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
 
     search_parameter_value.parameter_value.deleted_at = Time.now
-    search_parameter_value.should_not be_disabled
-    search_parameter_value.warnings.full_messages.should be_blank
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should_not be_blank
 
     search_parameter_value.chosen = true
+    search_parameter_value.should be_disabled
+    search_parameter_value.warnings.full_messages.should include('Parameter value has been deleted and has to be removed from the search')
+
+    search_parameter_value.search_parameter.parameter.parameter_type.name = 'combobox'
     search_parameter_value.should be_disabled
     search_parameter_value.warnings.full_messages.should include('Parameter value has been deleted and has to be removed from the search')
   end

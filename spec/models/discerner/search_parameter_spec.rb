@@ -179,7 +179,7 @@ describe Discerner::SearchParameter do
       search_parameter.should_not be_disabled
 
       search_parameter.search_parameter_values.first.parameter_value.deleted_at = Time.now
-      search_parameter.should_not be_disabled
+      search_parameter.should be_disabled
 
       search_parameter.search_parameter_values.first.chosen = true
       search_parameter.should be_disabled
