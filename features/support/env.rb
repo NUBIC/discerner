@@ -25,7 +25,11 @@ FactoryGirl.find_definitions
 # order to ease the transition to Capybara we set the default here. If you'd
 # prefer to use XPath just remove this line and adjust any selectors in your
 # steps to use the XPath syntax.
-Capybara.default_selector = :css
+
+Capybara.configure do |config|
+  config.default_selector = :css
+  config.ignore_hidden_elements = false
+end
 
 # By default, any exception happening in your Rails application will bubble up
 # to Cucumber so that your scenario will fail. This is a different from how
@@ -73,9 +77,11 @@ end
 Cucumber::Rails::Database.javascript_strategy = :truncation
 
 Capybara.register_driver :chrome do |app|
-  profile = Selenium::WebDriver::Chrome::Profile.new
-  profile["download.default_directory"] = DownloadHelpers::PATH.to_s
-  Capybara::Selenium::Driver.new(app, :browser => :chrome, :profile => profile)
+  prefs = {"download" => {"default_directory" => DownloadHelpers::PATH.to_s, "directory_upgrade" => true, "extensions_to_open" => ""}}
+  caps = Selenium::WebDriver::Remote::Capabilities.chrome
+  caps['chromeOptions'] = {'prefs' => prefs}
+  Capybara::Selenium::Driver.new(app, :browser => :chrome, :desired_capabilities => caps)
 end
-Capybara.default_driver = Capybara.javascript_driver = :chrome
+
+Capybara.javascript_driver = :chrome
 

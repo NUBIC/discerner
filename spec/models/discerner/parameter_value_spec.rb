@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discerner::ParameterValue do
-  let!(:parameter_value) { Factory.create(:parameter_value) }
+  let!(:parameter_value) { FactoryGirl.create(:parameter_value) }
 
   it "is valid with valid attributes" do
     parameter_value.should be_valid
@@ -35,7 +35,7 @@ describe Discerner::ParameterValue do
     d.deleted_at = Time.now
     d.should_not be_valid
 
-    d1 = Factory.create(:parameter_value, :name => 'deleted parameter value',
+    d1 = FactoryGirl.create(:parameter_value, :name => 'deleted parameter value',
       :search_value => 'deleted_parameter_value',
       :parameter => parameter_value.parameter)
     d1.deleted_at = Time.now
@@ -69,12 +69,19 @@ describe Discerner::ParameterValue do
 
   it "detects if parameter value is used in search" do
     v = parameter_value
+    p = v.parameter
     v.should_not be_used_in_search
 
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => v.parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => p)
     s.save!
-    spv = Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
+
+    spv = FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
+    v.reload.should be_used_in_search
+
+    p.parameter_type = FactoryGirl.create(:parameter_type, :name => 'list')
+    p.save!
+
     v.reload.should_not be_used_in_search
 
     spv.chosen = true
@@ -84,10 +91,12 @@ describe Discerner::ParameterValue do
 
   it "destroys linked search_parameter_values on soft delete if it is not chosen" do
     v = parameter_value
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => v.parameter)
+    p = v.parameter
+    s = FactoryGirl.build(:search)
+
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => p)
     s.save!
-    spv = Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
+    spv = FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
 
     v.deleted_at = Time.now
     v.save
@@ -97,10 +106,10 @@ describe Discerner::ParameterValue do
 
   it "destroys linked search_parameter_values on destroy" do
     v = parameter_value
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => v.parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => v.parameter)
     s.save!
-    spv = Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
+    spv = FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => v)
 
     v.destroy
     v.class.should_not exist(v)
@@ -110,17 +119,17 @@ describe Discerner::ParameterValue do
   it "creates additional search_parameter_values for list and combobox parameters" do
     v = parameter_value
     p = v.parameter
-    p.parameter_type = Factory.build(:parameter_type, :name => 'list')
+    p.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')
     p.save
 
-    s = Factory.build(:search)
-    sp = Factory.build(:search_parameter, :search => s, :parameter => v.parameter)
-    spv = Factory.create(:search_parameter_value, :search_parameter => sp, :parameter_value => v)
+    s = FactoryGirl.build(:search)
+    sp = FactoryGirl.build(:search_parameter, :search => s, :parameter => v.parameter)
+    spv = FactoryGirl.create(:search_parameter_value, :search_parameter => sp, :parameter_value => v)
     s.search_parameters << sp
     s.save!
     sp.reload.should have(1).search_parameter_values
 
-    v1 = Factory.create(:parameter_value, :search_value => 'other value', :parameter => v.parameter)
+    v1 = FactoryGirl.create(:parameter_value, :search_value => 'other value', :parameter => v.parameter)
     v1.should be_valid
     sp.reload.should have(2).search_parameter_values
   end

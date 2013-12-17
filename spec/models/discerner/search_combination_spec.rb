@@ -2,19 +2,19 @@ require 'spec_helper'
 
 describe Discerner::SearchCombination do
   let!(:search) {
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s)
     s.dictionary = Discerner::Dictionary.last
     s.save!
     s
   }
 
   let!(:search_combination) {
-    s = Factory.build(:search, :name => 'other search')
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => Factory.build(:parameter, :search_method => 'other_parameter'))
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :value => '0', :operator => Factory.create(:operator, :symbol => '<', :text => 'is less than'))
+    s = FactoryGirl.build(:search, :name => 'other search')
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => FactoryGirl.build(:parameter, :search_method => 'other_parameter'))
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :value => '0', :operator => FactoryGirl.create(:operator, :symbol => '<', :text => 'is less than'))
     s.save!
-    Factory.create(:search_combination, :search => search, :combined_search => s)
+    FactoryGirl.create(:search_combination, :search => search, :combined_search => s)
   }
   it "is valid with valid attributes" do
     search_combination.should be_valid

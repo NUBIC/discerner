@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discerner::Dictionary do
-  let!(:dictionary) { Factory.create(:dictionary) }
+  let!(:dictionary) { FactoryGirl.create(:dictionary) }
 
   it "is valid with valid attributes" do
     dictionary.should be_valid
@@ -23,7 +23,7 @@ describe Discerner::Dictionary do
     d = Discerner::Dictionary.new(:name => dictionary.name, :deleted_at => Time.now)
     d.should_not be_valid
 
-    Factory.create(:dictionary, :name => 'deleted dictionary', :deleted_at => Time.now)
+    FactoryGirl.create(:dictionary, :name => 'deleted dictionary', :deleted_at => Time.now)
     d = Discerner::Dictionary.new(:name => 'deleted dictionary')
     d.should_not be_valid
 
@@ -41,7 +41,7 @@ describe Discerner::Dictionary do
   end
 
   it "soft deleted linked parameter category on soft delete" do
-    parameter_category = Factory.create(:parameter_category, :dictionary => dictionary)
+    parameter_category = FactoryGirl.create(:parameter_category, :dictionary => dictionary)
     dictionary.deleted_at = Time.now
     dictionary.save
     parameter_category.reload.should be_deleted

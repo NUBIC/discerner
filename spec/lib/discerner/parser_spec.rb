@@ -469,10 +469,10 @@ describe Discerner::Parser do
     Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
     value = Discerner::ParameterValue.where(:search_value => "unknown").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
     s.save!
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
 
     dictionaries = %Q{
     :dictionaries:
@@ -535,8 +535,8 @@ describe Discerner::Parser do
     Discerner::Dictionary.where(:name => 'Another dictionary').first.should_not be_deleted
 
     dictionary = Discerner::Dictionary.where(:name => "Another dictionary").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s)
     s.dictionary = dictionary
     s.save!
 
@@ -593,8 +593,8 @@ describe Discerner::Parser do
     Discerner::ParameterCategory.where(:name => 'Patient criteria').first.should_not be_deleted
 
     category = Discerner::ParameterCategory.where(:name => "Patient criteria").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => category.parameters.first)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => category.parameters.first)
     s.save!
 
     dictionaries = %Q{
@@ -648,8 +648,8 @@ describe Discerner::Parser do
     Discerner::Parameter.where(:unique_identifier => 'gender').first.should_not be_deleted
 
     parameter = Discerner::Parameter.where(:unique_identifier => "gender").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => parameter)
     s.save!
 
     dictionaries = %Q{
@@ -708,11 +708,11 @@ describe Discerner::Parser do
     Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
     value = Discerner::ParameterValue.where(:search_value => "unknown").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
     s.save!
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :chosen => true)
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :operator => Discerner::Operator.last)
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :chosen => true)
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :operator => Discerner::Operator.last)
 
     dictionaries = %Q{
     :dictionaries:
@@ -769,10 +769,10 @@ describe Discerner::Parser do
     Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
     value = Discerner::ParameterValue.where(:search_value => "not_hisp_or_latino").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
     s.save!
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
 
     dictionaries = %Q{
     :dictionaries:
@@ -833,10 +833,10 @@ describe Discerner::Parser do
     Discerner::ParameterValue.all.length.should == 3
 
     value = Discerner::ParameterValue.where(:search_value => "hisp_or_latino").first
-    s = Factory.build(:search)
-    s.search_parameters << Factory.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
     s.save!
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :chosen => true)
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :chosen => true)
 
 
     dictionaries = %Q{

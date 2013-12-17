@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discerner::ParameterType do
-  let!(:parameter_type) { Factory.create(:parameter_type) }
+  let!(:parameter_type) { FactoryGirl.create(:parameter_type) }
 
   it "is valid with valid attributes" do
     parameter_type.should be_valid
@@ -23,7 +23,7 @@ describe Discerner::ParameterType do
     d = Discerner::ParameterType.new(:name => parameter_type.name, :deleted_at => Time.now)
     d.should_not be_valid
     
-    Factory.create(:parameter_type, :name => 'numeric', :deleted_at => Time.now)
+    FactoryGirl.create(:parameter_type, :name => 'numeric', :deleted_at => Time.now)
     d = Discerner::ParameterType.new(:name => 'numeric')
     d.should_not be_valid
     

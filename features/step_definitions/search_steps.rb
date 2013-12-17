@@ -11,8 +11,8 @@ Given /^search operators are loaded$/ do
 end
 
 Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
-  s = Factory.build(:search, :name => name)
-  p = Discerner::Parameter.last || Factory.build(:parameter)
+  s = FactoryGirl.build(:search, :name => name)
+  p = Discerner::Parameter.last || FactoryGirl.build(:parameter)
   p.search_method = 'age'
   p.search_model = 'Person'
   unless exportable.blank?
@@ -20,12 +20,12 @@ Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
     p.export_method = 'some_method'
   end
   p.save!
-  search_parameter = Factory.build(:search_parameter, :search => s, :parameter => p)
+  search_parameter = FactoryGirl.build(:search_parameter, :search => s, :parameter => p)
   s.search_parameters << search_parameter
   s.dictionary = Discerner::Dictionary.last
   s.save!
-  o = Discerner::Operator.last || Factory.create(:operator)
-  Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :operator => o)
+  o = Discerner::Operator.last || FactoryGirl.create(:operator)
+  FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :operator => o)
 end
 
 Given /^an executed search should pass the username to dictionary instance$/ do

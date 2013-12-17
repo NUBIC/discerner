@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discerner::ParameterCategory do
-  let!(:parameter_category) { Factory.create(:parameter_category) }
+  let!(:parameter_category) { FactoryGirl.create(:parameter_category) }
 
   it "is valid with valid attributes" do
     parameter_category.should be_valid
@@ -29,7 +29,7 @@ describe Discerner::ParameterCategory do
     c = Discerner::ParameterCategory.new(:name => parameter_category.name, :dictionary => parameter_category.dictionary, :deleted_at => Time.now)
     c.should_not be_valid
 
-    Factory.create(:parameter_category, :name => 'deleted parameter_category', :dictionary => parameter_category.dictionary, :deleted_at => Time.now)
+    FactoryGirl.create(:parameter_category, :name => 'deleted parameter_category', :dictionary => parameter_category.dictionary, :deleted_at => Time.now)
     d = Discerner::ParameterCategory.new(:name => 'deleted parameter_category', :dictionary => parameter_category.dictionary)
     d.should_not be_valid
 
@@ -38,7 +38,7 @@ describe Discerner::ParameterCategory do
   end
 
   it "allows to reuse name from different dictionary" do
-    c = Discerner::ParameterCategory.new(:name => parameter_category.name, :dictionary => Factory.create(:dictionary, :name => "even better dictionary"))
+    c = Discerner::ParameterCategory.new(:name => parameter_category.name, :dictionary => FactoryGirl.create(:dictionary, :name => "even better dictionary"))
     c.should be_valid
   end
 
@@ -52,7 +52,7 @@ describe Discerner::ParameterCategory do
   end
 
   it "soft deletes linked parameters on soft delete" do
-    parameter = Factory.create(:parameter, :parameter_category => parameter_category)
+    parameter = FactoryGirl.create(:parameter, :parameter_category => parameter_category)
     parameter_category.deleted_at = Time.now
     parameter_category.save
     parameter.reload.should be_deleted

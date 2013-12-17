@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discerner::Operator do
-  let!(:operator) { Factory.create(:operator) }
+  let!(:operator) { FactoryGirl.create(:operator) }
 
   it "is valid with valid attributes" do
     operator.should be_valid
@@ -23,7 +23,7 @@ describe Discerner::Operator do
     d = Discerner::Operator.new(:symbol => operator.symbol, :deleted_at => Time.now)
     d.should_not be_valid
     
-    Factory.create(:operator, :symbol => '<', :deleted_at => Time.now)
+    FactoryGirl.create(:operator, :symbol => '<', :deleted_at => Time.now)
     d = Discerner::Operator.new(:symbol => '<')
     d.should_not be_valid
     

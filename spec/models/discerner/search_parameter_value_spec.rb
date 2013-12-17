@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Discerner::SearchParameterValue do
   let(:search_parameter_value) {
-    s = Factory.build(:search)
-    search_parameter = Factory.build(:search_parameter, :search => s)
+    s = FactoryGirl.build(:search)
+    search_parameter = FactoryGirl.build(:search_parameter, :search => s)
     p = search_parameter.parameter
     p.search_method = 'age'
     p.search_model = 'Person'
@@ -11,7 +11,7 @@ describe Discerner::SearchParameterValue do
     s.search_parameters << search_parameter
     s.dictionary = Discerner::Dictionary.last
     s.save!
-    Factory.create(:search_parameter_value, :search_parameter => s.search_parameters.first)
+    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first)
   }
 
   it "is valid with valid attributes" do
@@ -29,7 +29,7 @@ describe Discerner::SearchParameterValue do
 
   it "allows to generate sql for search values with 'comparison' operators" do
     search_parameter_value.value = '50'
-    search_parameter_value.operator = Discerner::Operator.find_by_symbol('>') || Factory.create(:operator, :symbol => '>', :text => 'is greater', :operator_type => 'comparison')
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('>') || FactoryGirl.create(:operator, :symbol => '>', :text => 'is greater', :operator_type => 'comparison')
     search_parameter_value.to_sql.should_not == {}
     search_parameter_value.to_sql[:predicates].should == "age > ?"
     search_parameter_value.to_sql[:values].should == '50'
@@ -38,7 +38,7 @@ describe Discerner::SearchParameterValue do
   it "allows to generate sql for search values with 'range' operator" do
     search_parameter_value.value = '40'
     search_parameter_value.additional_value = '50'
-    search_parameter_value.operator = Discerner::Operator.find_by_symbol('between') || Factory.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range')
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('between') || FactoryGirl.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range')
     search_parameter_value.to_sql.should_not == {}
     search_parameter_value.to_sql[:predicates].should == "age between ? and ?"
     search_parameter_value.to_sql[:values].should == ["40", "50"]
@@ -46,7 +46,7 @@ describe Discerner::SearchParameterValue do
 
   it "allows to generate sql for search values with 'text_comparison' operators" do
     search_parameter_value.value = '50'
-    search_parameter_value.operator = Discerner::Operator.find_by_symbol('is not like') || Factory.create(:operator, :symbol => 'is not like', :text => 'is not like', :operator_type => 'text_comparison')
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('is not like') || FactoryGirl.create(:operator, :symbol => 'is not like', :text => 'is not like', :operator_type => 'text_comparison')
     search_parameter_value.to_sql.should_not == {}
     search_parameter_value.to_sql[:predicates].should == "age is not like ?"
     search_parameter_value.to_sql[:values].should == '%50%'
@@ -54,7 +54,7 @@ describe Discerner::SearchParameterValue do
 
   it "allows to generate sql for search values with 'presence' operators" do
     search_parameter_value.value = '50'
-    search_parameter_value.operator = Discerner::Operator.find_by_symbol('none') || Factory.create(:operator, :symbol => 'is not null', :text => 'none', :operator_type => 'presence')
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('none') || FactoryGirl.create(:operator, :symbol => 'is not null', :text => 'none', :operator_type => 'presence')
     search_parameter_value.to_sql.should_not == {}
     search_parameter_value.to_sql[:predicates].should == "age is not null"
     search_parameter_value.to_sql[:values].should == nil
@@ -73,9 +73,9 @@ describe Discerner::SearchParameterValue do
   it "detects if chosen value is deleted" do
     search_parameter_value.should_not be_disabled
 
-    search_parameter_value.parameter_value = Factory.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
     search_parameter_value.should_not be_disabled
     search_parameter_value.warnings.full_messages.should be_blank
+    search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
 
     search_parameter_value.parameter_value.deleted_at = Time.now
     search_parameter_value.should_not be_disabled
@@ -119,7 +119,7 @@ describe Discerner::SearchParameterValue do
 
 
   it "self-destroyes if belongs to list or combobox parameter and references deleted value and not chosen" do
-    search_parameter_value.parameter_value = Factory.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
+    search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
     search_parameter_value.parameter_value.deleted_at = Time.now
     search_parameter_value.chosen = false
     search_parameter_value.save

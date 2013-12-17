@@ -210,9 +210,9 @@ Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? have "([
     elements = all(selector)
     elements.should_not be_empty
     if negation.blank?
-      elements.each{ |e| e.should have_selector "option[@selected='selected']:contains('#{text}')" }
+      elements.each{ |e| e.find(:xpath, ".//option[@selected = 'selected'][text() = '#{text}']").should be_present}
     else
-      elements.each{ |e| e.should_not have_selector "option[@selected='selected']:contains('#{text}')" }
+      elements.each{ |e| expect{e.find(:xpath, ".//option[@selected = 'selected'][text() = '#{text}']")}.to raise_error}
     end
   }
 end
@@ -223,9 +223,9 @@ Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? have opt
     elements.should_not be_empty
     options.split(', ').each do |o|
       if negation.blank?
-        elements.each{ |e| e.should have_selector "option:contains('#{o}')" }
+        elements.each{ |e| e.find(:xpath, ".//option[text() = '#{o}']").should be_present }
       else
-        elements.each{ |e| e.should_not have_selector "option:contains('#{o}')" }
+        elements.each{ |e| expect{e.find(:xpath, ".//option[text() = '#{o}']")}.to raise_error }
       end
     end
   }
@@ -236,9 +236,9 @@ Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain 
     elements = all(selector, :visible => true)
     elements.should_not be_empty
     if negation.blank?
-      elements.each{ |e| e.should have_selector ":contains('#{value}')" }
+      elements.each{ |e| e.find(:xpath, ".//*[text()[contains(.,'#{value}')]]").should be_present }
     else
-      elements.each{ |e| e.should_not have_selector ":contains('#{value}')" }
+      elements.each{ |e| expect{e.find(:xpath, ".//*[text()[contains(.,'#{value}')]]")}.to raise_error }
     end
   }
 end
