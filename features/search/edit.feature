@@ -5,8 +5,8 @@ Feature: Viewing existing searches
   Scenario: It should load saved search
     Given I create search with name "Awesome search"
     When I am on the search edit page
-    Then the first search criteria should be "Gender"
-    And the last search criteria should be "Date of birth"
+    Then the first search criteria should be "Demographic criteria - Gender"
+    And the last search criteria should be "Demographic criteria - Date of birth"
     And the last search criteria selection value should be "2012-10-22"
     Then "div.discerner_search_name" should contain text "Awesome search"
     And "div.discerner_search_dictionary" should contain text "Sample dictionary"
@@ -28,6 +28,7 @@ Feature: Viewing existing searches
     When I follow "Edit"
     And I fill in "search_name" with "Not that great after all"
     And I follow "Cancel"
+    #And I wait 20 seconds
     Then "div.discerner_search_name" should contain text "Awesome search"
     And "div.discerner_search_name" should not contain text "Cancel"
 
@@ -51,13 +52,13 @@ Feature: Viewing existing searches
     And I enter value "adenocarcinoma" within the last search criteria
     And I press "Search"
     Then ".discerner" should contain text "Search was successfully updated."
-    And the last search criteria should be "Text search diagnosis"
+    And the last search criteria should be "Case criteria - Text search diagnosis"
     And the last search criteria selection value should be "adenocarcinoma"
 
     When I follow "Remove" within the last ".search_parameter > .remove"
     And I press "Search"
     Then ".discerner" should contain text "Search was successfully updated"
-    And the last search criteria should be "Date of birth"
+    And the last search criteria should be "Demographic criteria - Date of birth"
     And the last search criteria selection value should be "2012-10-22"
 
   @javascript
@@ -177,14 +178,14 @@ Feature: Viewing existing searches
     Given I create search with name "Awesome search"
     And parameter "Gender" is marked as deleted
     When I go to the search edit page
-    Then ".parameter select" in the last ".search_parameter" should have options "Gender"
+    Then ".parameter select" in the last ".search_parameter" should have options "Demographic criteria - Gender"
 
   @javascript
   Scenario: Deleted parameters should be highlighted if they are selected
     Given I create search with name "Awesome search"
     And parameter "Gender" is marked as deleted
     When I go to the search edit page
-    Then ".search_parameters .error select" should have options "Gender"
+    Then ".search_parameters .error select" should have options "Demographic criteria - Gender"
     And "td.warnings" in the first ".search_parameters .error" should contain text "Parameter has been deleted and has to be removed from the search"
 
   @javascript

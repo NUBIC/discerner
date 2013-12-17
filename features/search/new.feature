@@ -38,8 +38,8 @@ Feature: Viewing existing searches
     And I select dictionary "Sample dictionary"
     And I add search criteria
     And I open criteria dropdown
-    Then ".parameter select" in the first ".search_parameter" should have options "Age at case collection date, Ethnic group, Gender, Race, Text search diagnosis"
-    And ".parameter select" in the first ".search_parameter" should not have options "Age based on current date"
+    Then ".parameter select" in the first ".search_parameter" should have options "Demographic criteria - Age at case collection date, Demographic criteria - Ethnic group, Demographic criteria - Gender, Demographic criteria - Race, Case criteria - Text search diagnosis"
+    And ".parameter select" in the first ".search_parameter" should not have options "Demographic criteria - Age based on current date"
 
   @javascript
   Scenario: It should filter search criteria by selected dictionary
@@ -370,8 +370,8 @@ Feature: Viewing existing searches
     And I select dictionary "Sample dictionary"
     And I add search criteria
     And I open criteria dropdown
-    Then ".parameter select" in the first ".search_parameter" should have options "Age at case collection date, Ethnic group, Race, Text search diagnosis"
-    And ".parameter select" in the first ".search_parameter" should not have options "Gender"
+    Then ".parameter select" in the first ".search_parameter" should have options "Demographic criteria - Age at case collection date, Demographic criteria - Ethnic group, Demographic criteria - Race, Case criteria - Text search diagnosis"
+    And ".parameter select" in the first ".search_parameter" should not have options "Demographic criteria - Gender"
 
   @javascript
   Scenario: Deleted categories should not be shown in parameters options
