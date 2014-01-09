@@ -1,7 +1,7 @@
 Feature: Viewing existing searches
   A user should be able view existing searches
 
-  Scenario: Vieving existing searches
+  Scenario: Viewing existing searches
     Given search dictionaries are loaded
     And search "best search ever" exists
     And search "another search" exists
@@ -36,10 +36,21 @@ Feature: Viewing existing searches
     And "#searches-list" should contain text "another search"
 
   @javascript
-  Scenario: Vieving disabled searches
+  Scenario: Viewing disabled searches
     Given search dictionaries are loaded
     And search "best search ever" exists
     And search "best search ever" is disabled
     When I go to the searches page
     Then "#searches-list .error" should contain text "best search ever"
+
+  @javascript
+  Scenario: Viewing combined searches
+    Given I create search with name "Awesome search"
+    And I create search with name "Another search"
+    When I go to the search edit page
+    And I add combined search
+    And I press "Search"
+    When I go to the searches page
+    Then "#searches-list" should contain text "Awesome search"
+    And "#searches-list" should contain text "Another search"
 
