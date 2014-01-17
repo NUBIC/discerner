@@ -3,12 +3,11 @@ module Discerner
     module Models
       module Dictionary
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :has_many, :parameter_categories, :dependent => :destroy
           base.send :has_many, :searches
-
-          # Scopes
-          base.send :scope, :not_deleted, base.where(:deleted_at => nil)
 
           #Validations
           @@validations_already_included ||= nil
@@ -17,9 +16,6 @@ module Discerner
             @@validations_already_included = true
           end
 
-          # Whitelisting attributes
-          base.send :attr_accessible, :name, :deleted_at
-
           # Hooks
           base.send :after_commit, :update_parameter_categories, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
@@ -27,10 +23,6 @@ module Discerner
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def css_class_name

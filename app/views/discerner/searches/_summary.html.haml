@@ -9,7 +9,8 @@
           = @discerner_search.combined_searches.map{|cs| cs.name}.join(', ')
 
     - @discerner_search.parameter_categories.each do |category|
-      - search_parameters = @discerner_search.search_parameters.by_parameter_category(category)
+      - search_parameters = @discerner_search.search_parameters
+      - search_parameters =  search_parameters.by_parameter_category(category) if category
       - unless search_parameters.blank?
         %tr.parameter_category
           %th{:colspan => "2"}

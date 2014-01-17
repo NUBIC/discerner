@@ -71,7 +71,7 @@ module Discerner
       error_message 'dictionary name cannot be blank' if dictionary_name.blank?
       notification_message "processing dictionary '#{dictionary_name}'"
 
-      dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
+      dictionary = Discerner::Dictionary.find_or_initialize_by(:name => dictionary_name)
       dictionary.deleted_at = nil
 
       if dictionary.new_record?
@@ -120,7 +120,10 @@ module Discerner
       unique_identifier = hash[:unique_identifier]
       error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
 
-      existing_parameter    = Discerner::Parameter.includes({:parameter_category => :dictionary}).where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
+      existing_parameter    = Discerner::Parameter.
+                              includes({:parameter_category => :dictionary}).
+                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).
+                              references(:discerner_parameters, :discerner_dictionaries).first
       parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category)
 
       parameter.name        = parameter_name
@@ -214,7 +217,7 @@ module Discerner
          operators_from_file.each do |operator_from_file|
            error_message 'unique identifier has to be defined' if operator_from_file[:unique_identifier].blank?
 
-           operator = Discerner::Operator.find_or_initialize_by_unique_identifier(operator_from_file[:unique_identifier])
+           operator = Discerner::Operator.find_or_initialize_by(:unique_identifier => operator_from_file[:unique_identifier])
            if operator.new_record?
              notification_message "creating operator '#{operator_from_file[:unique_identifier]}'"
              operator.created_at = Time.now
@@ -246,7 +249,7 @@ module Discerner
       error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
 
       ## find or initialize parameter type
-      parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name.downcase)
+      parameter_type = Discerner::ParameterType.find_or_initialize_by(:name => name.downcase)
       if parameter_type.new_record?
         notification_message "Creating parameter type '#{name}'"
         parameter_type.created_at = Time.now
@@ -310,7 +313,7 @@ module Discerner
       end
 
       def cleanup_dictionaries
-        abandoned_dictionaries  = Discerner::Dictionary.all - updated_dictionaries
+        abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
         used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
         not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
 
@@ -327,7 +330,7 @@ module Discerner
       end
 
       def cleanup_categories
-        abandoned_categories = Discerner::ParameterCategory.all - updated_categories
+        abandoned_categories = Discerner::ParameterCategory.order(:id).to_a - updated_categories
         used_categories      = abandoned_categories.reject{|c| c.parameters.blank? || c.parameters.select{|p| p.used_in_search?}.blank?}
         not_used_categories  = abandoned_categories - used_categories
 
@@ -344,7 +347,7 @@ module Discerner
       end
 
       def cleanup_parameters
-        abandoned_parameters = Discerner::Parameter.all - updated_parameters
+        abandoned_parameters = Discerner::Parameter.order(:id).to_a - updated_parameters
         used_parameters      = abandoned_parameters.select{|p| p.used_in_search?}
         not_used_parameters  = abandoned_parameters - used_parameters
 
@@ -363,7 +366,7 @@ module Discerner
       # this also marks search_parameter_values that reference this value and are chosen as deleted
       # and destroys search_parameter_values that reference this value but are not chosen (list options)
       def cleanup_parameter_values
-        abandoned_parameter_values = Discerner::ParameterValue.all - updated_parameter_values - blank_parameter_values
+        abandoned_parameter_values = Discerner::ParameterValue.order(:id).to_a - updated_parameter_values - blank_parameter_values
         used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
         not_used_parameter_values  = abandoned_parameter_values - used_parameter_values
 

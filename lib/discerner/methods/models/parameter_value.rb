@@ -3,12 +3,11 @@ module Discerner
     module Models
       module ParameterValue
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :parameter
           base.send :has_many, :search_parameter_values, :dependent => :destroy
-
-          # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
 
           #Validations
           @@validations_already_included ||= nil
@@ -19,9 +18,6 @@ module Discerner
             @@validations_already_included = true
           end
 
-          # Whitelisting attributes
-          base.send :attr_accessible, :search_value, :name, :parameter, :parameter_id
-
           # Hooks
           base.send :after_commit, :create_search_parameter_values, :on => :create
           base.send :after_commit, :update_search_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
@@ -30,10 +26,6 @@ module Discerner
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def used_in_search?

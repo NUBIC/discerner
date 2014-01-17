@@ -3,6 +3,8 @@ module Discerner
     module Models
       module Parameter
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to,  :parameter_category
           base.send :belongs_to,  :parameter_type
@@ -11,9 +13,8 @@ module Discerner
           base.send :has_many,    :export_parameters,  :dependent => :destroy
 
           # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :searchable, base.where('search_model is not null and search_method is not null and deleted_at is null'))
-          base.send(:scope, :exportable, base.where('export_model is not null and export_method is not null and deleted_at is null'))
+          base.send(:scope, :searchable, -> {base.not_deleted.where('search_model is not null and search_method is not null')})
+          base.send(:scope, :exportable, -> {base.not_deleted.where('export_model is not null and export_method is not null')})
 
           #Validations
           @@validations_already_included ||= nil
@@ -25,10 +26,6 @@ module Discerner
             @@validations_already_included = true
           end
 
-          # Whitelisting attributes
-          base.send :attr_accessible, :name, :parameter_category, :parameter_category_id, :parameter_type, :parameter_type_id,
-          :search_model, :search_method, :unique_identifier, :export_model, :export_method
-
           # Hooks
           base.send :after_commit, :update_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
@@ -36,10 +33,6 @@ module Discerner
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def used_in_search?

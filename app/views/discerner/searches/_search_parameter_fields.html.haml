@@ -23,7 +23,7 @@
             = div_for parameter_category, :class => "question_category #{parameter_category.dictionary.css_class_name}" do
               %p{ :class => 'parameter_category_name' }
                 = parameter_category.name
-              - items = parameter_category.parameters.searchable.not_deleted.all.map{ |p| {:name => p.name, :rel => searchable_parameter_index(p, search_parameter_id)}}
+              - items = parameter_category.parameters.searchable.not_deleted.to_a.map{ |p| {:name => p.name, :rel => searchable_parameter_index(p, search_parameter_id)}}
               - unless items.empty?
                 - (0...items.size).each do |i|
                   - unless items[i].nil?

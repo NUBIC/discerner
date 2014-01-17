@@ -14,4 +14,4 @@
         %td
           = link_to 'Open', edit_search_path(search), :class => 'show_link icon_link'
           = link_to 'Export options', export_parameters_path(search), :class => 'options_link icon_link'
-          = link_to 'Delete', search_path(search), :confirm => 'Are you sure?', :method => :delete, :class => "icon_link delete_link"
+          = link_to 'Delete', search_path(search), :data => {:confirm => 'Are you sure?'}, :method => :delete, :class => "icon_link delete_link"

@@ -3,12 +3,11 @@ module Discerner
     module Models
       module Operator
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :has_and_belongs_to_many, :parameter_types, :join_table => :discerner_operators_parameter_types
           base.send :has_many, :search_parameter_values
-
-          # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
 
           #Validations
           @@validations_already_included ||= nil
@@ -18,18 +17,11 @@ module Discerner
             base.send :validate,  :type_supported?
             @@validations_already_included = true
           end
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :operator_type, :symbol, :text, :deleted_at
         end
 
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def css_class_name

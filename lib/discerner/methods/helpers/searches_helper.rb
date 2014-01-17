@@ -64,8 +64,11 @@ module Discerner
         end
 
         def combined_searches_options(search=nil)
+          all_searches = Discerner::Search.order(:id)
+
           username = discerner_user.username unless discerner_user.blank?
-          all_searches = Discerner::Search.by_user(username)
+          all_searches = all_searches.by_user(username) unless username.blank?
+
           if search.blank? || !search.persisted?
             searches = all_searches.not_deleted.reject{|s| s.disabled?}
           else
@@ -84,14 +87,14 @@ module Discerner
           else
             parameter_categories = search.dictionary.searchable_categories.not_deleted
           end
-          parameter_categories.all.sort{|a,b| a.parameters.searchable.length <=> b.parameters.searchable.length}
+          parameter_categories.to_a.sort{|a,b| a.parameters.searchable.length <=> b.parameters.searchable.length}
         end
 
         def searchable_parameters(search=nil)
           if search.blank? || !search.persisted?
-            parameters = Discerner::Parameter.not_deleted.searchable.all
+            parameters = Discerner::Parameter.not_deleted.searchable.order(:id).to_a
           else
-            parameters_available = search.dictionary.searchable_categories.not_deleted.map{ |c| c.searchable_parameters.not_deleted.all }
+            parameters_available = search.dictionary.searchable_categories.not_deleted.map{ |c| c.searchable_parameters.not_deleted.to_a }
             parameters_used      = search.search_parameters.map{ |sp| sp.parameter }
             parameters           = parameters_available.flatten | parameters_used.flatten
           end
@@ -122,9 +125,9 @@ module Discerner
 
         def exportable_parameter_categories(search=nil)
           if search.blank? || !search.persisted?
-            parameter_categories = Discerner::ParameterCategory.not_deleted.exportable.all
+            parameter_categories = Discerner::ParameterCategory.not_deleted.exportable.to_a
           else
-            parameter_categories_available = search.dictionary.parameter_categories.exportable.all
+            parameter_categories_available = search.dictionary.parameter_categories.exportable.to_a
             parameter_categories_used      = search.export_parameters.map{ |ep| ep.parameter.parameter_category }.flatten
             parameter_categories           = parameter_categories_available | parameter_categories_used
           end
@@ -133,7 +136,7 @@ module Discerner
 
         def exportable_parameters(search, category)
           return if search.blank? || !search.persisted?
-          parameters_available = category.parameters.exportable.all
+          parameters_available = category.parameters.exportable.to_a
           parameters_used      = search.export_parameters.map{|ep| ep.parameter}.reject{|p| p.parameter_category != category }.flatten
           parameters           = parameters_available | parameters_used
           parameters.sort{|a,b| a.name <=> b.name}

@@ -17,7 +17,7 @@ module Discerner
         end
 
         def create
-          @discerner_search = Discerner::Search.new(params[:search])
+          @discerner_search = Discerner::Search.new(search_params)
           respond_to do |format|
             if @discerner_search.save
               format.html { redirect_to(edit_search_path(@discerner_search)) }
@@ -51,7 +51,7 @@ module Discerner
 
         def update
           respond_to do |format|
-            if @discerner_search.update_attributes(params[:search])
+            if @discerner_search.update_attributes(search_params)
               format.html { redirect_to(edit_search_path(@discerner_search), :notice => 'Search was successfully updated.') }
               format.js
             else
@@ -62,16 +62,19 @@ module Discerner
         end
 
         def index
-          username = discerner_user.username unless discerner_user.blank?
-          searches = Discerner::Search.not_deleted.by_user(username).includes(
+          searches = Discerner::Search.not_deleted.includes(
             :dictionary,
             :export_parameters   => [:parameter => [:parameter_type]],
             :search_combinations => [:combined_search => [:search_parameters => [:parameter => [:parameter_type], :search_parameter_values => [:parameter_value]]]],
             :search_parameters   => [:parameter => [:parameter_type], :search_parameter_values => [:parameter_value]])
+
+          username = discerner_user.username unless discerner_user.blank?
+          searches = searches.by_user(username) unless username.blank?
+
           if params[:query].blank?
-            @discerner_searches = searches.all
+            @discerner_searches = searches.order(:id)
           else
-            @discerner_searches = searches.where('name like ?', '%' + params[:query] + '%').all
+            @discerner_searches = searches.where('name like ?', '%' + params[:query] + '%').to_a
           end
         end
 
@@ -148,6 +151,16 @@ module Discerner
             options = { :username => nil }
             options[:username] = discerner_user.username unless discerner_user.blank?
             options
+          end
+
+          def search_params
+            params.required(:search).permit(
+              :deleted_at, :name, :username, :dictionary_id,
+              :search_combinations_attributes => [:combined_search_id, :display_order, :operator_id, :search_id, :id, :_destroy],
+              :search_parameters_attributes   => [:display_order, :parameter_id, :search_id, :id, :_destroy,
+                :search_parameter_values_attributes => [:additional_value, :chosen, :display_order, :operator_id, :parameter_value_id, :search_parameter_id, :value, :_destroy, :id]
+              ]
+            )
           end
      end
     end

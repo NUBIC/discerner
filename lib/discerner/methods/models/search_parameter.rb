@@ -3,20 +3,18 @@ module Discerner
     module Models
       module SearchParameter
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :search
           base.send :belongs_to, :parameter
           base.send :has_many, :search_parameter_values, :dependent => :destroy
 
           # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :by_parameter_category, lambda{|parameter_category| base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
+          base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id).references(:discerner_parameters) unless parameter_category.blank?})
 
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameter_values, :allow_destroy => true
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :display_order, :parameter_id, :search_id, :parameter, :search, :search_parameter_values_attributes
 
           # Hooks
           base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
@@ -25,10 +23,6 @@ module Discerner
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def warnings
