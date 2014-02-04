@@ -1,7 +1,6 @@
 module Discerner
   module ParametersControllerCustomMethods
     def self.included(base)
-      # base.send :before_filter, :load_parameter
     end
 
     def show

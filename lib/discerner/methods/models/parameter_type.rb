@@ -10,12 +10,8 @@ module Discerner
           base.send :has_and_belongs_to_many, :operators, :join_table => :discerner_operators_parameter_types
 
           #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :name, :presence => true, :uniqueness => {:message => "for parameter type has already been taken"}
-            base.send :validate, :name_supported?
-            @@validations_already_included = true
-          end
+          base.send :validates, :name, :presence => true, :uniqueness => {:message => "for parameter type has already been taken"}
+          base.send :validate, :name_supported?
         end
 
         # Instance Methods

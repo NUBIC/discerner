@@ -10,11 +10,7 @@ module Discerner
           base.send :has_many, :searches
 
           #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :name, :presence => true, :uniqueness => {:message => "for dictionary has already been taken"}
-            @@validations_already_included = true
-          end
+          base.send :validates, :name, :presence => true, :uniqueness => {:message => "for dictionary has already been taken"}
 
           # Hooks
           base.send :after_commit, :update_parameter_categories, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }

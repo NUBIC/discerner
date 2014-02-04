@@ -8,8 +8,6 @@ module Discerner
           # Associations
           base.send :belongs_to, :parameter
           base.send :belongs_to, :search
-          # Whitelisting attributes
-          #base.send :attr_accessible, :parameter_id, :search_id
         end
 
         # Instance Methods

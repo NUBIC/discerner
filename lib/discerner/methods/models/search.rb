@@ -16,12 +16,8 @@ module Discerner
           base.send(:scope, :by_user, ->(username) { base.where(:username => username) unless username.blank?})
 
           # Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :dictionary, :presence => { :message => "for search can't be blank" }
-            base.send :validate, :validate_search_parameters
-            @@validations_already_included = true
-          end
+          base.send :validates, :dictionary, :presence => { :message => "for search can't be blank" }
+          base.send :validate, :validate_search_parameters
 
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameters, :allow_destroy => true,

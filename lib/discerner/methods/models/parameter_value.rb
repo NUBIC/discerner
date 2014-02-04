@@ -8,15 +8,14 @@ module Discerner
           # Associations
           base.send :belongs_to, :parameter
           base.send :has_many, :search_parameter_values, :dependent => :destroy
+          base.send :has_one, :parameter_value_categorization, :dependent => :destroy
+          base.send :has_one, :parameter_value_category, :through=> :parameter_value_categorization
 
           #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :parameter, :presence => true
-            base.send :validates, :search_value, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
-            base.send :validates, :name, :presence => true, :length => { :maximum => 1000 }
-            @@validations_already_included = true
-          end
+          base.send :validates, :parameter, :presence => true
+          base.send :validates, :search_value, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
+          base.send :validates, :name, :presence => true, :length => { :maximum => 1000 }
+          base.send :validate, :parameter_category_belongs_to_parameter
 
           # Hooks
           base.send :after_commit, :create_search_parameter_values, :on => :create
@@ -37,6 +36,12 @@ module Discerner
         end
 
         private
+          def parameter_category_belongs_to_parameter
+            unless parameter_value_category.blank?
+              errors.add(:base,"Parameter category #{parameter_value_category.name} does not belong to parameter #{parameter.name}") unless parameter_value_category.parameter_id == parameter.id
+            end
+          end
+
           def create_search_parameter_values
             # create additional search_parameter_values for list search_parameters so they can be dislayed as nested attribures
             return if parameter.blank? || parameter.parameter_type.blank?

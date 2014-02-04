@@ -17,14 +17,10 @@ module Discerner
           base.send(:scope, :exportable, -> {base.not_deleted.where('export_model is not null and export_method is not null')})
 
           #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :name, :unique_identifier, :parameter_category, :presence => true
-            base.send :validate,  :validate_unique_identifier
-            base.send :validate,  :validate_search_attributes
-            base.send :validate,  :validate_export_attributes
-            @@validations_already_included = true
-          end
+          base.send :validates, :name, :unique_identifier, :parameter_category, :presence => true
+          base.send :validate,  :validate_unique_identifier
+          base.send :validate,  :validate_search_attributes
+          base.send :validate,  :validate_export_attributes
 
           # Hooks
           base.send :after_commit, :update_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
