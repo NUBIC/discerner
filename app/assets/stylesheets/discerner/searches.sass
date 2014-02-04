@@ -9,10 +9,16 @@
     :margin-bottom 1em
 
 #discerner_search
+  form.new_search
+    label, input, select
+      :display inline
+      :width auto
+
   #discerner_search_header
     div.discerner_search_name, div.discerner_search_dictionary, .discerner_dictionary_required_message
       :margin 1em 0.5em
       :height 2em
+      :padding 0.25em
       :float left
 
     div.discerner_search_name
@@ -20,8 +26,9 @@
         :display inline
         :width 10em
 
-        a.button, input.button
-          :margin 0 !important
+        a, input
+          :margin-top -10px
+          :margin-bottom 0
 
         input[type="text"]
           :width 30em
@@ -46,6 +53,8 @@
       :padding-top 0.5em
       :padding-top 0.5em
 
+    .search_combinations td
+      :border none
     .parameter_boolean_operator, td.remove, th.remove,
     .combined_search_operator, .combined_search_operator
       :width 68px
@@ -71,7 +80,10 @@
           :padding-top 0
 
       .parameter_values_boolean_operator, .chosen
-        :width 14px
+        :width 1.5em
+
+      button.ui-button
+        :margin-bottom 0
 
     input.ui-autocomplete-input
       :border 1px solid #CCCCCC
@@ -109,7 +121,7 @@
         :position relative
 
         input.ui-autocomplete-input
-          :width 326px !important
+          :width 24em
           :border none
           :border-right 1px solid #CCCCCC
           :padding-left 0.2em
@@ -160,9 +172,10 @@
 
       .combined_search_combobox
         button.ui-button
-.dicserner
+          :margin-bottom 0
+.discerner
   input.ui-autocomplete-input
-    :width 20em !important
+    :width 20em
 
   .ui-menu .ui-menu-item a
     :text-align left

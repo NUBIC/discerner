@@ -8,6 +8,7 @@ module Discerner
     class_option "customize-controllers", :type => :boolean
     class_option "customize-models", :type => :boolean
     class_option "customize-helpers", :type => :boolean
+    class_option "customize-layout", :type => :boolean
     class_option "current-user-helper", :type => :string
 
     def self.source_paths
@@ -122,6 +123,12 @@ module Discerner
         copy_file "models/search_parameter_value.rb", "#{path}/models/discerner/search_parameter_value.rb"
         copy_file "models/search_parameter.rb", "#{path}/models/discerner/search_parameter.rb"
         copy_file "models/search.rb", "#{path}/models/discerner/search.rb"
+      end
+
+      if options["customize-all"] || options["customize-layout"]
+        path = "#{Rails.root}/app/views"
+        empty_directory "#{path}/layouts/discerner"
+        copy_file "views/layouts/searches.html.erb", "#{path}/layouts/discerner/searches.html.erb"
       end
     end
 

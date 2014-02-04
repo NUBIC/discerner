@@ -3,6 +3,7 @@ module Discerner
     def self.included(base)
       # base.send :helper, :all
       # base.send :before_filter, :load_search
+      base.send :layout, "search"
     end
 
     def index

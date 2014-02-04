@@ -1,13 +1,6 @@
 #discerner_search_header
   - if @discerner_search.persisted?
     #messages
-    .discerner_search_name
-      %b Search name:
-      %span.discerner_search_name
-        = @discerner_search.display_name
-      %span.discerner_search_name_edit
-        = link_to 'Edit', '#', :class => "edit_link icon_link"
-
     .discerner_search_dictionary
       %b Dictionary:
       %span{ :class => "#{@discerner_search.dictionary.css_class_name}"}
@@ -15,12 +8,16 @@
       - if @discerner_search.dictionary.deleted?
         %span{ :style => "color:red;"}
           %b This dictionary has been deleted. You will not be able to execute or edit this search.
-
+    .discerner_search_name
+      %b Search name:
+      %span.discerner_search_name
+        = @discerner_search.display_name
+      %span.discerner_search_name_edit
+        = link_to 'Edit', '#', :class => "edit_link icon_link"
   - else
-    %div.discerner_search_name
-      = f.label :name, "Search name"
-      = f.text_field :name
-
+    .discerner_dictionary_required_message
+      %span
+        Select dictionary in order to add search criteria
     %div.discerner_search_dictionary
       - if dictionary_options.length > 1
         = f.label :dictionary_id
@@ -31,9 +28,10 @@
         %span{ :class => "#{dictionary_options.last[2][:css_class_name]}"}
           #{dictionary_options.last[0]}
 
+    %div.discerner_search_name
+      = f.label :name, "Search name"
+      = f.text_field :name
 
-    .discerner_dictionary_required_message
-      %span
-        Select dictionary in order to add search criteria
+
 
 .clear

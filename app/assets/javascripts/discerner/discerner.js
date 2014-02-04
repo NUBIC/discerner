@@ -16,5 +16,4 @@ $(function() {
     $.get($("#discerner_searches_filter").attr("action"), $("#discerner_searches_filter").serialize(), null, "script");
     return false;
   });
-  $('.discerner').find('input[type=submit], a.button-discerner, button.button-discerner').button()
 })

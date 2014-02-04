@@ -157,7 +157,7 @@ module Discerner
         end
 
         def discerner_export_link
-          link_to "Export options", export_parameters_path(@discerner_search), :class => "button-discerner positive"
+          link_to "Export options", export_parameters_path(@discerner_search), :class => "discerner-button discerner-button-positive"
         end
 
         def format_datetime(datetime)

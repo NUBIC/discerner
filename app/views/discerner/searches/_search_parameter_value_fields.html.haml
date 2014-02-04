@@ -34,7 +34,7 @@
         = f.hidden_field :parameter_value_id, :class => 'parameter_value_id'
         %span{ :class => 'parameter_value_text' }
           = f.object.parameter_value.name
-      %td{:class => "remove", :hidden => "true"}
+      %td{:class => "remove", :class => "invisible"}
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 
     - when 'combobox'

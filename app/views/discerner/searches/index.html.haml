@@ -1,7 +1,7 @@
 #discerner_searches
   %p
     %h3 Saved searches
-    
+
   #filter
     = form_tag searches_path, :id => 'discerner_searches_filter', :class => "filter", :method => 'get', :remote => true do
       %div.filter
@@ -10,4 +10,4 @@
   #searches-list
     = render :partial => "list"
   .discerner-buttons
-    = link_to 'Start a new search', new_search_path, { :class => 'button-discerner positive' }
+    = link_to 'Start a new search', new_search_path, { :class => 'discerner-button discerner-button-positive' }
