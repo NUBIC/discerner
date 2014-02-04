@@ -150,4 +150,19 @@ describe Discerner::ParameterValue do
     v1.should be_valid
     sp.reload.should have(2).search_parameter_values
   end
+
+  it "should allow to assign parameter value category" do
+    parameter_value.should respond_to(:parameter_value_category)
+    parameter_value_category = FactoryGirl.create(:parameter_value_category, :parameter => parameter_value.parameter)
+    parameter_value.parameter_value_category = parameter_value_category
+    parameter_value.should be_valid
+  end
+
+  it "should not allow to assign parameter value category that belongs to a different parameter" do
+    parameter_value.should respond_to(:parameter_value_category)
+    parameter_value_category = FactoryGirl.create(:parameter_value_category, :parameter => FactoryGirl.create(:parameter, :unique_identifier => 'blah'))
+    parameter_value.parameter_value_category = parameter_value_category
+    parameter_value.should_not be_valid
+    parameter_value.errors.full_messages.should include "Parameter category #{parameter_value_category.name} does not belong to parameter #{parameter_value_category.parameter.name}"
+  end
 end

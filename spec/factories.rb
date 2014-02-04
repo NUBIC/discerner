@@ -64,4 +64,10 @@ FactoryGirl.define do
   factory :search_combination, :class => Discerner::SearchCombination do |f|
     f.association :search
   end
+
+  factory :parameter_value_category, :class => Discerner::ParameterValueCategory do |f|
+    f.association :parameter
+    f.name 'hello'
+    f.unique_identifier 'hello'
+  end
 end
