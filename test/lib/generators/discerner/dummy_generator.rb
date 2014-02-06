@@ -41,8 +41,9 @@ module Discerner
       copy_file "create_patients.rb", "#{dummy_path}/db/migrate/#{2.hours.ago.utc.strftime("%Y%m%d%H%M%S")}_create_patients.rb", :force => true
       copy_file "case.rb", "#{dummy_path}/app/models/case.rb", :force => true
       copy_file "create_cases.rb", "#{dummy_path}/db/migrate/#{1.hour.ago.utc.strftime("%Y%m%d%H%M%S")}_create_cases.rb", :force => true
+      copy_file "book.rb", "#{dummy_path}/app/models/book.rb", :force => true
     end
-    
+
     def test_dummy_clean
       inside dummy_path do
         remove_file ".gitignore"
@@ -59,12 +60,12 @@ module Discerner
         remove_file "spec"
       end
     end
-    
+
     protected
       def dummy_path
         'test/dummy'
       end
-      
+
       def lib_name
         'discerner'
       end
@@ -72,7 +73,7 @@ module Discerner
       def module_name
         'Dummy'
       end
-      
+
       def application_definition
         @application_definition ||= begin
           dummy_application_path = File.expand_path("#{dummy_path}/config/application.rb", destination_root)
@@ -87,7 +88,7 @@ module Discerner
       def gemfile_path
         '../../Gemfile'
       end
-      
+
       def remove_directory_if_exists(path)
         remove_dir(path) if File.directory?(path)
       end

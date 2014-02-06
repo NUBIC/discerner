@@ -7,13 +7,21 @@ module Discerner
 
           # Associations
           base.send :belongs_to, :parameter
-          base.send :has_many, :parameter_value_categorizations
+          base.send :has_many, :parameter_value_categorizations, :dependent => :destroy
           base.send :has_many, :parameter_values, :through => :parameter_value_categorizations
 
           # Validations
           base.send :validates_presence_of, :parameter, :unique_identifier, :name
           base.send :validates, :unique_identifier, :uniqueness => {:scope => [:parameter_id, :deleted_at], :message => "for parameter value category has already been taken"}
           base.send :validate, :parameter_value_belongs_to_parameter
+        end
+
+        def css_class
+          "parameter_value_category_#{parameterized_name}"
+        end
+
+        def parameterized_name
+          name.parameterize.underscore
         end
 
         private

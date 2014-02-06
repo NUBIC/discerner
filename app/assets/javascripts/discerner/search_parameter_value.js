@@ -3,33 +3,34 @@ Discerner.SearchParameterValue.UI = function (config) {
     parametersUrl = new Discerner.Url(config.parametersUrl),
     hideValue = function(e){
       if (!$(e).hasClass('invisible')){
-        $(e).addClass('invisible')
+        $(e).addClass('invisible');
       }
-    }
+    };
     showValue = function(e){
       if ($(e).hasClass('invisible')){
-        $(e).removeClass('invisible')
+        $(e).removeClass('invisible');
       }
-    }
+    };
     setupOperator = function(o){
       var row = $(o).closest('tr');
-      option = $(o).find('option:selected')
+      option = $(o).find('option:selected');
       if (option.hasClass('range')){
-        showValue($(row).find('.additional_value'))
+        showValue($(row).find('.additional_value'));
       } else {
-        hideValue($(row).find('.additional_value'))
+        hideValue($(row).find('.additional_value'));
       }
       if (option.hasClass('presence')){
-        hideValue($(row).find('.value'))
+        hideValue($(row).find('.value'));
       } else {
-        showValue($(row).find('.value'))
+        showValue($(row).find('.value'));
       }
     },
     setupParameterValues = function(){
       var row = $(config.container).find('.nested_records_search_parameter_values .search_parameter_value').last(),
         selectedParameter = $(config.container).find('select.parameters_combobox_autocompleter option:selected:last');
+
       row.find('td').hide();
-      hideValue($(row).find('.additional_value').show())
+      hideValue($(row).find('.additional_value').show());
       row.find('.parameter_values_boolean_operator').show();
 
       if ($(selectedParameter).hasClass('list')) {                                     // list parameters
@@ -40,48 +41,19 @@ Discerner.SearchParameterValue.UI = function (config) {
         var input = $(row).find('input.parameter_value_id');
         $(config.container).find('.additional_value').hide();
         if (input.length > 0) {
-          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (data) {
-            // optimized version. courtesy of http://www.learningjquery.com/2009/03/43439-reasons-to-use-append-correctly
-            var select = '<select id="' + input.attr('id') +'" name="' + input.attr('name') + '" class="parameter_values_combobox_autocompleter">',
-                parameter_values = data.parameter_values,
-                length = parameter_values.length,
-                textToInsert = [select, '<option></option>'],
-                i = textToInsert.length;
-            for (var a = 0; a <length; a += 1) {
-                textToInsert[i++]  = '<option value="';
-                textToInsert[i++]  = parameter_values[a].parameter_value_id;
-                textToInsert[i++]  = '">';
-                textToInsert[i++] = parameter_values[a].name;
-                textToInsert[i++] = '</option>' ;
-            }
-            textToInsert[i++] = '</select>'
-            $(input).closest('td').append(textToInsert.join(''));
-            $(input).detach();
-            $('#' + input.attr('id')).combobox({ watermark:'a value'});
-          });
-          /* old version
-          var select = $('<select>').attr('id', input.attr('id'))
-            .attr('name', input.attr('name'))
-            .addClass('parameter_values_combobox_autocompleter')
-            .insertBefore(input);
-
-          var optionNone = $('<option>').val('').html('');
-          optionNone.appendTo(select);
-
-          $.get(parametersUrl.sub({ question_id: selectedParameter.val() }), function (data) {
-            $.each(data.parameter_values, function() {
-              var option = $('<option>').val(this.parameter_value_id).html(this.name);
-              if (this.parameter_value_id == input.val()){
-                option.attr('selected', true);
-              }
-              option.appendTo(select);
+            $.get( parametersUrl.sub({ question_id: selectedParameter.val(), search_parameter_value_id: input.closest('tr.search_parameter_value').attr('id') }), function( data ) {
+              container = $(input).closest('td');
+              $(input).detach();
+              container.append( data );
+              container.find('select').attr('id', input.attr('id')).attr('name', input.attr('name')).combobox({ watermark:'a value'});
+              handleParameterValuelPopupListClick(row);
+              handleParameterValueAutocompleterButtonLink(row);
             });
-          */
-        }
+          }
         $(config.container).find('.parameter_value, .remove').show();
         $(config.container).find('a.add_search_parameter_values').show();
       } else {                                                                        // date, text and numeric parameters
-        var parameter_classes = ['date', 'numeric', 'text', 'string']
+        var parameter_classes = ['date', 'numeric', 'text', 'string'];
         for (var i in parameter_classes) {
           if ($(selectedParameter).hasClass(parameter_classes[i])) {
             row.find('.operator option:not(.' + parameter_classes[i] +')').detach();
@@ -111,8 +83,7 @@ Discerner.SearchParameterValue.UI = function (config) {
           $(this).val(i);
         }
       });
-    $(config.container).find(".parameter_values_combobox_autocompleter").combobox({watermark:'a value'});
-
+      $(config.container).find(".parameter_values_combobox_autocompleter").combobox({watermark:'a value'});
     },
     searchParameterValuesNestedAttributesForm = new NestedAttributes({
       container: config.container,
@@ -120,12 +91,82 @@ Discerner.SearchParameterValue.UI = function (config) {
       content: config.searchParameterValuesTemplate,
       addHandler: setupParameterValues,
       caller: this
+  });
+
+  // toggle parameter value popup
+  var toggleCategorizedAutocompleterPopup = function (link) {
+    var popup = $(link).parents('.categorized_autocompleter').find('.div-category-popup');
+    if ($(link).hasClass('collapsed_categorized_autocompleter_link')) {
+      popup.show();
+      $(link).removeClass('collapsed_categorized_autocompleter_link');
+      $(link).addClass('expanded_categorized_autocompleter_link');
+    }
+    else {
+      popup.hide();
+      $(link).removeClass('expanded_categorized_autocompleter_link');
+      $(link).addClass('collapsed_categorized_autocompleter_link');
+    }
+  };
+
+  // handle parameter value autocompleter button click
+  var handleParameterValueAutocompleterButtonLink = function(container){
+    $(container).find('.parameter_value .categorized_autocompleter_link').on('click', function(){
+      var popup = $(this).siblings('.div-category-popup'),
+          select = $(this).siblings('select').first(),
+          // get all the "sibling" dropdowns
+          sibling_selects = $('select.' + select.attr('class')).filter(function(){
+            return $(this).closest('tr').find('td.remove input[name$="[_destroy]"]:not([name*="[search_parameter_values_attributes]"])').filter(function() { return this.value === '1'; }).length == 0 // exclude rows marked for destroy
+          }),
+          // get all selected parameter options from sibling selects
+          matching_selected_options = sibling_selects.find('option.exclusive:selected');
+      // match selected options from sibling selects with the source select options
+      // (they will have different base ids for each set but same value)
+      popup.find('.parameter value a.categorized_autocompleter_item_link').removeClass('selection_disabled');
+      $.each(matching_selected_options, function(){
+        option = select.find('option[value=' + $(this).val() + ']');
+        popup.find('.search_parameter .parameter value a.categorized_autocompleter_item_link[rel="' + $(option).attr('id') + '"]').addClass('selection_disabled');
+      })
+      toggleCategorizedAutocompleterPopup(this);
+      toggleCategorizedAutocompleterPopup($(this).closest('.search_parameter').find('.parameter a.expanded_categorized_autocompleter_link'));
     });
+  }
+
+  // handle parameter value popup list link click
+  var handleParameterValuelPopupListClick = function(container) {
+    $(container).find('.parameter_value .categorized_autocompleter_item_link:not(.selection_disabled)').on('click', function(e){
+      e.preventDefault();
+      var autocompleter = $(this).parents('.categorized_autocompleter').find('select.parameter_values_combobox_autocompleter'),
+          categorizedItemEl = document.getElementById($(this).attr('rel'));
+          categorizedAutocompleterLink = $(this).parents('.categorized_autocompleter').find('.categorized_autocompleter_link');
+      autocompleter.combobox('setValue', categorizedItemEl.text);
+      autocompleter.change();
+      toggleCategorizedAutocompleterPopup(categorizedAutocompleterLink);
+    });
+  }
 
   setupParameterValues();
+  handleParameterValuelPopupListClick(config.container);
+  handleParameterValueAutocompleterButtonLink(config.container);
+
   $.each($('.operator'), function() { setupOperator(this); });
 
   $(document).on('change', '.operator select', function(){
     setupOperator(this);
+  });
+
+  $(document).on('click', '.show-category-items', function(e) {
+    e.preventDefault();
+    $(this).closest('.categorized-parameter-values, .uncategorized-parameter-values').find('.category-items').show();
+    $(this).addClass('hide-category-items');
+    $(this).removeClass('show-category-items');
+    $(this).html('less')
+  });
+
+  $(document).on('click', '.hide-category-items', function(e) {
+    e.preventDefault();
+    $(this).closest('.categorized-parameter-values, .uncategorized-parameter-values').find('.category-items').hide();
+    $(this).addClass('show-category-items');
+    $(this).removeClass('hide-category-items');
+    $(this).html('more')
   });
 };

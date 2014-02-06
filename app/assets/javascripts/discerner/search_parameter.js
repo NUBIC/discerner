@@ -15,17 +15,17 @@ Discerner.SearchParameter.UI = function (config) {
 
     // remove parameter options that do not belong to selected dictionary
     if (dictionarySelector.length > 0){
-      dictionary_class = $(dictionarySelector).find('option:selected:last').attr('class')
+      dictionary_class = $(dictionarySelector).find('option:selected:last').attr('class');
       $.each($('div.parameter_category'), function(){
         if (!$(this).hasClass(dictionary_class)) {
           $(this).remove();
         }
-      })
+      });
       $.each($('select.parameters_combobox_autocompleter option'), function(){
         if (!($(this).hasClass(dictionary_class) || $(this).val() == '')) {
           $(this).remove();
         }
-      })
+      });
     };
     $(".parameters_combobox_autocompleter").combobox({watermark:'a question'});
 
@@ -52,8 +52,8 @@ Discerner.SearchParameter.UI = function (config) {
   });
 
   // handle criteria autocompleter button click
-  $(document).on('click', '.categorized_autocompleter_link', function () {
-    var popup = $(this).siblings('.div-criteria-popup'),
+  $(document).on('click', '.parameter .categorized_autocompleter_link', function () {
+    var popup = $(this).siblings('.div-category-popup'),
         select = $(this).siblings('select').first(),
         // get all the "sibling" dropdowns
         sibling_selects = $('select.' + select.attr('class')).filter(function(){
@@ -66,13 +66,14 @@ Discerner.SearchParameter.UI = function (config) {
     popup.find('.criteria a.categorized_autocompleter_item_link').removeClass('selection_disabled');
     $.each(matching_selected_options, function(){
       option = select.find('option[value=' + $(this).val() + ']');
-      popup.find('.criteria a.categorized_autocompleter_item_link[rel="' + $(option).attr('id') + '"]').addClass('selection_disabled');
+      popup.find('.parameter_category .criteria a.categorized_autocompleter_item_link[rel="' + $(option).attr('id') + '"]').addClass('selection_disabled');
     })
     toggleCategorizedAutocompleterPopup(this);
+    toggleCategorizedAutocompleterPopup($(this).closest('.search_parameter').find('.parameter_value a.expanded_categorized_autocompleter_link'));
   });
 
   // handle criteria popup list link click
-  $(document).on('click', '.categorized_autocompleter_item_link:not(.selection_disabled)', function () {
+  $(document).on('click', '.parameter .categorized_autocompleter_item_link:not(.selection_disabled)', function () {
     var autocompleter = $(this).parents('.categorized_autocompleter').find('select.parameters_combobox_autocompleter'),
         categorizedItemEl = document.getElementById($(this).attr('rel'));
         categorizedAutocompleterLink = $(this).parents('.categorized_autocompleter').find('.categorized_autocompleter_link');
@@ -83,7 +84,7 @@ Discerner.SearchParameter.UI = function (config) {
 
   // toggle criteria popup
   var toggleCategorizedAutocompleterPopup = function (link) {
-    var popup = $(link).parents('.categorized_autocompleter').find('.div-criteria-popup');
+    var popup = $(link).parents('.categorized_autocompleter').find('.div-category-popup');
     if ($(link).hasClass('collapsed_categorized_autocompleter_link')) {
       popup.show();
       $(link).removeClass('collapsed_categorized_autocompleter_link');
@@ -97,7 +98,7 @@ Discerner.SearchParameter.UI = function (config) {
   };
 
   // handle changing selections for criteria autocompleter
-  $(document).on('change', 'select.parameters_combobox_autocompleter', function () {
+  $(document).on('change', '.parameter select.parameters_combobox_autocompleter', function () {
     var that = this,
       predicate = $(that).closest('.search_parameter'),
       selected_option = $(that).find('option:selected:last'),
@@ -109,15 +110,15 @@ Discerner.SearchParameter.UI = function (config) {
     }
     else if ($(selected_option).hasClass('list')){
       $($(predicate).find('.tmp_link')).remove();
-
+      console.log(parametersUrl.sub({ question_id: this.value }))
       $.get(parametersUrl.sub({ question_id: this.value }), function (data) {
-       $.each(data.parameter_values, function() {
-         $(add_button).click();
-         var row = $(predicate).find('.nested_records_search_parameter_values .search_parameter_value').filter(':last');
-         row.find('.parameter_value span').text(this.name);
-         row.find('.parameter_value_id').val(this.parameter_value_id);
-         $(add_button).hide();
-       });
+        $.each(data.parameter_values, function() {
+          $(add_button).click();
+          var row = $(predicate).find('.nested_records_search_parameter_values .search_parameter_value').filter(':last');
+          row.find('.parameter_value span').text(this.name);
+          row.find('.parameter_value_id').val(this.parameter_value_id);
+          $(add_button).hide();
+        });
      });
     } else {
       $(add_button).show();

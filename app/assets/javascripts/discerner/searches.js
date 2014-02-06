@@ -5,7 +5,7 @@ Discerner.Search.UI = function (config) {
   var dictionarySelector = $('.discerner_search_dictionary select#search_dictionary_id'),
       dictionaryContainer = $('.discerner_search_dictionary span'),
       selectedDictionaryOption = $(dictionarySelector).find('option:selected:last');
-          
+
   var toggleControls = function() {
     selectedDictionaryOption = $(dictionarySelector).find('option:selected:last');
     if (dictionarySelector.length > 0 && selectedDictionaryOption.length == 0 || selectedDictionaryOption.val() == '') {
@@ -18,27 +18,27 @@ Discerner.Search.UI = function (config) {
       $('.discerner_dictionary_required_message').hide();
     }
   }
-  
+
   // handle dictionary selection change
   $(dictionarySelector).bind('change', function(){
     $('a.delete_search_parameters').trigger('click');
     $('a.delete_search_combinations').trigger('click');
     toggleControls()
   });
-  
+
   // block UI on form submit
   $('#discerner_search_form form, #results form').bind('submit', function(){
-    $.blockUI({ 
-        title:    'Loading ... ', 
+    $.blockUI({
+        title:    'Loading ... ',
         message:  '<p>Please be patient</p>',
-        fadeIn: 0, 
-        timeout: 20000000, 
-        showOverlay: true, 
-        centerY: true, 
+        fadeIn: 0,
+        timeout: 20000000,
+        showOverlay: true,
+        centerY: true,
         theme: true
     });
   });
-    
+
   $(document).on('mouseover', '.datepicker', function() {
     $(this).datepicker({
       altFormat: 'yy-mm-dd',
@@ -56,7 +56,7 @@ Discerner.Search.UI = function (config) {
     $(this).closest('div').append($('<span>').load(config.renameUrl + ' form').addClass('discerner_search_name_edit_dialog'));
     return false;
   });
-  
+
   // handle search name editing (submit the form)
   $(document).on('click','#discerner_search_form .discerner_search_name_edit_dialog input[type="submit"]', function(){
     var form = $(this).closest('form');
@@ -66,10 +66,10 @@ Discerner.Search.UI = function (config) {
       data: form.serializeArray(),
       dataType: 'script'
     });
-    
+
     return false;
   })
-  
+
   // handle cancel on search name editing
   $(document).on('click', '#discerner_search_form .discerner_search_name_edit_dialog a.cancel', function() {
     $('span.discerner_search_name_edit_dialog').siblings('span.discerner_search_name').show();

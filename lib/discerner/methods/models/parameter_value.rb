@@ -20,6 +20,8 @@ module Discerner
           # Hooks
           base.send :after_commit, :create_search_parameter_values, :on => :create
           base.send :after_commit, :update_search_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+          base.send :scope, :categorized, -> {base.joins(:parameter_value_category)}
+          base.send :scope, :uncategorized, -> {base.includes(:parameter_value_category).where(:discerner_parameter_value_categories => {:name => nil})}
         end
 
         # Instance Methods

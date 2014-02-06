@@ -17,13 +17,13 @@
       = f.select(:parameter_id, searchable_parameters_options(search_parameter_id), { :include_blank => true },{ :class => 'parameters_combobox_autocompleter' })
       %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
         Select
-      .div-criteria-popup{ :style => "display: none;"}
-        .div-survey_section-list
+      .div-category-popup{ :style => "display: none;"}
+        .div-category-list
           - searchable_parameter_categories(@discerner_search).each do |parameter_category|
-            = div_for parameter_category, :class => "question_category #{parameter_category.dictionary.css_class_name}" do
+            = div_for parameter_category, :class => "#{parameter_category.dictionary.css_class_name}" do
               %p{ :class => 'parameter_category_name' }
                 = parameter_category.name
-              - items = parameter_category.parameters.searchable.not_deleted.to_a.map{ |p| {:name => p.name, :rel => searchable_parameter_index(p, search_parameter_id)}}
+              - items = parameter_category.parameters.searchable.not_deleted.to_a.map{ |p| {:name => p.name, :rel => searchable_object_index(p, search_parameter_id)}}
               - unless items.empty?
                 - (0...items.size).each do |i|
                   - unless items[i].nil?
@@ -41,10 +41,11 @@
             = render :partial => 'search_parameter_value_fields', :locals => { :f => search_parameter_value_form }
       %span{ :class => 'add_header'}
         = link_to_add_fields "Add selection", :search_parameter_values, {:style => "display:none;"}
+
 :javascript
   $(function () {
     var searchParameterValuesTemplate = '#{generate_nested_attributes_template(f, :search_parameter_values, "search_parameter_value")}',
       container = $('##{search_parameter_id}'),
-      parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}'), // used to generate parameter values for combobox parameters
+      parametersUrl = decodeURIComponent('#{values_parameters_url(:parameter_id => ':question_id', :search_parameter_value_id => ':search_parameter_value_id')}'), // used to generate parameter values for combobox parameters
       searchParameterUI = new Discerner.SearchParameterValue.UI({ container: container, searchParameterValuesTemplate: searchParameterValuesTemplate, parametersUrl: parametersUrl });
   });

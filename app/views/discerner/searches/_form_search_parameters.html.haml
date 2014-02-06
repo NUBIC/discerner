@@ -20,7 +20,7 @@
   $(function () {
     var discernerSearchParametersTemplate = '#{@discernerSearchParametersTemplate}',
     discernerSearchCombinationsTemplate = '#{@discernerSearchCombinationsTemplate}',
-    parametersUrl = decodeURIComponent('#{parameter_url(':question_id', :format => 'json')}'); // used to generate parameter values for list parameters
+    parametersUrl = decodeURIComponent('#{values_parameters_url(:parameter_id => ':question_id', :format => 'json')}'); // used to generate parameter values for list parameters
 
     new Discerner.SearchParameter.UI({
       searchParametersTemplate: discernerSearchParametersTemplate,

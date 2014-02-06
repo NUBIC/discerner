@@ -200,8 +200,8 @@ describe Discerner::Parser do
   end
 
   it "finds and updates moved parameters" do
-        parser = Discerner::Parser.new()
-        dictionaries = %Q{
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
         :parameter_categories:
@@ -230,6 +230,126 @@ describe Discerner::Parser do
     p.should_not be_blank
     p.name.should == 'Consented already'
     p.parameter_category.name.should == 'Another criteria'
+  end
+
+  it "parses parameter value categories from list" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories:
+                    - :name: Adventure
+                      :unique_identifier: adventure
+                      :collapse: true
+                      :display_order: 1
+                    - :name: Comic novel
+                      :unique_identifier: comic
+                    - :name: Historical
+                      :unique_identifier: historical
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::ParameterValueCategory.order(:id).to_a.length.should == 3
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.collapse.should == true
+  end
+
+  it "parses parameter value categories from source model and method" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories_source:
+                    :model: Book
+                    :method: genres
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::ParameterValueCategory.order(:id).to_a.length.should == 2
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.collapse.should == true
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'drama').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'drama').first.collapse.should == false
+  end
+
+  it "raisers an error message if parameter value category source model and method do not adhere to the interface" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories_source:
+                    :model: Book
+                    :method: generes
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    parser.errors.should == [": method 'generes' does not adhere to the interface"]
+    Discerner::Dictionary.order(:id).to_a.should be_empty
+  end
+
+  it "assigns parameter values to corresponding parameter value categories" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories:
+                    - :name: Adventure
+                      :unique_identifier: adventure
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::ParameterValueCategory.order(:id).to_a.length.should == 1
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.should have(1).parameter_values
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.parameter_values.first.search_value.should == 'Robinsonade'
   end
 
   it "deletes dictionaries that are no longer defined in the definition file and are not used in searches" do

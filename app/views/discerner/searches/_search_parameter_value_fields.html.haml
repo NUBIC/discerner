@@ -1,3 +1,4 @@
+- search_parameter_value_id = nested_record_id(f, :search_parameter_value)
 - if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
@@ -5,11 +6,12 @@
       %span
         = f.object.warnings.full_messages.join(', ')
 
-%tr{ :class => "search_parameter_value fields #{'error' if f.object.warnings.any?}" }
+%tr{ :id => "#{search_parameter_value_id}", :class => "search_parameter_value fields #{'error' if f.object.warnings.any?} search_parameter_value_new" }
   %td.parameter_values_boolean_operator
     = f.hidden_field :display_order
     %span
-  - if f.object.new_record?
+
+  - if f.object.new_record? # this part is used for rendering newly added parameter values
     %td.operator
       = f.select(:operator_id, operator_options, { :include_blank => true })
     %td.chosen
@@ -24,8 +26,10 @@
     %td.remove
       = link_to_remove_fields 'Remove', f, :search_parameter_values
 
-  - else
-    - type = f.object.search_parameter.parameter.parameter_type.name
+  - else # this part is used for rendering existing parameter values
+    - parameter = f.object.search_parameter.parameter
+    - type      = parameter.parameter_type.name
+
     - case type
     - when 'list'
       %td.chosen
@@ -39,7 +43,7 @@
 
     - when 'combobox'
       %td.parameter_value
-        = f.select(:parameter_value_id, f.object.search_parameter.parameter.parameter_values.order('name').map {|q| [q.name, q.id]}, { :include_blank => true },{ :class => 'parameter_values_combobox_autocompleter' })
+        = render :partial => 'discerner/parameters/values_autocompleter', :locals => {:parameter => parameter, :f => f, :search_parameter_value_id => search_parameter_value_id}
       %td.remove
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 

@@ -101,20 +101,47 @@ module Discerner
           parameters
         end
 
+        def searchable_values(parameter, search=nil)
+          if search.blank? || !search.persisted?
+            values = parameter.parameter_values.not_deleted.order(:name).to_a
+          else
+            values_available = parameter.parameter_values.not_deleted.order(:id).to_a
+            values_used      = search.search_parameters.where(:parameter_id => parameter.id).map{|sp| sp.search_parameter_values.map{|spv| spv.parameter_value if spv.parameter_value} if sp.search_parameter_values.any?}
+            values           = values_available.flatten | values_used.flatten
+          end
+          values.uniq.reject{|v| v.blank?}
+        end
+
         def searchable_parameters_options(base_id=nil)
           options = []
           searchable_parameters(@discerner_search).each do |p|
             option = ["#{p.parameter_category.name} - #{p.name}", p.id]
             html_options = {:class => searchable_parameter_css_class(p)}
-            html_options[:id] = searchable_parameter_index(p, base_id) unless base_id.blank?
+            html_options[:id] = searchable_object_index(p, base_id) unless base_id.blank?
             option << html_options
             options << option
           end
           options
         end
 
-        def searchable_parameter_index(parameter, base_id=nil)
-          "#{base_id}_#{parameter.id}"
+        def searchable_parameter_value_options(parameter, base_id=nil)
+          options = []
+          searchable_values(parameter, @discerner_search).each do |pv|
+            html_options = {}
+
+            option_name = pv.name
+            option_name = pv.parameter_value_category.name + ' - ' + option_name if pv.parameter_value_category
+            option = [option_name, pv.id]
+
+            html_options[:id] = searchable_object_index(pv, base_id) unless base_id.blank?
+            option << html_options
+            options << option
+          end
+          options
+        end
+
+        def searchable_object_index(object, base_id=nil)
+          "#{base_id}_#{object.id}"
         end
 
         def searchable_parameter_css_class(parameter)

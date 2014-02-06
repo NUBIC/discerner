@@ -28,7 +28,6 @@ Feature: Viewing existing searches
     When I follow "Edit"
     And I fill in "search_name" with "Not that great after all"
     And I follow "Cancel"
-    #And I wait 20 seconds
     Then "div.discerner_search_name" should contain text "Awesome search"
     And "div.discerner_search_name" should not contain text "Cancel"
 
@@ -137,17 +136,32 @@ Feature: Viewing existing searches
   @javascript
   Scenario: Deleted parameter values should not be given as options if they are not selected
     Given I create search with name "Awesome search"
+    And I add "Ethnic group" search criteria
+    And I fill in "input.parameter_values_combobox_autocompleter" autocompleter within the last ".parameter_value" with "None"
+    And I press "Search"
+
     And value "Unknown" for parameter "Gender" is marked as deleted
+    And value "NOT Hispanic or Latino" for parameter "Ethnic group" is marked as deleted
+
     When I go to the search edit page
     Then ".search_parameter_values" in the first ".search_parameter" should contain text "Male"
     And ".search_parameter_values" in the first ".search_parameter" should not contain text "Unknown"
+    And ".parameter_value select" in the last ".search_parameter" should have options "Hispanic or Latino, Unable to answer, Declined to answer, None"
+    And ".parameter_value select" in the last ".search_parameter" should not have options "NOT Hispanic or Latino"
 
   @javascript
   Scenario: Deleted parameter values should be given as options if they are selected
     Given I create search with name "Awesome search"
+    And I add "Ethnic group" search criteria
+    And I fill in "input.parameter_values_combobox_autocompleter" autocompleter within the last ".parameter_value" with "None"
+    And I press "Search"
+
     And value "Female" for parameter "Gender" is marked as deleted
+    And value "None" for parameter "Ethnic group" is marked as deleted
+
     When I go to the search edit page
     Then ".search_parameter_values" in the first ".search_parameter" should contain text "Female"
+    And ".parameter_value select" in the last ".search_parameter" should have options "Hispanic or Latino, NOT Hispanic or Latino, Unable to answer, Declined to answer, None"
 
   @javascript
   Scenario: Deleted parameter values should be highlighted if they are selected

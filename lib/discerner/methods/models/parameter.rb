@@ -11,6 +11,7 @@ module Discerner
           base.send :has_many,    :parameter_values,   :dependent => :destroy
           base.send :has_many,    :search_parameters,  :dependent => :destroy
           base.send :has_many,    :export_parameters,  :dependent => :destroy
+          base.send :has_many,    :parameter_value_categories, :dependent => :destroy
 
           # Scopes
           base.send(:scope, :searchable, -> {base.not_deleted.where('search_model is not null and search_method is not null')})
