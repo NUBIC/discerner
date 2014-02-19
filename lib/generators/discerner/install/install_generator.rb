@@ -97,10 +97,10 @@ module Discerner
     def make_customizable
       if options["customize-all"] || options["customize-controllers"]
         path = "#{Rails.root}/controllers/discerner"
-        empty_directory controllers_directory
-        copy_file "controllers/searches_controller.rb", "#{controllers_directory}/searches_controller.rb"
-        copy_file "controllers/parameters_controller.rb", "#{controllers_directory}/parameters_controller.rb"
-        copy_file "controllers/export_parameters_controller.rb", "#{controllers_directory}/export_parameters_controller.rb"
+        empty_directory path
+        copy_file "controllers/searches_controller.rb", "#{path}/searches_controller.rb"
+        copy_file "controllers/parameters_controller.rb", "#{path}/parameters_controller.rb"
+        copy_file "controllers/export_parameters_controller.rb", "#{path}/export_parameters_controller.rb"
       end
 
       if options["customize-all"] || options["customize-helpers"]
