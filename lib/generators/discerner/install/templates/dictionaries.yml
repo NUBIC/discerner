@@ -111,7 +111,7 @@
             :search:
               :model: Patient
               :method: race
-              :parameter_type: combobox
+              :parameter_type: list
               :parameter_values:
                 - :search_value: American Indian or Alaska Native
                 - :search_value: Asian
