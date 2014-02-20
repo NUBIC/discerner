@@ -17,7 +17,7 @@ module Discerner
         end
 
         def create
-          @discerner_search = Discerner::Search.new(search_params)
+          @discerner_search = Discerner::Search.new(params[:search])
           respond_to do |format|
             if @discerner_search.save
               format.html { redirect_to(edit_search_path(@discerner_search)) }
@@ -51,7 +51,7 @@ module Discerner
 
         def update
           respond_to do |format|
-            if @discerner_search.update_attributes(search_params)
+            if @discerner_search.update_attributes(params[:search])
               format.html { redirect_to(edit_search_path(@discerner_search), :notice => 'Search was successfully updated.') }
               format.js
             else
@@ -153,15 +153,6 @@ module Discerner
             options
           end
 
-          def search_params
-            params.required(:search).permit(
-              :deleted_at, :name, :username, :dictionary_id,
-              :search_combinations_attributes => [:combined_search_id, :display_order, :operator_id, :search_id, :id, :_destroy],
-              :search_parameters_attributes   => [:display_order, :parameter_id, :search_id, :id, :_destroy,
-                :search_parameter_values_attributes => [:additional_value, :chosen, :display_order, :operator_id, :parameter_value_id, :search_parameter_id, :value, :_destroy, :id]
-              ]
-            )
-          end
      end
     end
   end

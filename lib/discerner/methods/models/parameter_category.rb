@@ -9,17 +9,24 @@ module Discerner
           base.send :belongs_to, :dictionary
 
           # Scopes
-          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null').references(:discerner_parameters)})
-          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null').references(:discerner_parameters)})
+          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null')})
+          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null')})
 
           base.send :has_many, :parameters, :dependent => :destroy
 
-          #Validations
-          base.send :validates, :name, :presence => true, :uniqueness => { :scope => :dictionary_id, :message => "for parameter category has already been taken"}
-          base.send :validates, :dictionary, :presence => { :message => "for parameter category can't be blank" }
-
           # Hooks
           base.send :after_commit, :update_parameters, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+
+          #Validations
+          @@validations_already_included ||= nil
+          unless @@validations_already_included
+            base.send :validates, :name, :presence => true, :uniqueness => { :scope => :dictionary_id, :message => "for parameter category has already been taken"}
+            base.send :validates, :dictionary, :presence => { :message => "for parameter category can't be blank" }
+            @@validations_already_included = true
+          end
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :deleted_at, :dictionary, :dictionary_id, :name
         end
 
         # Instance Methods

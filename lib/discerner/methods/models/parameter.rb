@@ -17,14 +17,22 @@ module Discerner
           base.send(:scope, :searchable, -> {base.not_deleted.where('search_model is not null and search_method is not null')})
           base.send(:scope, :exportable, -> {base.not_deleted.where('export_model is not null and export_method is not null')})
 
-          #Validations
-          base.send :validates, :name, :unique_identifier, :parameter_category, :presence => true
-          base.send :validate,  :validate_unique_identifier
-          base.send :validate,  :validate_search_attributes
-          base.send :validate,  :validate_export_attributes
-
           # Hooks
           base.send :after_commit, :update_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+
+          #Validations
+          @@validations_already_included ||= nil
+          unless @@validations_already_included
+            base.send :validates, :name, :unique_identifier, :parameter_category, :presence => true
+            base.send :validate,  :validate_unique_identifier
+            base.send :validate,  :validate_search_attributes
+            base.send :validate,  :validate_export_attributes
+            @@validations_already_included = true
+          end
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :name, :parameter_category, :parameter_category_id, :parameter_type, :parameter_type_id,
+                    :search_model, :search_method, :unique_identifier, :export_model, :export_method
         end
 
         # Instance Methods

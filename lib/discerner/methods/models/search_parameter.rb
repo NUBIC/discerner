@@ -11,13 +11,16 @@ module Discerner
           base.send :has_many, :search_parameter_values, :dependent => :destroy
 
           # Scopes
-          base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id).references(:discerner_parameters) unless parameter_category.blank?})
+          base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
 
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameter_values, :allow_destroy => true
 
           # Hooks
           base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :search, :search_id, :parameter, :parameter_id, :search_parameter_values_attributes, :display_order
         end
 
         # Instance Methods

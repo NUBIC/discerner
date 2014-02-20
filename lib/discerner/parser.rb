@@ -83,7 +83,7 @@ module Discerner
       error_message 'dictionary name cannot be blank' if dictionary_name.blank?
       notification_message "processing dictionary '#{dictionary_name}'"
 
-      dictionary = Discerner::Dictionary.find_or_initialize_by(:name => dictionary_name)
+      dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
       dictionary.deleted_at = nil
 
       if dictionary.new_record?
@@ -134,8 +134,7 @@ module Discerner
 
       existing_parameter    = Discerner::Parameter.
                               includes({:parameter_category => :dictionary}).
-                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).
-                              references(:discerner_parameters, :discerner_dictionaries).first
+                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
       parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category)
 
       parameter.name        = parameter_name
@@ -275,7 +274,7 @@ module Discerner
          operators_from_file.each do |operator_from_file|
            error_message 'unique identifier has to be defined' if operator_from_file[:unique_identifier].blank?
 
-           operator = Discerner::Operator.find_or_initialize_by(:unique_identifier => operator_from_file[:unique_identifier])
+           operator = Discerner::Operator.find_or_initialize_by_unique_identifier(operator_from_file[:unique_identifier])
            if operator.new_record?
              notification_message "creating operator '#{operator_from_file[:unique_identifier]}'"
              operator.created_at = Time.now
@@ -307,7 +306,7 @@ module Discerner
       error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
 
       ## find or initialize parameter type
-      parameter_type = Discerner::ParameterType.find_or_initialize_by(:name => name.downcase)
+      parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name.downcase)
       if parameter_type.new_record?
         notification_message "Creating parameter type '#{name}'"
         parameter_type.created_at = Time.now

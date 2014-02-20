@@ -14,6 +14,9 @@ module Discerner
           base.send :validates_presence_of, :parameter, :unique_identifier, :name
           base.send :validates, :unique_identifier, :uniqueness => {:scope => [:parameter_id, :deleted_at], :message => "for parameter value category has already been taken"}
           base.send :validate, :parameter_value_belongs_to_parameter
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :parameter, :parameter_id, :unique_identifier, :name
         end
 
         def css_class

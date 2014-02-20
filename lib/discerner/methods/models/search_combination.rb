@@ -11,8 +11,15 @@ module Discerner
           base.send :belongs_to, :operator
 
           # Validations
-          base.send :validate, :validate_searches
-          base.send :validates, :combined_search_id, :presence => true
+          @@validations_already_included ||= nil
+          unless @@validations_already_included
+            base.send :validate, :validate_searches
+            base.send :validates, :combined_search_id, :presence => true
+            @@validations_already_included = true
+          end
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :combined_search_id, :display_order, :operator_id, :search_id, :search, :combined_search
         end
 
         # Instance Methods

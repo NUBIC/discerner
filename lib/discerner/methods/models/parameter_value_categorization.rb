@@ -11,6 +11,9 @@ module Discerner
 
           # Validations
           base.send :validates_presence_of, :parameter_value_category, :parameter_value
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :parameter_value_category_id, :parameter_value_id, :parameter_value_category, :parameter_value
         end
       end
     end

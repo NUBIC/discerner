@@ -15,6 +15,10 @@ module Discerner
 
           # Hooks
           base.send :after_commit, :destroy_if_deleted_parameter_value, :on => :update
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :additional_value, :chosen, :display_order, :operator_id,
+          :parameter_value_id, :search_parameter_id, :value, :parameter_value, :operator
         end
 
         # Instance Methods

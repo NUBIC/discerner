@@ -10,9 +10,16 @@ module Discerner
           base.send :has_many, :search_parameter_values
 
           #Validations
-          base.send :validates, :symbol, :presence => true, :uniqueness => {:message => "for operator has already been taken"}
-          base.send :validates, :operator_type, :presence => true
-          base.send :validate,  :type_supported?
+          @@validations_already_included ||= nil
+          unless @@validations_already_included
+            base.send :validates, :symbol, :presence => true, :uniqueness => {:message => "for operator has already been taken"}
+            base.send :validates, :operator_type, :presence => true
+            base.send :validate,  :type_supported?
+            @@validations_already_included = true
+          end
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :operator_type, :symbol, :text, :deleted_at
         end
 
         # Instance Methods
