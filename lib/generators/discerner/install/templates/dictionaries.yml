@@ -13,6 +13,7 @@
 #               :model: string                                                  # name of the model to be used for searching
 #               :method: string                                                 # name of the model method to be used for searching
 #               :parameter_type: numeric/date/list/combobox/text/string         # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#               :allow_empty_values: boolean                                    # default: true. If set to true, "none" value will be added to the list ov values
 #               :parameter_values:                                              # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
 #                 - :name: string                                               # used for display, if not provided, 'search_value' will be used instead
 #                   :search_value: string                                       # has to be unique within parameter, intendend to be used as a database value while searching
