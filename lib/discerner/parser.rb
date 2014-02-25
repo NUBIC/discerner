@@ -66,8 +66,11 @@ module Discerner
                 unless search_identifiers[:source].blank?
                   load_parameter_value_from_source(parameter, search_identifiers[:source])
                 end
+
+                unless search_identifiers[:allow_empty_values] == false
+                  blank_parameter_values << find_or_create_parameter_value(parameter, '', 'None', nil, true)
+                end
               end
-              blank_parameter_values << find_or_create_parameter_value(parameter, '', 'None', nil, true)
             end
           end
         end

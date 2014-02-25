@@ -199,6 +199,31 @@ describe Discerner::Parser do
     end
   end
 
+  it "does not add 'None' value if allow_empty_values sat to false" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Consented
+                :unique_identifier: consented
+                :search:
+                  :model: Patient
+                  :method: gender
+                  :parameter_type: list
+                  :allow_empty_values: false
+                  :parameter_values:
+                    - :search_value: Male
+                    - :search_value: Female
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::Parameter.all.length.should == 1
+    Discerner::Parameter.last.parameter_values.each do |pv|
+      ['Male', 'Female'].should include(pv.name)
+    end
+  end
   it "finds and updates moved parameters" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
