@@ -28,18 +28,21 @@ Feature: Viewing existing searches
     When I follow "Edit"
     And I fill in "search_name" with "Not that great after all"
     And I follow "Cancel"
+    And I wait for the ajax request to finish
     Then "div.discerner_search_name" should contain text "Awesome search"
     And "div.discerner_search_name" should not contain text "Cancel"
 
     When I follow "Edit"
     And I fill in "search_name" with ""
     And I press "Submit"
+    And I wait for the ajax request to finish
     Then "div.discerner_search_name" should not contain text "Awesome search"
     And "div.discerner_search_name" should not contain text "Cancel"
 
     When I follow "Edit"
     And I fill in "search_name" with "Not so awesome search"
     And I press "Submit"
+    And I wait for the ajax request to finish
     Then "div.discerner_search_name" should contain text "Not so awesome search"
     And "div.discerner_search_name" should not contain text "Cancel"
 
