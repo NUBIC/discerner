@@ -6,6 +6,7 @@ source "http://rubygems.org"
 gemspec
 
 # jquery-rails is used by the dummy application
+ruby '2.1.0'
 gem "jquery-rails"
 gem "jquery-ui-rails"
 gem "cucumber-rails", :group => :development, :require => false
