@@ -6,6 +6,7 @@ source "http://rubygems.org"
 gemspec
 
 # jquery-rails is used by the dummy application
+ruby '1.9.3'
 gem "jquery-rails"
 gem "jquery-ui-rails"
 
