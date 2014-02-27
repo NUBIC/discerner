@@ -68,6 +68,81 @@ describe Discerner::Parser do
     Set.new(p.parameter_values.map(&:search_value)).should == Set.new(ethnic_groups_search_values + [''])
   end
 
+  it "parses export parameters" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :export:
+                  :model: Patient
+                  :method: ethnic_grp
+    }
+    parser.parse_dictionaries(dictionaries)
+
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Parameter.all.length.should == 1
+    p = Discerner::Parameter.last
+    p.name.should == 'Ethnic group'
+
+    Set.new(p.parameter_values.map(&:search_value)).should be_empty
+  end
+
+  it "updates export parameters" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :export:
+                  :model: Patient
+                  :method: ethnic_grp
+
+              - :name: Gender
+                :unique_identifier: gender
+                :export:
+                  :model: Patient
+                  :method: gender
+    }
+    parser.parse_dictionaries(dictionaries)
+
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Parameter.all.length.should == 2
+
+    updated_dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group new
+                :unique_identifier: ethnic_grp
+                :export:
+                  :model: Patient
+                  :method: ethnic_grp
+    }
+    parser = Discerner::Parser.new()
+    parser.parse_dictionaries(updated_dictionaries)
+
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Parameter.all.length.should == 1
+    p = Discerner::Parameter.last
+    p.name.should == 'Ethnic group new'
+
+    Set.new(p.parameter_values.map(&:search_value)).should be_empty
+  end
+
   it "raisers an error message with a source model and method that does not conform to the :name, :search_value interface" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
