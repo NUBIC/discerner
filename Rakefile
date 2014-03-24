@@ -7,7 +7,7 @@ begin
   require 'nubic/gem_tasks'
 end
 
-gemspec = eval(File.read('abstractor.gemspec'), binding, 'discerner.gemspec')
+gemspec = eval(File.read('discerner.gemspec'), binding, 'discerner.gemspec')
 Gem::PackageTask.new(gemspec).define
 APP_RAKEFILE = File.expand_path("../test/dummy/Rakefile", __FILE__)
 $:.unshift File.join(File.dirname(__FILE__), 'spec','support')
