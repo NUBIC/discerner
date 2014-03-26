@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    discerner (1.0.0)
+    discerner (1.0.1)
       haml
       jquery-rails
       jquery-ui-rails
