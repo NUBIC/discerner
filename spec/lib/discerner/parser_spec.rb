@@ -166,6 +166,55 @@ describe Discerner::Parser do
     Discerner::Dictionary.order(:id).to_a.should be_empty
   end
 
+  it "does not clean up after encountering errors" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :export:
+                  :model: Patient
+                  :method: ethnic_grp
+
+              - :name: Gender
+                :unique_identifier: gender
+                :export:
+                  :model: Patient
+                  :method: gender
+    }
+    parser.parse_dictionaries(dictionaries)
+
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :source:
+                    :model: Patient
+                    :method: smethnic_groups
+    }
+    parser.parse_dictionaries(dictionaries)
+    parser.errors.should == [": method 'smethnic_groups' does not adhere to the interface"]
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Dictionary.first.should_not be_deleted
+  end
+
   it "parses parameters with source attribute method and model" do
     Patient.create(:id=>1, :gender=>'Male')
     Patient.create(:id=>2, :gender=>'Female')

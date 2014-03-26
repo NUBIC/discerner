@@ -76,7 +76,7 @@ module Discerner
         end
       end
       notification_message "cleaing up ..."
-      cleanup
+      cleanup unless errors.any?
     end
 
     def parse_dictionary(hash)
