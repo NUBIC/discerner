@@ -1,6 +1,9 @@
 Discerner History
 ============
 
+1.1.3
+-----
+- Hide "Export parameters" link from the searches list if exporting is disabled
 1.1.2
 -----
 - Fixed bug with dictionary being deleted after parcing error
