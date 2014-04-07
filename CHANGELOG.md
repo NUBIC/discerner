@@ -1,6 +1,10 @@
 Discerner History
 ============
 
+1.1.4
+-----
+- Fixed bug with 'Uncategorised' parameter value group displayed even when there are no uncategorized parameter values in the dictionary.
+
 1.1.3
 -----
 - Hide "Export parameters" link from the searches list if exporting is disabled
