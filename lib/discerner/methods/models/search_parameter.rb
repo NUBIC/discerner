@@ -103,7 +103,7 @@ module Discerner
           elsif parameter.deleted?
             warnings.add(:base, "Parameter has been deleted and has to be removed from the search")
             return true
-          elsif search_parameter_values.blank?
+          elsif search_parameter_values.blank? || (parameter.parameter_type.name == 'list' && search_parameter_values.select{|spv| spv.chosen?}.empty?)
             warnings.add(:base, "Parameter value has to be selected")
             return true
           elsif deleted? || search_parameter_values.select{ |spv| spv.disabled?}.any?
