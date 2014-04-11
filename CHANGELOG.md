@@ -1,5 +1,8 @@
 Discerner History
 ============
+1.1.6
+-----
+- Fixed bug with missing error for 'combobox' search parameters without selected parameter values
 
 1.1.5
 -----

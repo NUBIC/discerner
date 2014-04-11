@@ -75,6 +75,10 @@ module Discerner
             warnings.add(:base, "Provided date is not valid")
             return true
           end
+          if parameter_value.blank? && search_parameter.parameter.parameter_type.name == 'combobox'
+            warnings.add(:base, "Parameter value has to be selected")
+            return true
+          end
           warnings.clear
           return false
         end
