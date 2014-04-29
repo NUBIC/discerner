@@ -64,8 +64,11 @@ module Discerner
         end
 
         def combined_searches_options(search=nil)
+          all_searches = Discerner::Search.order(:id)
+
           username = discerner_user.username unless discerner_user.blank?
-          all_searches = Discerner::Search.by_user(username)
+          all_searches = all_searches.by_user(username) unless username.blank?
+
           if search.blank? || !search.persisted?
             searches = all_searches.not_deleted.reject{|s| s.disabled?}
           else
@@ -84,18 +87,29 @@ module Discerner
           else
             parameter_categories = search.dictionary.searchable_categories.not_deleted
           end
-          parameter_categories.all.sort{|a,b| a.parameters.searchable.length <=> b.parameters.searchable.length}
+          parameter_categories.to_a.sort{|a,b| a.parameters.searchable.length <=> b.parameters.searchable.length}
         end
 
         def searchable_parameters(search=nil)
           if search.blank? || !search.persisted?
-            parameters = Discerner::Parameter.not_deleted.searchable.all
+            parameters = Discerner::Parameter.not_deleted.searchable.order(:id).to_a
           else
-            parameters_available = search.dictionary.searchable_categories.not_deleted.map{ |c| c.searchable_parameters.not_deleted.all }
+            parameters_available = search.dictionary.searchable_categories.not_deleted.map{ |c| c.searchable_parameters.not_deleted.to_a }
             parameters_used      = search.search_parameters.map{ |sp| sp.parameter }
             parameters           = parameters_available.flatten | parameters_used.flatten
           end
           parameters
+        end
+
+        def searchable_values(parameter, search=nil)
+          if search.blank? || !search.persisted?
+            values = parameter.parameter_values.not_deleted.order(:name).to_a
+          else
+            values_available = parameter.parameter_values.not_deleted.order(:id).to_a
+            values_used      = search.search_parameters.where(:parameter_id => parameter.id).map{|sp| sp.search_parameter_values.map{|spv| spv.parameter_value if spv.parameter_value} if sp.search_parameter_values.any?}
+            values           = values_available.flatten | values_used.flatten
+          end
+          values.uniq.reject{|v| v.blank?}
         end
 
         def searchable_parameters_options(base_id=nil)
@@ -103,15 +117,31 @@ module Discerner
           searchable_parameters(@discerner_search).each do |p|
             option = ["#{p.parameter_category.name} - #{p.name}", p.id]
             html_options = {:class => searchable_parameter_css_class(p)}
-            html_options[:id] = searchable_parameter_index(p, base_id) unless base_id.blank?
+            html_options[:id] = searchable_object_index(p, base_id) unless base_id.blank?
             option << html_options
             options << option
           end
           options
         end
 
-        def searchable_parameter_index(parameter, base_id=nil)
-          "#{base_id}_#{parameter.id}"
+        def searchable_parameter_value_options(parameter, base_id=nil)
+          options = []
+          searchable_values(parameter, @discerner_search).each do |pv|
+            html_options = {}
+
+            option_name = pv.name
+            option_name = pv.parameter_value_category.name + ' - ' + option_name if pv.parameter_value_category
+            option = [option_name, pv.id]
+
+            html_options[:id] = searchable_object_index(pv, base_id) unless base_id.blank?
+            option << html_options
+            options << option
+          end
+          options
+        end
+
+        def searchable_object_index(object, base_id=nil)
+          "#{base_id}_#{object.id}"
         end
 
         def searchable_parameter_css_class(parameter)
@@ -122,9 +152,9 @@ module Discerner
 
         def exportable_parameter_categories(search=nil)
           if search.blank? || !search.persisted?
-            parameter_categories = Discerner::ParameterCategory.not_deleted.exportable.all
+            parameter_categories = Discerner::ParameterCategory.not_deleted.exportable.to_a
           else
-            parameter_categories_available = search.dictionary.parameter_categories.exportable.all
+            parameter_categories_available = search.dictionary.parameter_categories.exportable.to_a
             parameter_categories_used      = search.export_parameters.map{ |ep| ep.parameter.parameter_category }.flatten
             parameter_categories           = parameter_categories_available | parameter_categories_used
           end
@@ -133,7 +163,7 @@ module Discerner
 
         def exportable_parameters(search, category)
           return if search.blank? || !search.persisted?
-          parameters_available = category.parameters.exportable.all
+          parameters_available = category.parameters.exportable.to_a
           parameters_used      = search.export_parameters.map{|ep| ep.parameter}.reject{|p| p.parameter_category != category }.flatten
           parameters           = parameters_available | parameters_used
           parameters.sort{|a,b| a.name <=> b.name}
@@ -154,7 +184,7 @@ module Discerner
         end
 
         def discerner_export_link
-          link_to "Export options", export_parameters_path(@discerner_search), :class => "button-discerner positive"
+          link_to "Export options", export_parameters_path(@discerner_search), :class => "discerner-button discerner-button-positive"
         end
 
         def format_datetime(datetime)

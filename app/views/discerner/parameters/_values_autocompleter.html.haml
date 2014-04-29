@@ -1,0 +1,56 @@
+- parameter ||= @parameter
+- search_parameter_value_id ||= @search_parameter_value_id
+
+- if parameter.parameter_values.categorized.any?
+  %div{:class => 'ui-widget categorized_autocompleter'}
+    - if defined?(f)
+      = f.select(:parameter_value_id, searchable_parameter_value_options(parameter, search_parameter_value_id), { :include_blank => true }, {:class => 'parameter_values_combobox_autocompleter'})
+    - else
+      = select_tag(:parameter_value_id, options_for_select(searchable_parameter_value_options(parameter, search_parameter_value_id)), :include_blank => true, :class => 'parameter_values_combobox_autocompleter')
+
+    %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
+      Select
+    .div-category-popup{ :style => "display: none;"}
+      .div-category-list
+        - parameter.parameter_value_categories.order(:display_order, :name).each do |parameter_value_category|
+          - unless parameter_value_category.parameter_values.empty?
+            = div_for parameter_value_category, :class => "#{parameter_value_category.css_class} categorized-parameter-values" do
+              %p{ :class => 'parameter_value_category_name' }
+                = parameter_value_category.name
+                - if parameter_value_category.collapse?
+                  %a{ :class => "show-category-items", :href => "#"}
+                    more
+                - else
+                  %a{ :class => "hide-category-items", :href => "#"}
+                    less
+              .category-items{:style => "#{parameter_value_category.collapse ? 'display:none;' : ''}"}
+                - items = parameter_value_category.parameter_values.not_deleted.order('discerner_parameter_values.name').to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
+                - unless items.empty?
+                  - (0...items.size).each do |i|
+                    - unless items[i].nil?
+                      .column
+                        .criteria
+                          = link_to items[i][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[i][:rel]}"
+            .clear
+
+        - uncategorized_items = parameter.parameter_values.uncategorized.order('discerner_parameter_values.name').to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
+        - unless uncategorized_items.empty?
+          .uncategorized-parameter-values.parameter_value_category
+            %p{ :class => 'parameter_value_category_name' }
+              Uncategorized
+              %a{ :class => "hide-category-items", :href => "#"}
+                less
+            .category-items
+              - (0...uncategorized_items.size).each do |i|
+                - unless uncategorized_items[i].nil?
+                  .column
+                    .criteria
+                      = link_to uncategorized_items[i][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{uncategorized_items[i][:rel]}"
+
+      .div-instruction-bar
+- else
+  - parameter_values = searchable_values(parameter, @discerner_search).map {|q| [q.name, q.id]}
+  - if defined?(f)
+    = f.select(:parameter_value_id, parameter_values, { :include_blank => true },{ :class => 'parameter_values_combobox_autocompleter' })
+  - else
+    = select_tag(:parameter_value_id, options_for_select(parameter_values), :include_blank => true, :class => 'parameter_values_combobox_autocompleter')

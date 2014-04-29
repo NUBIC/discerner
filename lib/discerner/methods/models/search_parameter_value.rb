@@ -3,31 +3,27 @@ module Discerner
     module Models
       module SearchParameterValue
         def self.included(base)
-          #base.send :include, Warnings
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :search_parameter
           base.send :belongs_to, :parameter_value
           base.send :belongs_to, :operator
 
           # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send :scope, :chosen, base.where(:chosen => true)
+          base.send(:scope, :chosen, -> { base.where(:chosen => true) })
+
+          # Hooks
+          base.send :after_commit, :destroy_if_deleted_parameter_value, :on => :update
 
           # Whitelisting attributes
           base.send :attr_accessible, :additional_value, :chosen, :display_order, :operator_id,
           :parameter_value_id, :search_parameter_id, :value, :parameter_value, :operator
-
-          # Hooks
-          base.send :after_commit, :destroy_if_deleted_parameter_value, :on => :update
         end
 
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def warnings
@@ -77,6 +73,10 @@ module Discerner
           end
           if search_parameter && search_parameter.parameter && search_parameter.parameter.parameter_type.name == 'date' && !validate_dates_format
             warnings.add(:base, "Provided date is not valid")
+            return true
+          end
+          if parameter_value.blank? && search_parameter.parameter.parameter_type.name == 'combobox'
+            warnings.add(:base, "Parameter value has to be selected")
             return true
           end
           warnings.clear

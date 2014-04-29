@@ -169,6 +169,15 @@ describe Discerner::SearchParameter do
       search_parameter.warnings.full_messages.should include("Parameter value has to be selected")
     end
 
+    it "disables list search parameter without chosen search parameter value" do
+      search_parameter.should_not be_disabled
+      search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')
+      search_parameter.should be_disabled
+
+      search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'combobox')
+      search_parameter.should_not be_disabled
+    end
+
     it "disables search parameter with disabled search parameter value" do
       search_parameter.should_not be_disabled
 

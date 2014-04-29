@@ -6,8 +6,8 @@ describe Discerner::Parser do
     parser = Discerner::Parser.new()
     parser.parse_operators(File.read(file))
 
-    Discerner::Operator.all.should_not be_empty
-    Discerner::ParameterType.all.should_not be_empty
+    Discerner::Operator.order(:id).to_a.should_not be_empty
+    Discerner::ParameterType.order(:id).to_a.should_not be_empty
   end
 
   it "parses dictionaries" do
@@ -15,8 +15,8 @@ describe Discerner::Parser do
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
 
-    Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 2
+    Discerner::Dictionary.order(:id).to_a.should_not be_empty
+    Discerner::Dictionary.order(:id).to_a.length.should == 2
 
     dictionary = Discerner::Dictionary.find_by_name('Sample dictionary')
     dictionary.should_not be_blank
@@ -56,9 +56,9 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
 
-    Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 1
-    Discerner::Parameter.all.length.should == 1
+    Discerner::Dictionary.order(:id).to_a.should_not be_empty
+    Discerner::Dictionary.order(:id).to_a.length.should == 1
+    Discerner::Parameter.order(:id).to_a.length.should == 1
     p = Discerner::Parameter.last
     p.name.should == 'Ethnic group'
 
@@ -163,7 +163,56 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.errors.should == [": method 'smethnic_groups' does not adhere to the interface"]
-    Discerner::Dictionary.all.should be_empty
+    Discerner::Dictionary.order(:id).to_a.should be_empty
+  end
+
+  it "does not clean up after encountering errors" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :export:
+                  :model: Patient
+                  :method: ethnic_grp
+
+              - :name: Gender
+                :unique_identifier: gender
+                :export:
+                  :model: Patient
+                  :method: gender
+    }
+    parser.parse_dictionaries(dictionaries)
+
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :source:
+                    :model: Patient
+                    :method: smethnic_groups
+    }
+    parser.parse_dictionaries(dictionaries)
+    parser.errors.should == [": method 'smethnic_groups' does not adhere to the interface"]
+    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.all.length.should == 1
+    Discerner::Dictionary.first.should_not be_deleted
   end
 
   it "does not clean up after encountering errors" do
@@ -238,13 +287,13 @@ describe Discerner::Parser do
                   :method: gender
     }
     parser.parse_dictionaries(dictionaries)
-    Discerner::Dictionary.all.should_not be_empty
-    Discerner::Dictionary.all.length.should == 1
-    Discerner::Parameter.all.length.should == 1
+    Discerner::Dictionary.order(:id).to_a.should_not be_empty
+    Discerner::Dictionary.order(:id).to_a.length.should == 1
+    Discerner::Parameter.order(:id).to_a.length.should == 1
     p = Discerner::Parameter.last
     p.name.should == 'Gender'
 
-    genders = Patient.all.map { |patient| patient.gender }
+    genders = Patient.order(:id).to_a.map { |patient| patient.gender }
     Set.new(p.parameter_values.map(&:name)).should == Set.new(genders + ['None'])
     Set.new(p.parameter_values.map(&:search_value)).should == Set.new(genders + [''])
   end
@@ -254,17 +303,17 @@ describe Discerner::Parser do
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
 
-    count = Discerner::Dictionary.all.length
-    Discerner::Dictionary.all.each do |d|
+    count = Discerner::Dictionary.order(:id).to_a.length
+    Discerner::Dictionary.order(:id).to_a.each do |d|
       d.deleted_at = Time.now
       d.save
     end
 
     parser.parse_dictionaries(File.read(file))
-    Discerner::Dictionary.all.each do |d|
+    Discerner::Dictionary.order(:id).to_a.each do |d|
       d.should_not be_deleted
     end
-    Discerner::Dictionary.all.length.should == count
+    Discerner::Dictionary.order(:id).to_a.length.should == count
   end
 
   it "restores soft deleted parameter categories if they defined in the dictionary definition" do
@@ -272,13 +321,13 @@ describe Discerner::Parser do
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
 
-    Discerner::ParameterCategory.all.each do |d|
+    Discerner::ParameterCategory.order(:id).to_a.each do |d|
       d.deleted_at = Time.now
       d.save
     end
 
     parser.parse_dictionaries(File.read(file))
-    Discerner::ParameterCategory.all.each do |d|
+    Discerner::ParameterCategory.order(:id).to_a.each do |d|
       d.should_not be_deleted
     end
   end
@@ -288,13 +337,13 @@ describe Discerner::Parser do
     parser = Discerner::Parser.new()
     parser.parse_dictionaries(File.read(file))
 
-    Discerner::Parameter.all.each do |d|
+    Discerner::Parameter.order(:id).to_a.each do |d|
       d.deleted_at = Time.now
       d.save
     end
 
     parser.parse_dictionaries(File.read(file))
-    Discerner::Parameter.all.each do |d|
+    Discerner::Parameter.order(:id).to_a.each do |d|
       d.should_not be_deleted
     end
   end
@@ -318,7 +367,7 @@ describe Discerner::Parser do
                     - :search_value: no
     }
     parser.parse_dictionaries(dictionaries)
-    Discerner::Parameter.all.length.should == 1
+    Discerner::Parameter.order(:id).to_a.length.should == 1
     Discerner::Parameter.last.parameter_values.each do |pv|
       ['true', 'false', 'None'].should include(pv.name)
     end
@@ -350,8 +399,8 @@ describe Discerner::Parser do
     end
   end
   it "finds and updates moved parameters" do
-        parser = Discerner::Parser.new()
-        dictionaries = %Q{
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
     :dictionaries:
       - :name: Sample dictionary
         :parameter_categories:
@@ -382,6 +431,126 @@ describe Discerner::Parser do
     p.parameter_category.name.should == 'Another criteria'
   end
 
+  it "parses parameter value categories from list" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories:
+                    - :name: Adventure
+                      :unique_identifier: adventure
+                      :collapse: true
+                      :display_order: 1
+                    - :name: Comic novel
+                      :unique_identifier: comic
+                    - :name: Historical
+                      :unique_identifier: historical
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::ParameterValueCategory.order(:id).to_a.length.should == 3
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.collapse.should == true
+  end
+
+  it "parses parameter value categories from source model and method" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories_source:
+                    :model: Book
+                    :method: genres
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::ParameterValueCategory.order(:id).to_a.length.should == 2
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.collapse.should == true
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'drama').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'drama').first.collapse.should == false
+  end
+
+  it "raisers an error message if parameter value category source model and method do not adhere to the interface" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories_source:
+                    :model: Book
+                    :method: generes
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    parser.errors.should == [": method 'generes' does not adhere to the interface"]
+    Discerner::Dictionary.order(:id).to_a.should be_empty
+  end
+
+  it "assigns parameter values to corresponding parameter value categories" do
+    parser = Discerner::Parser.new()
+    Discerner::ParameterValueCategory.order(:id).to_a.should be_empty
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Book criteria
+            :parameters:
+              - :name: "Genre"
+                :unique_identifier: book_genre
+                :search:
+                  :model: Book
+                  :method: Genre
+                  :parameter_type: combobox
+                  :parameter_value_categories:
+                    - :name: Adventure
+                      :unique_identifier: adventure
+                  :parameter_values:
+                    - :search_value: "Robinsonade"
+                      :parameter_value_category: adventure
+    }
+    parser.parse_dictionaries(dictionaries)
+    Discerner::ParameterValueCategory.order(:id).to_a.length.should == 1
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').should_not be_empty
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.should have(1).parameter_values
+    Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.parameter_values.first.search_value.should == 'Robinsonade'
+  end
+
   it "deletes dictionaries that are no longer defined in the definition file and are not used in searches" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
@@ -410,7 +579,7 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 2
-    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.order(:id).to_a.should_not be_empty
     Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
     Discerner::Dictionary.where(:name => 'Another dictionary').should_not be_blank
 
@@ -429,7 +598,7 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 1
-    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.order(:id).to_a.should_not be_empty
     Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
     Discerner::Dictionary.where(:name => 'Another dictionary').should be_blank
   end
@@ -460,8 +629,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_categories.length.should == 2
-    Discerner::ParameterCategory.all.should_not be_empty
-    Discerner::ParameterCategory.all.length.should == 2
+    Discerner::ParameterCategory.order(:id).to_a.should_not be_empty
+    Discerner::ParameterCategory.order(:id).to_a.length.should == 2
     Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
     Discerner::ParameterCategory.where(:name => 'Patient criteria').should_not be_blank
 
@@ -480,8 +649,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_categories.length.should == 1
-    Discerner::ParameterCategory.all.should_not be_empty
-    Discerner::ParameterCategory.all.length.should == 1
+    Discerner::ParameterCategory.order(:id).to_a.should_not be_empty
+    Discerner::ParameterCategory.order(:id).to_a.length.should == 1
     Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
     Discerner::ParameterCategory.where(:name => 'Patient criteria').should be_blank
   end
@@ -510,8 +679,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameters.length.should == 2
-    Discerner::Parameter.all.should_not be_empty
-    Discerner::Parameter.all.length.should == 2
+    Discerner::Parameter.order(:id).to_a.should_not be_empty
+    Discerner::Parameter.order(:id).to_a.length.should == 2
     Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
     Discerner::Parameter.where(:unique_identifier => 'gender').should_not be_blank
 
@@ -530,8 +699,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameters.length.should == 1
-    Discerner::Parameter.all.should_not be_empty
-    Discerner::Parameter.all.length.should == 1
+    Discerner::Parameter.order(:id).to_a.should_not be_empty
+    Discerner::Parameter.order(:id).to_a.length.should == 1
     Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
     Discerner::Parameter.where(:unique_identifier => 'gender').should be_blank
   end
@@ -559,7 +728,7 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
     Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => '').should_not be_blank
@@ -645,7 +814,7 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
     Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'unknown').should be_blank
@@ -705,7 +874,7 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_dictionaries.length.should == 1
-    Discerner::Dictionary.all.should_not be_empty
+    Discerner::Dictionary.order(:id).to_a.should_not be_empty
     Discerner::Dictionary.where(:name => 'Sample dictionary').should_not be_blank
     Discerner::Dictionary.where(:name => 'Another dictionary').should_not be_blank
     Discerner::Dictionary.where(:name => 'Another dictionary').first.should be_deleted
@@ -737,7 +906,7 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_categories.length.should == 2
-    Discerner::ParameterCategory.all.length.should == 2
+    Discerner::ParameterCategory.order(:id).to_a.length.should == 2
     Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
     Discerner::ParameterCategory.where(:name => 'Patient criteria').should_not be_blank
     Discerner::ParameterCategory.where(:name => 'Patient criteria').first.should_not be_deleted
@@ -762,7 +931,7 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_categories.length.should == 1
-    Discerner::ParameterCategory.all.length.should == 2
+    Discerner::ParameterCategory.order(:id).to_a.length.should == 2
     Discerner::ParameterCategory.where(:name => 'Demographic criteria').should_not be_blank
     Discerner::ParameterCategory.where(:name => 'Patient criteria').should_not be_blank
     Discerner::ParameterCategory.where(:name => 'Patient criteria').first.should be_deleted
@@ -792,7 +961,7 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameters.length.should == 2
-    Discerner::Parameter.all.length.should == 2
+    Discerner::Parameter.order(:id).to_a.length.should == 2
     Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
     Discerner::Parameter.where(:unique_identifier => 'gender').should_not be_blank
     Discerner::Parameter.where(:unique_identifier => 'gender').first.should_not be_deleted
@@ -817,8 +986,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameters.length.should == 1
-    Discerner::Parameter.all.should_not be_empty
-    Discerner::Parameter.all.length.should == 2
+    Discerner::Parameter.order(:id).to_a.should_not be_empty
+    Discerner::Parameter.order(:id).to_a.length.should == 2
     Discerner::Parameter.where(:unique_identifier => 'ethnic_grp').should_not be_blank
     Discerner::Parameter.where(:unique_identifier => 'gender').should_not be_blank
     Discerner::Parameter.where(:unique_identifier => 'gender').first.should be_deleted
@@ -849,8 +1018,8 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 3
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 4
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.length.should == 4
     Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'unknown').should_not be_blank
@@ -884,8 +1053,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 4
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.length.should == 4
     Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'unknown').should_not be_blank
@@ -914,7 +1083,7 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 1
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
     Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => '').should_not be_blank
 
@@ -947,7 +1116,7 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 3
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
     Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').should_not be_blank
     Discerner::ParameterValue.where(:search_value => '').should_not be_blank
@@ -979,8 +1148,8 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.length.should == 3
 
     value = Discerner::ParameterValue.where(:search_value => "hisp_or_latino").first
     s = FactoryGirl.build(:search)
@@ -1008,10 +1177,10 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 1
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
-    Discerner::ParameterValue.not_deleted.all.length.should == 2
-    Discerner::SearchParameterValue.all.length.should == 1 #parameter value is not added or deleted, so no thanges
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.length.should == 3
+    Discerner::ParameterValue.not_deleted.order(:id).to_a.length.should == 2
+    Discerner::SearchParameterValue.order(:id).to_a.length.should == 1 #parameter value is not added or deleted, so no thanges
 
     dictionaries = %Q{
     :dictionaries:
@@ -1034,9 +1203,9 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     parser.updated_parameter_values.length.should == 2
     parser.blank_parameter_values.length.should == 1
-    Discerner::ParameterValue.all.should_not be_empty
-    Discerner::ParameterValue.all.length.should == 3
-    Discerner::ParameterValue.not_deleted.all.length.should == 3
-    Discerner::SearchParameterValue.all.length.should == 1 #parameter value is not added or deleted, so no thanges
+    Discerner::ParameterValue.order(:id).to_a.should_not be_empty
+    Discerner::ParameterValue.order(:id).to_a.length.should == 3
+    Discerner::ParameterValue.not_deleted.order(:id).to_a.length.should == 3
+    Discerner::SearchParameterValue.order(:id).to_a.length.should == 1 #parameter value is not added or deleted, so no thanges
   end
 end

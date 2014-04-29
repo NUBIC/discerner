@@ -13,10 +13,19 @@
 #               :model: string                                                  # name of the model to be used for searching
 #               :method: string                                                 # name of the model method to be used for searching
 #               :parameter_type: numeric/date/list/combobox/text/string         # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
+#               :parameter_value_categories_source:                             # used to define parameter value categories
+#                 :model: string                                                # source model to be used to load parameter value categiories
+#                 :method: string                                               # method in the source model that returns parameter_value_categories in a form of [{:name => 'string, :unique_identifier => 'adventure', :display_order => 1, :collapse => true}]
+#               :parameter_value_categories:                                    # used to define parameter value categories
+#                 - :name: string
+#                   :unique_identifier: string                                  # has to be unique within parameter
+#                   :collapse: boolean                                          # used to define if parameter category should be collapsed in the list and its values hidden from the view
+#                   :display_order: integer
 #               :allow_empty_values: boolean                                    # default: true. If set to true, "none" value will be added to the list ov values
 #               :parameter_values:                                              # needs to be defined for list/combobox parameters unless parameter values come from the model, see ':source'
 #                 - :name: string                                               # used for display, if not provided, 'search_value' will be used instead
 #                   :search_value: string                                       # has to be unique within parameter, intendend to be used as a database value while searching
+#                   :parameter_value_category: string                           # used to define category for parameter value, should match one of parameter_value_categories unique_identifiers listed above
 #               :source:
 #                 :model: string                                                # source model to be used to load parameter values
 #                 :method: string                                               # method/method in the source model to be used to load parameter values
@@ -55,7 +64,7 @@
             :search:
               :model: Patient
               :method: ethnic_grp
-              :parameter_type: list
+              :parameter_type: combobox
               :parameter_values:
                 - :name: Hispanic or Latino
                   :search_value: hisp_or_latino
@@ -183,6 +192,33 @@
                 - :search_value: journal
                 - :search_value: article
                 - :search_value: electronic journal
+
+          - :name: "Genre"
+            :unique_identifier: book_genre
+            :search:
+              :model: Book
+              :method: Genre
+              :parameter_type: combobox
+              :parameter_value_categories:
+                - :name: Adventure
+                  :unique_identifier: adventure
+                  :collapse: true
+                  :display_order: 1
+                - :name: Comic novel
+                  :unique_identifier: comic
+                - :name: Historical
+                  :unique_identifier: historical
+              :parameter_values:
+                - :search_value: "Robinsonade"
+                  :parameter_value_category: adventure
+                - :search_value: "Black comedy"
+                  :parameter_value_category: comic
+                - :search_value: "Parody"
+                  :parameter_value_category: comic
+                - :search_value: "Lost World"
+                  :parameter_value_category: adventure
+                - :search_value: "Brit lit"
+                - :search_value: "Pulp fiction"
 
           - :name: "Title"
             :unique_identifier: title

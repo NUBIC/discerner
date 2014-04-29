@@ -3,6 +3,7 @@
   table.records, table.repeater
     :width 100%
     :border-collapse collapse
+    :border none
 
   table.records td, table.repeater td
     :padding 0.125em 0.25em
@@ -15,6 +16,7 @@
 
   table.records tr, table.repeater tr
     :border 1px solid lightgray
+    :background none
 
   table.records tbody tr.odd_record, table.repeater tbody tr.odd_record
     :background-color white
@@ -25,3 +27,6 @@
   table.nested
     :width 50%
     :margin-top 1em
+
+  table tfoot
+    :background none

@@ -1,5 +1,5 @@
 class Patient < ActiveRecord::Base
-  attr_accessible :gender
+  attr_accessible :id, :gender
 
   def self.smethnic_groups
     [{ :foo => 'Hispanic or Latino', :bar => '1' }, { :foo => 'NOT Hispanic or Latino', :bar => '2' }]

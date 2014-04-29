@@ -49,14 +49,14 @@ Feature: Viewing existing searches
     And I add search criteria
     And I open criteria dropdown
 
-    Then the element ".div-criteria-popup .dictionary_sample_dictionary" should be visible
-    And the element ".div-criteria-popup .dictionary_librarian_dictionary" should not be visible
+    Then the element ".div-category-popup .dictionary_sample_dictionary" should be visible
+    And the element ".div-category-popup .dictionary_librarian_dictionary" should not be visible
 
     When I select dictionary "Librarian dictionary"
     And I add search criteria
     And I open criteria dropdown
-    Then the element ".div-criteria-popup .dictionary_sample_dictionary" should not be visible
-    And the element ".div-criteria-popup .dictionary_librarian_dictionary" should be visible
+    Then the element ".div-category-popup .dictionary_sample_dictionary" should not be visible
+    And the element ".div-category-popup .dictionary_librarian_dictionary" should be visible
 
   @javascript
   Scenario: It should allow to select search criteria from the list
@@ -64,7 +64,7 @@ Feature: Viewing existing searches
     When I go to the new search page
     And I select dictionary "Sample dictionary"
     And I add "Age at case collection date" search criteria
-    Then the element ".div-criteria-popup" should not be visible
+    Then the element ".div-category-popup" should not be visible
     And ".parameter input.ui-autocomplete-input" in the first ".search_parameter" should contain "Demographic criteria - Age at case collection date"
 
   @javascript
@@ -263,7 +263,7 @@ Feature: Viewing existing searches
     When I follow "Add criteria"
     When I open criteria dropdown
     And I follow "Age at case collection date" within the last ".search_parameter"
-    Then the element ".div-criteria-popup" should be visible
+    Then the element ".div-category-popup" should be visible
     And the last search criteria should not be "Age at case collection date"
 
   @javascript
@@ -278,7 +278,7 @@ Feature: Viewing existing searches
     When I follow "Add criteria"
     When I open criteria dropdown
     And I follow "Text search diagnosis" within the last ".search_parameter"
-    Then the element ".div-criteria-popup" should not be visible
+    Then the element ".div-category-popup" should not be visible
     And ".parameter input.ui-autocomplete-input" in the last ".search_parameter" should contain "Case criteria - Text search diagnosis"
 
   @javascript
@@ -381,7 +381,7 @@ Feature: Viewing existing searches
     And I select dictionary "Sample dictionary"
     And I add search criteria
     And I open criteria dropdown
-    Then ".div-survey_section-list" should not contain text "Case criteria"
+    Then ".div-category-list" should not contain text "Case criteria"
 
   @javascript
   Scenario: Categories with all parameters disabled should not be shown in parameters options
@@ -391,7 +391,7 @@ Feature: Viewing existing searches
     And I select dictionary "Sample dictionary"
     And I add search criteria
     And I open criteria dropdown
-    Then ".div-survey_section-list" should not contain text "Case criteria"
+    Then ".div-category-list" should not contain text "Case criteria"
 
   @javascript
   Scenario: Deleted dictionaries should not be given as dictionary options

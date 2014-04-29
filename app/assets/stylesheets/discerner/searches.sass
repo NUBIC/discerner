@@ -9,10 +9,16 @@
     :margin-bottom 1em
 
 #discerner_search
+  form.new_search
+    label, input, select
+      :display inline
+      :width auto
+
   #discerner_search_header
     div.discerner_search_name, div.discerner_search_dictionary, .discerner_dictionary_required_message
       :margin 1em 0.5em
       :height 2em
+      :padding 0.25em
       :float left
 
     div.discerner_search_name
@@ -20,8 +26,9 @@
         :display inline
         :width 10em
 
-        a.button, input.button
-          :margin 0 !important
+        a, input
+          :margin-top -10px
+          :margin-bottom 0
 
         input[type="text"]
           :width 30em
@@ -46,6 +53,8 @@
       :padding-top 0.5em
       :padding-top 0.5em
 
+    .search_combinations td
+      :border none
     .parameter_boolean_operator, td.remove, th.remove,
     .combined_search_operator, .combined_search_operator
       :width 68px
@@ -71,7 +80,10 @@
           :padding-top 0
 
       .parameter_values_boolean_operator, .chosen
-        :width 14px
+        :width 1.5em
+
+      button.ui-button
+        :margin-bottom 0
 
     input.ui-autocomplete-input
       :border 1px solid #CCCCCC
@@ -97,41 +109,53 @@
     .combined_search_combobox button
       :border-width 0
       :padding 0 !important
-    .parameter_value input.ui-autocomplete-input
-      :width 380px !important
 
     .parameter, .combined_search
       :width 395px
 
+      .div-category-popup
+        :width 70em
+      input.ui-autocomplete-input
+        :width 24em
+      .column
+        :width 16em
+
+    .parameter_value
+      .div-category-popup
+        :width 40em
+      input.ui-autocomplete-input
+        :width 28em
+      .column
+        :width 12em
+
+    .parameter, .combined_search, .parameter_value
       .categorized_autocompleter, .combined_search_combobox
         :border 1px solid #CCCCCC
         :background-color #FFFFFF
         :position relative
 
         input.ui-autocomplete-input
-          :width 326px !important
           :border none
           :border-right 1px solid #CCCCCC
           :padding-left 0.2em
 
-        .div-criteria-popup
-          :width 70em
+        .div-category-popup
           :border-style solid
           :border-color #CCCCCC #999999 #999999 #CCCCCC
           :border-width 1px 3px 3px 1px
           :padding 0.1em 0.1em 1em 0.1em
 
-          .div-survey_section-list
+          .div-category-list
             :overflow auto
 
-            .parameter_category
+            .parameter_category, .parameter_value_category
               :padding-bottom 5px
               :padding-left 5px
               :padding-right 5px
               :padding-top 15px
               :clear both
 
-              .parameter_category_name
+              .parameter_category_name, .parameter_value_category_name
                 :font-weight bold
                 :margin-bottom 0
                 :margin-left 0
@@ -142,27 +166,27 @@
                 :padding-right 0
                 :padding-top 0
 
-              .column
-                :float left
-                :margin-right 5px
-                :width 16em
+            .column
+              :float left
+              :margin-right 5px
 
-                .criteria
-                  :margin-bottom 3px
-                  :margin-left 0
-                  :margin-right 0
-                  :margin-top 3px
-                  a
-                    :text-decoration none
+              .criteria
+                :margin-bottom 3px
+                :margin-left 0
+                :margin-right 0
+                :margin-top 3px
+                a
+                  :text-decoration none
 
         .selection_disabled
           :color #cccccc
 
       .combined_search_combobox
         button.ui-button
-.dicserner
+          :margin-bottom 0
+.discerner
   input.ui-autocomplete-input
-    :width 20em !important
+    :width 20em
 
   .ui-menu .ui-menu-item a
     :text-align left

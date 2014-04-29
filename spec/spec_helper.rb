@@ -9,7 +9,6 @@ end
 
 require "rspec/rails"
 require "database_cleaner"
-require "shoulda"
 require "factory_girl"
 
 FactoryGirl.find_definitions

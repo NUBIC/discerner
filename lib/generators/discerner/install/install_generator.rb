@@ -8,6 +8,7 @@ module Discerner
     class_option "customize-controllers", :type => :boolean
     class_option "customize-models", :type => :boolean
     class_option "customize-helpers", :type => :boolean
+    class_option "customize-layout", :type => :boolean
     class_option "current-user-helper", :type => :string
 
     def self.source_paths
@@ -88,40 +89,46 @@ module Discerner
     end
 
     def sample_dictionary
-      path = "#{Rails.root}/lib"
-      empty_directory "#{path}/setup"
-      copy_file "dictionaries.yml", "#{path}/setup/dictionaries.yml"
+      path = "#{Rails.root}/lib/setup"
+      empty_directory "#{path}"
+      copy_file "dictionaries.yml", "#{path}/dictionaries.yml"
     end
 
     def make_customizable
       if options["customize-all"] || options["customize-controllers"]
-        path = "#{Rails.root}/controllers/discerner"
-        empty_directory controllers_directory
-        copy_file "controllers/searches_controller.rb", "#{controllers_directory}/searches_controller.rb"
-        copy_file "controllers/parameters_controller.rb", "#{controllers_directory}/parameters_controller.rb"
-        copy_file "controllers/export_parameters_controller.rb", "#{controllers_directory}/export_parameters_controller.rb"
+        path = "#{Rails.root}/app/controllers/discerner"
+        empty_directory path
+        copy_file "controllers/searches_controller.rb", "#{path}/searches_controller.rb"
+        copy_file "controllers/parameters_controller.rb", "#{path}/parameters_controller.rb"
+        copy_file "controllers/export_parameters_controller.rb", "#{path}/export_parameters_controller.rb"
       end
 
       if options["customize-all"] || options["customize-helpers"]
-        path = "#{Rails.root}/app"
-        empty_directory "#{path}/helpers/discerner"
-        copy_file "helpers/searches_helper.rb", "#{path}/helpers/discerner/searches_helper.rb"
+        path = "#{Rails.root}/app/helpers/discerner"
+        empty_directory "#{path}"
+        copy_file "helpers/searches_helper.rb", "#{path}/searches_helper.rb"
       end
 
       if options["customize-all"] || options["customize-models"]
-        path = "#{Rails.root}/app"
-        empty_directory "#{path}/models/discerner"
-        copy_file "models/dictionary.rb", "#{path}/models/discerner/dictionary.rb"
-        copy_file "models/export_parameter.rb", "#{path}/models/discerner/export_parameter.rb"
-        copy_file "models/operator.rb", "#{path}/models/discerner/operator.rb"
-        copy_file "models/parameter_category.rb", "#{path}/models/discerner/parameter_category.rb"
-        copy_file "models/parameter_type.rb", "#{path}/models/discerner/parameter_type.rb"
-        copy_file "models/parameter_value.rb", "#{path}/models/discerner/parameter_value.rb"
-        copy_file "models/parameter.rb", "#{path}/models/discerner/parameter.rb"
-        copy_file "models/search_combination.rb", "#{path}/models/discerner/search_combination.rb"
-        copy_file "models/search_parameter_value.rb", "#{path}/models/discerner/search_parameter_value.rb"
-        copy_file "models/search_parameter.rb", "#{path}/models/discerner/search_parameter.rb"
-        copy_file "models/search.rb", "#{path}/models/discerner/search.rb"
+        path = "#{Rails.root}/app/models/discerner"
+        empty_directory "#{path}"
+        copy_file "models/dictionary.rb", "#{path}/dictionary.rb"
+        copy_file "models/export_parameter.rb", "#{path}/export_parameter.rb"
+        copy_file "models/operator.rb", "#{path}/operator.rb"
+        copy_file "models/parameter_category.rb", "#{path}/parameter_category.rb"
+        copy_file "models/parameter_type.rb", "#{path}/parameter_type.rb"
+        copy_file "models/parameter_value.rb", "#{path}/parameter_value.rb"
+        copy_file "models/parameter.rb", "#{path}/parameter.rb"
+        copy_file "models/search_combination.rb", "#{path}/search_combination.rb"
+        copy_file "models/search_parameter_value.rb", "#{path}/search_parameter_value.rb"
+        copy_file "models/search_parameter.rb", "#{path}/search_parameter.rb"
+        copy_file "models/search.rb", "#{path}/search.rb"
+      end
+
+      if options["customize-all"] || options["customize-layout"]
+        path = "#{Rails.root}/app/views/layouts/discerner"
+        empty_directory "#{path}"
+        copy_file "views/layouts/searches.html.erb", "#{path}/searches.html.erb"
       end
     end
 

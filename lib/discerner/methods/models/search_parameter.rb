@@ -3,32 +3,29 @@ module Discerner
     module Models
       module SearchParameter
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :search
           base.send :belongs_to, :parameter
           base.send :has_many, :search_parameter_values, :dependent => :destroy
 
           # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :by_parameter_category, lambda{|parameter_category| base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
+          base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
 
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameter_values, :allow_destroy => true
 
-          # Whitelisting attributes
-          base.send :attr_accessible, :display_order, :parameter_id, :search_id, :parameter, :search, :search_parameter_values_attributes
-
           # Hooks
           base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+
+          # Whitelisting attributes
+          base.send :attr_accessible, :search, :search_id, :parameter, :parameter_id, :search_parameter_values_attributes, :display_order
         end
 
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def warnings
@@ -106,7 +103,7 @@ module Discerner
           elsif parameter.deleted?
             warnings.add(:base, "Parameter has been deleted and has to be removed from the search")
             return true
-          elsif search_parameter_values.blank?
+          elsif search_parameter_values.blank? || (parameter.parameter_type.name == 'list' && search_parameter_values.select{|spv| spv.chosen?}.empty?)
             warnings.add(:base, "Parameter value has to be selected")
             return true
           elsif deleted? || search_parameter_values.select{ |spv| spv.disabled?}.any?

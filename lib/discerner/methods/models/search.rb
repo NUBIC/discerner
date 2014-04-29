@@ -3,6 +3,8 @@ module Discerner
     module Models
       module Search
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :dictionary
           base.send :has_many, :search_parameters
@@ -11,16 +13,11 @@ module Discerner
           base.send :has_many, :export_parameters
 
           # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :by_user, lambda{|username| base.where(:username => username)})
+          base.send(:scope, :by_user, ->(username) { base.where(:username => username) unless username.blank?})
 
           # Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :dictionary, :presence => { :message => "for search can't be blank" }
-            base.send :validate, :validate_search_parameters
-            @@validations_already_included = true
-          end
+          base.send :validates, :dictionary, :presence => { :message => "for search can't be blank" }
+          base.send :validate, :validate_search_parameters
 
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameters, :allow_destroy => true,
@@ -29,21 +26,18 @@ module Discerner
           base.send :accepts_nested_attributes_for, :search_combinations, :allow_destroy => true,
             :reject_if => proc { |attributes| attributes['combined_search_id'].blank? && attributes['combined_search'].blank? }
 
+          # Hooks
+          base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+
           # Whitelisting attributes
           base.send :attr_accessible, :deleted_at, :name, :username, :search_parameters, :search_parameters_attributes,
           :dictionary, :dictionary_id, :search_combinations_attributes
 
-          # Hooks
-          base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
 
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def display_name

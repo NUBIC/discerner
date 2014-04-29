@@ -9,5 +9,9 @@ Discerner::Engine.routes.draw do
       end
     end
   end
-  resources :parameters
+  resources :parameters do
+    collection do
+      get :values
+    end
+  end
 end

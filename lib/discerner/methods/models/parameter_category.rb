@@ -3,14 +3,19 @@ module Discerner
     module Models
       module ParameterCategory
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :dictionary
-          base.send :has_many, :parameters, :order => :name, :dependent => :destroy
 
           # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
-          base.send(:scope, :searchable, base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null'))
-          base.send(:scope, :exportable, base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null'))
+          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null')})
+          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null')})
+
+          base.send :has_many, :parameters, :dependent => :destroy
+
+          # Hooks
+          base.send :after_commit, :update_parameters, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
 
           #Validations
           @@validations_already_included ||= nil
@@ -22,18 +27,11 @@ module Discerner
 
           # Whitelisting attributes
           base.send :attr_accessible, :deleted_at, :dictionary, :dictionary_id, :name
-
-          # Hooks
-          base.send :after_commit, :update_parameters, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
 
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def parameterized_name

@@ -11,7 +11,7 @@ describe Discerner::SearchCombination do
 
   let!(:search_combination) {
     s = FactoryGirl.build(:search, :name => 'other search')
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => FactoryGirl.build(:parameter, :search_method => 'other_parameter'))
+    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => FactoryGirl.create(:parameter, :unique_identifier => 'other_search_parameter', :search_model => 'A', :search_method => 'A', :parameter_type => Discerner::ParameterType.last || FactoryGirl.build(:parameter_type) ))
     FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :value => '0', :operator => FactoryGirl.create(:operator, :symbol => '<', :text => 'is less than'))
     s.save!
     FactoryGirl.create(:search_combination, :search => search, :combined_search => s)

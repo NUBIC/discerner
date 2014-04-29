@@ -1,7 +1,7 @@
 #discerner_search
   = render 'discerner/searches/summary'
   .discerner-buttons
-    = link_to 'Back to search', edit_search_path(@discerner_search), :class => "button-discerner positive"
+    = link_to 'Back to search', edit_search_path(@discerner_search), :class => "discerner-button discerner-button-positive"
   .clear
     %hr
 
@@ -14,8 +14,8 @@
       - if exportable_parameter_categories.blank?
         = "-- No exportable parameters detected --"
       - else
-        - selected_parameters = @discerner_search.export_parameters.all
-        - selected_parameters = @discerner_search.search_parameters.all + @discerner_search.nested_searches.map{|s| s.search_parameters}.flatten if selected_parameters.empty?
+        - selected_parameters = @discerner_search.export_parameters.order(:id).to_a
+        - selected_parameters = @discerner_search.search_parameters.order(:id).to_a + @discerner_search.nested_searches.map{|s| s.search_parameters}.flatten if selected_parameters.empty?
 
         = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
           - exportable_parameter_categories.each do |c|
@@ -33,9 +33,9 @@
           .clear
           .discerner-buttons
             - if @discerner_search.disabled?
-              = submit_tag 'Update and export', :class => "button-discerner positive"
+              = submit_tag 'Update and export', :class => "discerner-button discerner-button-positive"
             - else
-              = submit_tag 'Export', :class => "button-discerner positive"
+              = submit_tag 'Export', :class => "discerner-button discerner-button-positive"
 :javascript
   $(function () {
     new Discerner.ExportParameters.UI();

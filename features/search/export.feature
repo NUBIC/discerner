@@ -132,8 +132,7 @@ Feature: Exporting results for existing searches
     And I add combined search
     And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Race" search criteria
-    And I wait 1 seconds
-    And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
+     And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
     And I press "Search"
     And I follow "Export options"
     Then the "Gender" checkbox should be checked
@@ -161,7 +160,6 @@ Feature: Exporting results for existing searches
     And I add combined search
     And I fill in "input.search_combinations_combobox_autocompleter" autocompleter within the first ".search_combination" with "Awesome search"
     And I add "Race" search criteria
-    And I wait 1 seconds
     And I check "input[type='checkbox']" within the first ".search_parameter .chosen"
     And I press "Search"
     And I follow "Export options"

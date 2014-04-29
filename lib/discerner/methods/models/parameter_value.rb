@@ -3,12 +3,19 @@ module Discerner
     module Models
       module ParameterValue
         def self.included(base)
+          base.send :include, SoftDelete
+
           # Associations
           base.send :belongs_to, :parameter
           base.send :has_many, :search_parameter_values, :dependent => :destroy
+          base.send :has_one, :parameter_value_categorization, :dependent => :destroy
+          base.send :has_one, :parameter_value_category, :through=> :parameter_value_categorization
 
-          # Scopes
-          base.send(:scope, :not_deleted, base.where(:deleted_at => nil))
+          # Hooks
+          base.send :after_commit, :create_search_parameter_values, :on => :create
+          base.send :after_commit, :update_search_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+          base.send :scope, :categorized, -> {base.joins(:parameter_value_category)}
+          base.send :scope, :uncategorized, -> {base.includes(:parameter_value_category).where(:discerner_parameter_value_categories => {:name => nil})}
 
           #Validations
           @@validations_already_included ||= nil
@@ -16,24 +23,17 @@ module Discerner
             base.send :validates, :parameter, :presence => true
             base.send :validates, :search_value, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
             base.send :validates, :name, :presence => true, :length => { :maximum => 1000 }
+            base.send :validate, :parameter_category_belongs_to_parameter
             @@validations_already_included = true
           end
 
           # Whitelisting attributes
           base.send :attr_accessible, :search_value, :name, :parameter, :parameter_id
-
-          # Hooks
-          base.send :after_commit, :create_search_parameter_values, :on => :create
-          base.send :after_commit, :update_search_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
 
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def deleted?
-          not deleted_at.blank?
         end
 
         def used_in_search?
@@ -45,6 +45,12 @@ module Discerner
         end
 
         private
+          def parameter_category_belongs_to_parameter
+            unless parameter_value_category.blank?
+              errors.add(:base,"Parameter category #{parameter_value_category.name} does not belong to parameter #{parameter.name}") unless parameter_value_category.parameter_id == parameter.id
+            end
+          end
+
           def create_search_parameter_values
             # create additional search_parameter_values for list search_parameters so they can be dislayed as nested attribures
             return if parameter.blank? || parameter.parameter_type.blank?

@@ -105,9 +105,9 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.should_not be_disabled
     search_parameter_value.warnings.full_messages.should be_blank
 
-    search_parameter_value.value = '01---02-2003'
-    search_parameter_value.should be_disabled
-    search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
+    #search_parameter_value.value = '01---02-2003'
+    #search_parameter_value.should be_disabled
+    #search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
 
     search_parameter_value.value = 'xx'
     search_parameter_value.should be_disabled
@@ -118,6 +118,13 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.warnings.full_messages.should include('Provided date is not valid')
   end
 
+  it "detects if combobox parameter value is not selected" do
+    search_parameter_value.should_not be_disabled
+    search_parameter_value.search_parameter.parameter.parameter_type.name = 'combobox'
+    search_parameter_value.operator = nil
+    search_parameter_value.parameter_value_id = nil
+    search_parameter_value.should be_disabled
+  end
 
   it "self-destroyes if belongs to list or combobox parameter and references deleted value and not chosen" do
     search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)

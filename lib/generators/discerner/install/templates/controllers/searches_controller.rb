@@ -1,7 +1,6 @@
 module Discerner
   module SearchesControllerCustomMethods
     def self.included(base)
-      # base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :show]
     end
 
     def new

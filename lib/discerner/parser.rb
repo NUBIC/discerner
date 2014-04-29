@@ -1,6 +1,6 @@
 module Discerner
   class Parser
-    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_values, :blank_parameter_values
+    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_value_categories, :updated_parameter_values, :blank_parameter_values
 
     def initialize(options={})
       self.options = options
@@ -13,6 +13,7 @@ module Discerner
       self.updated_categories = []
       self.updated_parameters = []
       self.updated_parameter_values = []
+      self.updated_parameter_value_categories = []
       self.blank_parameter_values = []
     end
 
@@ -44,6 +45,17 @@ module Discerner
 
               search_identifiers = parameter_from_file[:search]
               unless search_identifiers.blank?
+                ## find or initialize parameter value categories
+                unless search_identifiers[:parameter_value_categories].blank?
+                  search_identifiers[:parameter_value_categories].each do |parameter_value_category_from_file|
+                    parse_parameter_value_category(parameter, parameter_value_category_from_file)
+                  end
+                end
+
+                unless search_identifiers[:parameter_value_categories_source].blank?
+                  load_parameter_value_categories_from_source(parameter, search_identifiers[:parameter_value_categories_source])
+                end
+
                 ## find or initialize parameter values
                 unless search_identifiers[:parameter_values].blank?
                   search_identifiers[:parameter_values].each do |parameter_value_from_file|
@@ -56,7 +68,7 @@ module Discerner
                 end
 
                 unless search_identifiers[:allow_empty_values] == false
-                  blank_parameter_values << find_or_create_parameter_value(parameter, '', 'None', true)
+                  blank_parameter_values << find_or_create_parameter_value(parameter, '', 'None', nil, true)
                 end
               end
             end
@@ -123,7 +135,9 @@ module Discerner
       unique_identifier = hash[:unique_identifier]
       error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
 
-      existing_parameter    = Discerner::Parameter.includes({:parameter_category => :dictionary}).where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
+      existing_parameter    = Discerner::Parameter.
+                              includes({:parameter_category => :dictionary}).
+                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
       parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category)
 
       parameter.name        = parameter_name
@@ -168,7 +182,17 @@ module Discerner
       error_message 'parameter value definition was not provided' if hash.blank?
       search_value = hash[:search_value]
       error_message 'parameter value search_value cannot be blank' if search_value.nil?
-      find_or_create_parameter_value(parameter, search_value, hash[:name])
+      find_or_create_parameter_value(parameter, search_value, hash[:name], hash[:parameter_value_category], false)
+    end
+
+    def parse_parameter_value_category(parameter, hash)
+      error_message 'parameter value category definition was not provided' if hash.blank?
+      unique_identifier = hash[:unique_identifier]
+      name = hash[:name]
+
+      error_message 'parameter value category unique_identifier cannot be blank' if unique_identifier.nil?
+      error_message 'parameter value category name cannot be blank' if name.nil?
+      find_or_create_parameter_value_category(parameter, unique_identifier, name, hash[:display_order], hash[:collapse])
     end
 
     def load_parameter_value_from_source(parameter, hash)
@@ -192,7 +216,7 @@ module Discerner
           error_message "method '#{method_name}' does not adhere to the interface"
         end
 
-        parameter_values.map{|parameter_value| find_or_create_parameter_value(parameter, parameter_value[:search_value], parameter_value[:name]) }
+        parameter_values.map{|parameter_value| find_or_create_parameter_value(parameter, parameter_value[:search_value], parameter_value[:name], parameter_value[:parameter_value_category]) }
       else
         notification_message "method '#{method_name}' is not recognized as a class method, will try it on instance.."
         error_message "model '#{model_name}' does no respond to :all method" if !source_model.respond_to?(:all)
@@ -203,6 +227,42 @@ module Discerner
         search_value_sources.each do |row|
           error_message "model '#{model_name}' instance does no respond to #{method_name} method" if !row.respond_to?(method_name)
           find_or_create_parameter_value(parameter, row.send(method_name))
+        end
+      end
+    end
+
+    def load_parameter_value_categories_from_source(parameter, hash)
+      error_message 'parameter value category  definition was not provided' if hash.blank?
+
+      model_name  = hash[:model]
+      method_name = hash[:method]
+      error_message "model and method must be defined for parameter value category source" if model_name.blank? || method_name.blank?
+
+      source_model = model_name.safe_constantize
+      error_message "model '#{model_name}' could not be found" if source_model.blank?
+
+      if source_model.respond_to?(method_name)
+        notification_message "method '#{method_name}' recognized as a class method"
+
+        parameter_value_categories = source_model.send(method_name)
+
+        error_message "method '#{method_name}' did not return an array of values" if parameter_value_categories.blank? || !parameter_value_categories.kind_of?(Array)
+
+        if parameter_value_categories.select { |parameter_value_category| !parameter_value_category.has_key?(:name) || !parameter_value_category.has_key?(:unique_identifier)}.any?
+          error_message "method '#{method_name}' does not adhere to the interface"
+        end
+
+        parameter_value_categories.map{|parameter_value_category| find_or_create_parameter_value_category(parameter, parameter_value_category[:unique_identifier], parameter_value_category[:name], parameter_value_category[:display_order], parameter_value_category[:collapse])}
+      else
+        notification_message "method '#{method_name}' is not recognized as a class method, will try it on instance.."
+        error_message "model '#{model_name}' does no respond to :all method" if !source_model.respond_to?(:all)
+
+        parameter_value_category_sources = source_model.send(:all)
+        error_message "model '#{method_name}' did not return an array of instances" if parameter_value_category_sources.blank?
+
+        parameter_value_category_sources.each do |row|
+          error_message "model '#{model_name}' instance does no respond to #{method_name} method" if !row.respond_to?(method_name)
+          find_or_create_parameter_value_category(parameter, row.send(method_name))
         end
       end
     end
@@ -260,7 +320,7 @@ module Discerner
       return parameter_type
     end
 
-    def find_or_create_parameter_value(parameter, search_value, name=nil, silent=nil)
+    def find_or_create_parameter_value(parameter, search_value, name=nil, parameter_value_category_identifier=nil, silent=nil)
       error_message "search value was not provided" if search_value.nil?
       search_value = search_value.to_s
       notification_message "processing parameter value '#{search_value}'"
@@ -274,12 +334,47 @@ module Discerner
         parameter_value.updated_at = Time.now
       end
 
+      unless parameter_value_category_identifier.blank?
+        parameter_value_category = Discerner::ParameterValueCategory.where(:unique_identifier => parameter_value_category_identifier, :parameter_id => parameter.id).first_or_initialize
+        if parameter_value_category.blank?
+          error_message "parameter value category with unique identifier #{parameter_value_category_identifier} is not found for parameter #{parameter.name}"
+        else
+          parameter_value.parameter_value_category = parameter_value_category
+        end
+      end
+
       parameter_value.name = name || search_value
       parameter_value.deleted_at = nil
       error_message "parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
       updated_parameter_values << parameter_value unless silent
       parameter_value
+    end
+
+    def find_or_create_parameter_value_category(parameter, unique_identifier, name, display_order=0, collapse=nil)
+      error_message "unique_identifier was not provided" if unique_identifier.nil?
+      error_message "name was not provided" if name.nil?
+
+      unique_identifier = unique_identifier.to_s
+      notification_message "processing parameter value category '#{unique_identifier}'"
+
+      parameter_value_category = Discerner::ParameterValueCategory.where(:unique_identifier => unique_identifier, :parameter_id => parameter.id).first_or_initialize
+      if parameter_value_category.new_record?
+        notification_message "creating parameter value category..."
+        parameter_value_category.created_at = Time.now
+      else
+        notification_message "updating parameter value category ..."
+        parameter_value_category.updated_at = Time.now
+      end
+
+      parameter_value_category.name = name
+      parameter_value_category.display_order = display_order.to_i
+      parameter_value_category.collapse = collapse
+      parameter_value_category.deleted_at = nil
+      error_message "parameter value category #{unique_identifier} could not be saved: #{parameter_value_category.errors.full_messages}" unless parameter_value_category.save
+      notification_message 'parameter value category saved'
+      updated_parameter_value_categories << parameter_value_category
+      parameter_value_category
     end
 
     def error_message(str, target=nil)
@@ -306,6 +401,7 @@ module Discerner
 
     private
       def cleanup
+        cleanup_parameter_value_categories
         cleanup_parameter_values
         cleanup_parameters
         cleanup_categories
@@ -313,7 +409,7 @@ module Discerner
       end
 
       def cleanup_dictionaries
-        abandoned_dictionaries  = Discerner::Dictionary.all - updated_dictionaries
+        abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
         used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
         not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
 
@@ -330,7 +426,7 @@ module Discerner
       end
 
       def cleanup_categories
-        abandoned_categories = Discerner::ParameterCategory.all - updated_categories
+        abandoned_categories = Discerner::ParameterCategory.order(:id).to_a - updated_categories
         used_categories      = abandoned_categories.reject{|c| c.parameters.blank? || c.parameters.select{|p| p.used_in_search?}.blank?}
         not_used_categories  = abandoned_categories - used_categories
 
@@ -347,7 +443,7 @@ module Discerner
       end
 
       def cleanup_parameters
-        abandoned_parameters = Discerner::Parameter.all - updated_parameters
+        abandoned_parameters = Discerner::Parameter.order(:id).to_a - updated_parameters
         used_parameters      = abandoned_parameters.select{|p| p.used_in_search?}
         not_used_parameters  = abandoned_parameters - used_parameters
 
@@ -363,10 +459,26 @@ module Discerner
         end
       end
 
+      def cleanup_parameter_value_categories
+        abandoned_categories = Discerner::ParameterValueCategory.order(:id).to_a - updated_parameter_value_categories
+        used_categories      = abandoned_categories.reject{|c| c.parameter_values.blank? || c.parameter_values.select{|v| v.used_in_search?}.blank?}
+        not_used_categories  = abandoned_categories - used_categories
+
+        used_categories.each do |r|
+          notification_message("marking parameter value category #{r.name} as deleted");
+          r.deleted_at = Time.now
+          error_message "parameter value category could not be deleted: #{r.errors.full_messages}", r.name unless r.save
+        end
+
+        unless not_used_categories.blank?
+          notification_message("permanently deleting parameter categories #{not_used_categories.map{|r| r.name}.join(', ')}");
+          not_used_categories.each{|r| r.destroy}
+        end
+      end
       # this also marks search_parameter_values that reference this value and are chosen as deleted
       # and destroys search_parameter_values that reference this value but are not chosen (list options)
       def cleanup_parameter_values
-        abandoned_parameter_values = Discerner::ParameterValue.all - updated_parameter_values - blank_parameter_values
+        abandoned_parameter_values = Discerner::ParameterValue.order(:id).to_a - updated_parameter_values - blank_parameter_values
         used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
         not_used_parameter_values  = abandoned_parameter_values - used_parameter_values
 
