@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.8
+-----
+- Fixed bug with searches being ambiguously ordered by id column. Specified discerner_searches relation and updated_at columns to be used for ordering, so recent searches will stay on top of the list.
+
 1.1.7
 -----
 - Merged master and rails3.2 branches
