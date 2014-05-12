@@ -6,29 +6,25 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
-          base.send :belongs_to,  :parameter_category
-          base.send :belongs_to,  :parameter_type
-          base.send :has_many,    :parameter_values,   :dependent => :destroy
-          base.send :has_many,    :search_parameters,  :dependent => :destroy
-          base.send :has_many,    :export_parameters,  :dependent => :destroy
-          base.send :has_many,    :parameter_value_categories, :dependent => :destroy
+          base.send :belongs_to,  :parameter_category,          :inverse_of => :parameters
+          base.send :belongs_to,  :parameter_type,              :inverse_of => :parameters
+          base.send :has_many,    :parameter_values,            :inverse_of => :parameter, :dependent => :destroy
+          base.send :has_many,    :search_parameters,           :inverse_of => :parameter, :dependent => :destroy
+          base.send :has_many,    :export_parameters,           :inverse_of => :parameter, :dependent => :destroy
+          base.send :has_many,    :parameter_value_categories,  :inverse_of => :parameter, :dependent => :destroy
+
+          #Validations
+          base.send :validates, :name, :unique_identifier, :parameter_category, :presence => { :message => "for parameter can't be blank" }
+          base.send :validate,  :validate_unique_identifier
+          base.send :validate,  :validate_search_attributes
+          base.send :validate,  :validate_export_attributes
 
           # Scopes
           base.send(:scope, :searchable, -> {base.not_deleted.where('search_model is not null and search_method is not null')})
           base.send(:scope, :exportable, -> {base.not_deleted.where('export_model is not null and export_method is not null')})
 
           # Hooks
-          base.send :after_commit, :update_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
-
-          #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :name, :unique_identifier, :parameter_category, :presence => true
-            base.send :validate,  :validate_unique_identifier
-            base.send :validate,  :validate_search_attributes
-            base.send :validate,  :validate_export_attributes
-            @@validations_already_included = true
-          end
+          base.send :after_commit, :cascade_delete_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
 
           # Whitelisting attributes
           base.send :attr_accessible, :name, :parameter_category, :parameter_category_id, :parameter_type, :parameter_type_id,
@@ -71,7 +67,7 @@ module Discerner
             end
           end
 
-          def update_parameter_values
+          def cascade_delete_parameter_values
             return unless deleted?
             parameter_values.each do |pv|
               pv.deleted_at = Time.now

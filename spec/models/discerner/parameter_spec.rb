@@ -10,13 +10,13 @@ describe Discerner::Parameter do
   it "validates that parameter has a name" do
     p = Discerner::Parameter.new()
     p.should_not be_valid
-    p.errors.full_messages.should include 'Name can\'t be blank'
+    p.errors.full_messages.should include 'Name for parameter can\'t be blank'
   end
 
   it "validates that parameter belongs to a parameter category" do
     p = Discerner::Parameter.new()
     p.should_not be_valid
-    p.errors.full_messages.should include 'Parameter category can\'t be blank'
+    p.errors.full_messages.should include 'Parameter category for parameter can\'t be blank'
   end
 
   it "validates that searchable parameter has parameter type, model and attribute" do

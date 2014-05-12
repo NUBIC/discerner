@@ -8,17 +8,17 @@ module Discerner
 
           # Associations
           base.send :belongs_to, :dictionary
-          base.send :has_many, :search_parameters
-          base.send :has_many, :search_combinations
-          base.send :has_many, :combined_searches, :through => :search_combinations
-          base.send :has_many, :export_parameters
-
-          # Scopes
-          base.send(:scope, :by_user, ->(username) { base.where(:username => username) unless username.blank?})
+          base.send :has_many, :search_parameters,    :inverse_of => :search
+          base.send :has_many, :search_combinations,  :inverse_of => :search
+          base.send :has_many, :combined_searches,    :through => :search_combinations
+          base.send :has_many, :export_parameters,    :inverse_of => :search
 
           # Validations
           base.send :validates, :dictionary, :presence => { :message => "for search can't be blank" }
           base.send :validate, :validate_search_parameters
+
+          # Scopes
+          base.send(:scope, :by_user, ->(username) { base.where(:username => username) unless username.blank?})
 
           # Nested attributes
           base.send :accepts_nested_attributes_for, :search_parameters, :allow_destroy => true,
@@ -33,7 +33,6 @@ module Discerner
           # Whitelisting attributes
           base.send :attr_accessible, :deleted_at, :name, :username, :search_parameters, :search_parameters_attributes,
           :dictionary, :dictionary_id, :search_combinations_attributes
-
         end
 
         # Instance Methods

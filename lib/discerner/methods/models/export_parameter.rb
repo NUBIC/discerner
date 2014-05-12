@@ -6,8 +6,11 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
-          base.send :belongs_to, :parameter
-          base.send :belongs_to, :search
+          base.send :belongs_to, :parameter,  :inverse_of => :export_parameters
+          base.send :belongs_to, :search,     :inverse_of => :export_parameters
+
+          # Validations
+          base.send :validates, :parameter, :search, :presence => { :message => "for export parameter can't be blank" }
 
           # Whitelisting attributes
           base.send :attr_accessible, :parameter_id, :search_id, :parameter, :search

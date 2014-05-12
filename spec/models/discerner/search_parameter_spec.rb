@@ -20,11 +20,14 @@ describe Discerner::SearchParameter do
   end
 
   it "should accept attributes for search parameter values" do
-    s = Discerner::SearchParameter.new( :search => FactoryGirl.build(:search),
-      :search_parameter_values_attributes => { "0" => { :operator => FactoryGirl.build(:operator), :parameter_value => FactoryGirl.build(:parameter_value, :parameter => Discerner::Parameter.last)}})
-    s.should be_valid
+    p = Discerner::Parameter.last
+    s = Discerner::SearchParameter.new(
+      :search => FactoryGirl.build(:search),
+      :parameter => p,
+      :search_parameter_values_attributes => { "0" => { :operator => FactoryGirl.build(:operator), :parameter_value => FactoryGirl.build(:parameter_value, :parameter => p)}})
     s.save
-    s.should have(1).search_parameter_values
+    puts s.errors.full_messages
+    s.reload.should have(1).search_parameter_values
   end
 
   it "should not throw error if 'to_sql' is called on parameter without search model" do
@@ -88,10 +91,11 @@ describe Discerner::SearchParameter do
       parameter = search_parameter.parameter
       parameter.search_model   = 'Patient'
       parameter.search_method  = 'age_at_case_collect'
+      parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'combobox')
+
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'first value', :search_value => 'first_value', :parameter => parameter) )
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'another value', :search_value => 'another_value', :parameter => parameter) )
 
-      parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'combobox')
       parameter.save!
       search_parameter.to_sql.should_not == {}
       search_parameter.to_sql[:predicates].should == "age_at_case_collect in (?)"
@@ -102,11 +106,12 @@ describe Discerner::SearchParameter do
       parameter = search_parameter.parameter
       parameter.search_model   = 'Patient'
       parameter.search_method  = 'age_at_case_collect'
+      parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')
+
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :chosen => true, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'first value', :search_value => 'first_value', :parameter => parameter) )
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :chosen => true, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'another value', :search_value => 'another_value', :parameter => parameter) )
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :chosen => false, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'yet another value', :search_value => 'yet_another_value', :parameter => parameter) )
 
-      parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')
       parameter.save!
       search_parameter.to_sql.should_not == {}
       search_parameter.to_sql[:predicates].should == "age_at_case_collect in (?)"
@@ -169,13 +174,10 @@ describe Discerner::SearchParameter do
       search_parameter.warnings.full_messages.should include("Parameter value has to be selected")
     end
 
-    it "disables list search parameter without chosen search parameter value" do
+    it "disables list and combobox search parameters without chosen search parameter value" do
       search_parameter.should_not be_disabled
       search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')
       search_parameter.should be_disabled
-
-      search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'combobox')
-      search_parameter.should_not be_disabled
     end
 
     it "disables search parameter with disabled search parameter value" do

@@ -6,9 +6,9 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
-          base.send :belongs_to, :parameter
-          base.send :has_many, :parameter_value_categorizations, :dependent => :destroy
-          base.send :has_many, :parameter_values, :through => :parameter_value_categorizations
+          base.send :belongs_to, :parameter,                       :inverse_of => :parameter_value_categories
+          base.send :has_many,   :parameter_value_categorizations, :dependent => :destroy
+          base.send :has_many,   :parameter_values, :through => :parameter_value_categorizations
 
           # Validations
           base.send :validates_presence_of, :parameter, :unique_identifier, :name

@@ -10,14 +10,10 @@ module Discerner
           base.send :has_many, :searches
 
           #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :name, :presence => true, :uniqueness => {:message => "for dictionary has already been taken"}
-            @@validations_already_included = true
-          end
+          base.send :validates, :name, :presence => true, :uniqueness => {:message => "for dictionary has already been taken"}
 
           # Hooks
-          base.send :after_commit, :update_parameter_categories, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+          base.send :after_commit, :cascade_delete_parameter_categories, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
 
           # Whitelisting attributes
           base.send :attr_accessible, :name, :deleted_at
@@ -45,7 +41,7 @@ module Discerner
         end
 
         private
-          def update_parameter_categories
+          def cascade_delete_parameter_categories
             return unless deleted?
             parameter_categories.each do |pc|
               pc.deleted_at = Time.now

@@ -7,19 +7,23 @@ module Discerner
           base.send :include, Warning
 
           # Associations
-          base.send :belongs_to, :search_parameter
-          base.send :belongs_to, :parameter_value
-          base.send :belongs_to, :operator
+          base.send :belongs_to, :search_parameter, :inverse_of => :search_parameter_values
+          base.send :belongs_to, :parameter_value,  :inverse_of => :search_parameter_values
+          base.send :belongs_to, :operator,         :inverse_of => :search_parameter_values
 
           # Scopes
           base.send(:scope, :chosen, -> { base.where(:chosen => true) })
 
+          #Validations
+          base.send :validate,  :validate_operator
+          base.send :validates, :search_parameter, :presence => true
+
           # Hooks
+          base.send :before_validation, :cleanup_parameter_values
           base.send :after_commit, :destroy_if_deleted_parameter_value, :on => :update
 
           # Whitelisting attributes
-          base.send :attr_accessible, :additional_value, :chosen, :display_order, :operator_id,
-          :parameter_value_id, :search_parameter_id, :value, :parameter_value, :operator
+          base.send :attr_accessible, :additional_value, :chosen, :display_order, :operator_id, :parameter_value_id, :search_parameter_id, :value, :parameter_value, :operator, :search_parameter
         end
 
         # Instance Methods

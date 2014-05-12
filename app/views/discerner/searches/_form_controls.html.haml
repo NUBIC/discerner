@@ -1,0 +1,8 @@
+.discerner-buttons
+  - if @discerner_search.disabled?
+    = submit_tag 'Update search', :class => "discerner-button discerner-button-positive"
+  - else
+    = submit_tag 'Search', :class => "discerner-button discerner-button-positive"
+  - if @discerner_search.persisted? && export_discerner_results? && discerner_export_link
+    = discerner_export_link
+  = link_to 'Clear', new_search_path, :class => "discerner-button discerner-button-negative"

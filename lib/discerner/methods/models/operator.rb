@@ -6,17 +6,14 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
+          base.send :has_many,                :search_parameter_values, :inverse_of => :operator
+          base.send :has_many,                :search_combinations,     :inverse_of => :operator
           base.send :has_and_belongs_to_many, :parameter_types, :join_table => :discerner_operators_parameter_types
-          base.send :has_many, :search_parameter_values
 
-          #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :symbol, :presence => true, :uniqueness => {:message => "for operator has already been taken"}
-            base.send :validates, :operator_type, :presence => true
-            base.send :validate,  :type_supported?
-            @@validations_already_included = true
-          end
+          # Validations
+          base.send :validates, :symbol, :presence => true, :uniqueness => {:message => "for operator has already been taken"}
+          base.send :validates, :operator_type, :presence => true
+          base.send :validate,  :type_supported?
 
           # Whitelisting attributes
           base.send :attr_accessible, :operator_type, :symbol, :text, :deleted_at

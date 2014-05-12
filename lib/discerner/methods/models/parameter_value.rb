@@ -6,26 +6,22 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
-          base.send :belongs_to, :parameter
-          base.send :has_many, :search_parameter_values, :dependent => :destroy
-          base.send :has_one, :parameter_value_categorization, :dependent => :destroy
-          base.send :has_one, :parameter_value_category, :through=> :parameter_value_categorization
+          base.send :belongs_to,  :parameter,                       :inverse_of => :parameter_values
+          base.send :has_many,    :search_parameter_values,         :inverse_of => :parameter_value, :dependent => :destroy
+          base.send :has_one,     :parameter_value_categorization,  :inverse_of => :parameter_value, :dependent => :destroy
+          base.send :has_one,     :parameter_value_category,        :through=> :parameter_value_categorization
+
+          #Validations
+          base.send :validates, :parameter, :presence => true
+          base.send :validates, :search_value, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
+          base.send :validates, :name, :presence => true, :length => { :maximum => 1000 }
+          base.send :validate,  :parameter_category_belongs_to_parameter
 
           # Hooks
           base.send :after_commit, :create_search_parameter_values, :on => :create
           base.send :after_commit, :update_search_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
           base.send :scope, :categorized, -> {base.joins(:parameter_value_category)}
           base.send :scope, :uncategorized, -> {base.includes(:parameter_value_category).where(:discerner_parameter_value_categories => {:name => nil})}
-
-          #Validations
-          @@validations_already_included ||= nil
-          unless @@validations_already_included
-            base.send :validates, :parameter, :presence => true
-            base.send :validates, :search_value, :length => { :maximum => 1000 }, :uniqueness => {:scope => :parameter_id, :message => "for parameter value has already been taken"}
-            base.send :validates, :name, :presence => true, :length => { :maximum => 1000 }
-            base.send :validate, :parameter_category_belongs_to_parameter
-            @@validations_already_included = true
-          end
 
           # Whitelisting attributes
           base.send :attr_accessible, :search_value, :name, :parameter, :parameter_id
