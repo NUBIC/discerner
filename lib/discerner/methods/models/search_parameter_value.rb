@@ -103,6 +103,22 @@ module Discerner
             end
             return true
           end
+
+          def cleanup_parameter_values
+            if operator && operator.operator_type == 'presence'
+              self.value = nil
+              self.additional_value = nil
+              self.parameter_value = nil
+            end
+          end
+
+          def validate_operator
+            if search_parameter && search_parameter.parameter && search_parameter.parameter.parameter_type && ['list', 'combobox'].include?(search_parameter.parameter.parameter_type.name)
+              self.operator = nil
+            else
+              errors.add(:base, "Operator has to be selected for parameter values that do not belong to list or combobox") if operator.blank?
+            end
+          end
       end
     end
   end

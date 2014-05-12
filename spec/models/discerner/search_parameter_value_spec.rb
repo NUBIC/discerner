@@ -62,6 +62,21 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.warnings.full_messages.should be_blank
   end
 
+  it "does not store value is presence operator is selected" do
+    search_parameter_value.value = '50'
+    search_parameter_value.additional_value = '50'
+    search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, :parameter => search_parameter_value.search_parameter.parameter)
+
+    search_parameter_value.should be_valid
+    search_parameter_value.value.should_not be_blank
+    search_parameter_value.additional_value.should_not be_blank
+
+    search_parameter_value.operator = Discerner::Operator.find_by_symbol('none') || FactoryGirl.create(:operator, :symbol => 'is not null', :text => 'none', :operator_type => 'presence')
+    search_parameter_value.should be_valid
+    search_parameter_value.value.should be_blank
+    search_parameter_value.additional_value.should be_blank
+  end
+
   it "detects if value is blank" do
     search_parameter_value.should_not be_disabled
     search_parameter_value.warnings.full_messages.should be_blank
@@ -137,5 +152,4 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.save
     search_parameter_value.class.should_not exist(search_parameter_value)
   end
-
 end
