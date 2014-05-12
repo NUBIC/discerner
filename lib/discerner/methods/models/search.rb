@@ -4,6 +4,7 @@ module Discerner
       module Search
         def self.included(base)
           base.send :include, SoftDelete
+          base.send :include, Warning
 
           # Associations
           base.send :belongs_to, :dictionary
@@ -46,10 +47,6 @@ module Discerner
 
         def parameterized_name
           display_name.parameterize.underscore
-        end
-
-        def warnings
-          @warnings ||= ActiveModel::Errors.new(self)
         end
 
         def traverse

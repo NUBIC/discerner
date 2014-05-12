@@ -4,6 +4,7 @@ module Discerner
       module SearchCombination
         def self.included(base)
           base.send :include, SoftDelete
+          base.send :include, Warning
 
           # Associations
           base.send :belongs_to, :search, :foreign_key => :search_id
@@ -25,10 +26,6 @@ module Discerner
         # Instance Methods
         def initialize(*args)
           super(*args)
-        end
-
-        def warnings
-          @warnings ||= ActiveModel::Errors.new(self)
         end
 
         def validate_searches
