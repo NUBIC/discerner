@@ -32,8 +32,8 @@ Feature: Viewing existing searches
     When I go to the searches page
     And I confirm "Delete" within the first "tr.odd_record"
     Then I should be on the searches page
-    Then "#searches-list" should not contain text "best search ever"
-    And "#searches-list" should contain text "another search"
+    Then "#searches-list" should contain text "best search ever"
+    And "#searches-list" should not contain text "another search"
 
   @javascript
   Scenario: Viewing disabled searches
