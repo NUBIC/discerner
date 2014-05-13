@@ -27,7 +27,7 @@ Discerner.SearchParameter.UI = function (config) {
         }
       });
     };
-    $(".parameters_combobox_autocompleter").combobox({watermark:'a question'});
+    $(".parameters_combobox_autocompleter").combobox({watermark:'a criteria'});
 
     // get max display order
     $.each(display_orders, function(){

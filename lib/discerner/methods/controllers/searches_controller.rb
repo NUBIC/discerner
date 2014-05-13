@@ -11,8 +11,6 @@ module Discerner
           if @searchable_dictionaries.any?
             set_searchables
             @discerner_search = Discerner::Search.new
-            # @discerner_search.search_parameters.build()
-            # @discerner_search.search_combinations.build()
           else
             flash[:error] = 'No searchable dictionaries found. Make sure that dictionaries are loaded.'
           end
