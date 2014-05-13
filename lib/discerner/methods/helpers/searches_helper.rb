@@ -6,22 +6,6 @@ module Discerner
           "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/results"
         end
 
-        def hidden(o)
-          if o.blank?
-            'hidden'
-          else
-            ''
-          end
-        end
-
-        def checked?(params, value, default)
-          if params.nil? and default
-            true
-          else
-            params == value
-          end
-        end
-
         def generate_nested_attributes_template(f, association, association_prefix = nil )
           if association_prefix.nil?
             association_prefix = association.to_s.singularize
@@ -53,14 +37,16 @@ module Discerner
         end
 
         def operator_options(type=nil)
-          return Discerner::Operator.not_deleted.map{|o| [o.text, o.id, {:class => o.css_class_name}]} if type.blank?
-          Discerner::Operator.joins(:parameter_types).where("discerner_parameter_types.name in (?)", type).
-            select('DISTINCT text, discerner_operators.id, discerner_operators.operator_type').
-            map {|o| [o.text, o.id, {:class => o.css_class_name}]}
+          operators = Discerner::Operator.not_deleted
+          unless type.blank?
+            operators = operators.joins(:parameter_types).where("discerner_parameter_types.name in (?)", type).
+            select('DISTINCT text, discerner_operators.id, discerner_operators.operator_type')
+          end
+          operators.includes(:parameter_types).uniq.map {|o| [o.text, o.id, {:class => o.css_class_name}]}
         end
 
-        def dictionary_options
-          Discerner::Dictionary.not_deleted.map{|d| [d.name, d.id, {:class => d.css_class_name}]}
+        def dictionary_options(searchable_dictionaries)
+          searchable_dictionaries.map{|d| [d.name, d.id, {:class => d.css_class_name}]}
         end
 
         def combined_searches_options(search=nil)
@@ -81,42 +67,11 @@ module Discerner
           searches.map {|s| [s.display_name, s.id, {:class => s.dictionary.css_class_name}]}
         end
 
-        def searchable_parameter_categories(search=nil)
-          if search.blank? || !search.persisted?
-            parameter_categories = Discerner::ParameterCategory.not_deleted.searchable
-          else
-            parameter_categories = search.dictionary.searchable_categories.not_deleted
-          end
-          parameter_categories.to_a.sort{|a,b| a.parameters.searchable.length <=> b.parameters.searchable.length}
-        end
-
-        def searchable_parameters(search=nil)
-          if search.blank? || !search.persisted?
-            parameters = Discerner::Parameter.not_deleted.searchable.order(:id).to_a
-          else
-            parameters_available = search.dictionary.searchable_categories.not_deleted.map{ |c| c.searchable_parameters.not_deleted.to_a }
-            parameters_used      = search.search_parameters.map{ |sp| sp.parameter }
-            parameters           = parameters_available.flatten | parameters_used.flatten
-          end
-          parameters
-        end
-
-        def searchable_values(parameter, search=nil)
-          if search.blank? || !search.persisted?
-            values = parameter.parameter_values.not_deleted.order(:name).to_a
-          else
-            values_available = parameter.parameter_values.not_deleted.order(:id).to_a
-            values_used      = search.search_parameters.where(:parameter_id => parameter.id).map{|sp| sp.search_parameter_values.map{|spv| spv.parameter_value if spv.parameter_value} if sp.search_parameter_values.any?}
-            values           = values_available.flatten | values_used.flatten
-          end
-          values.uniq.reject{|v| v.blank?}
-        end
-
-        def searchable_parameters_options(base_id=nil)
+        def parameter_options(searchable_parameters, base_id=nil)
           options = []
-          searchable_parameters(@discerner_search).each do |p|
-            option = ["#{p.parameter_category.name} - #{p.name}", p.id]
-            html_options = {:class => searchable_parameter_css_class(p)}
+          searchable_parameters.each do |p|
+            option = [p.display_name, p.id]
+            html_options = {:class => p.css_class_name}
             html_options[:id] = searchable_object_index(p, base_id) unless base_id.blank?
             option << html_options
             options << option
@@ -124,15 +79,11 @@ module Discerner
           options
         end
 
-        def searchable_parameter_value_options(parameter, base_id=nil)
+        def parameter_value_options(searchable_values, base_id=nil)
           options = []
-          searchable_values(parameter, @discerner_search).each do |pv|
+          searchable_values.each do |pv|
+            option = [pv.display_name, pv.id]
             html_options = {}
-
-            option_name = pv.name
-            option_name = pv.parameter_value_category.name + ' - ' + option_name if pv.parameter_value_category
-            option = [option_name, pv.id]
-
             html_options[:id] = searchable_object_index(pv, base_id) unless base_id.blank?
             option << html_options
             options << option
@@ -142,12 +93,6 @@ module Discerner
 
         def searchable_object_index(object, base_id=nil)
           "#{base_id}_#{object.id}"
-        end
-
-        def searchable_parameter_css_class(parameter)
-          class_array = [parameter.parameter_type.name, parameter.parameter_category.css_class_name, parameter.parameter_category.dictionary.css_class_name]
-          class_array << 'exclusive' if parameter.exclusive
-          class_array.join(' ')
         end
 
         def exportable_parameter_categories(search=nil)

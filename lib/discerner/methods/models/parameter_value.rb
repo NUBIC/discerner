@@ -40,6 +40,14 @@ module Discerner
           end
         end
 
+        def display_name
+          if parameter_value_category
+            "#{parameter_value_category.name} - #{name} "
+          else
+            name
+          end
+        end
+
         private
           def parameter_category_belongs_to_parameter
             unless parameter_value_category.blank?

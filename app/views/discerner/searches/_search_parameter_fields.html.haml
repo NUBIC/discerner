@@ -14,16 +14,16 @@
   %td.parameter
     %div{:class => 'ui-widget categorized_autocompleter'}
       = f.hidden_field :display_order
-      = f.select(:parameter_id, searchable_parameters_options(search_parameter_id), { :include_blank => true },{ :class => 'parameters_combobox_autocompleter' })
+      = f.select(:parameter_id, parameter_options(@searchable_parameters, search_parameter_id), { :include_blank => true },{ :class => 'parameters_combobox_autocompleter' })
       %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
         Select
       .div-category-popup{ :style => "display: none;"}
         .div-category-list
-          - searchable_parameter_categories(@discerner_search).each do |parameter_category|
+          - @searchable_parameter_categories.each do |parameter_category|
             = div_for parameter_category, :class => "#{parameter_category.dictionary.css_class_name}" do
               %p{ :class => 'parameter_category_name' }
                 = parameter_category.name
-              - items = parameter_category.parameters.searchable.not_deleted.to_a.map{ |p| {:name => p.name, :rel => searchable_object_index(p, search_parameter_id)}}
+              - items = @searchable_parameters.select{|sp| sp.parameter_category_id == parameter_category.id}.map{ |p| {:name => p.name, :rel => searchable_object_index(p, search_parameter_id)}}
               - unless items.empty?
                 - (0...items.size).each do |i|
                   - unless items[i].nil?

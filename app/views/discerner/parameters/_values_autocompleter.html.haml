@@ -1,12 +1,14 @@
 - parameter ||= @parameter
 - search_parameter_value_id ||= @search_parameter_value_id
+- parameter_values = parameter_value_options(@searchable_parameter_values[parameter.id], search_parameter_value_id)
 
 - if parameter.parameter_values.categorized.any?
   %div{:class => 'ui-widget categorized_autocompleter'}
+
     - if defined?(f)
-      = f.select(:parameter_value_id, searchable_parameter_value_options(parameter, search_parameter_value_id), { :include_blank => true }, {:class => 'parameter_values_combobox_autocompleter'})
+      = f.select(:parameter_value_id, parameter_values, { :include_blank => true }, {:class => 'parameter_values_combobox_autocompleter'})
     - else
-      = select_tag(:parameter_value_id, options_for_select(searchable_parameter_value_options(parameter, search_parameter_value_id)), :include_blank => true, :class => 'parameter_values_combobox_autocompleter')
+      = select_tag(:parameter_value_id, options_for_select(parameter_values), :include_blank => true, :class => 'parameter_values_combobox_autocompleter')
 
     %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
       Select
@@ -49,7 +51,6 @@
 
       .div-instruction-bar
 - else
-  - parameter_values = searchable_values(parameter, @discerner_search).map {|q| [q.name, q.id]}
   - if defined?(f)
     = f.select(:parameter_value_id, parameter_values, { :include_blank => true },{ :class => 'parameter_values_combobox_autocompleter' })
   - else

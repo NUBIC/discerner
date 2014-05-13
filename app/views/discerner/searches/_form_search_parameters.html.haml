@@ -18,8 +18,7 @@
 
 :javascript
   $(function () {
-    var discernerSearchParametersTemplate = '#{@discernerSearchParametersTemplate}',
-    discernerSearchCombinationsTemplate = '#{@discernerSearchCombinationsTemplate}',
+    var discernerSearchParametersTemplate = '#{generate_nested_attributes_template(f, :search_parameters, 'search_parameter')}',
     parametersUrl = decodeURIComponent('#{values_parameters_url(:parameter_id => ':question_id', :format => 'json')}'); // used to generate parameter values for list parameters
 
     new Discerner.SearchParameter.UI({

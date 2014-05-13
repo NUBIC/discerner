@@ -75,7 +75,7 @@ Feature: Viewing existing searches
     And I follow "Add criteria"
     And I open criteria dropdown
     And I follow "Type" within the last ".parameter_category"
-    And ".parameter input.ui-autocomplete-input" in the first ".search_parameter" should contain "By author - Type"
+    And ".parameter input.ui-autocomplete-input" in the first ".search_parameter" should contain "Book criteria - Type"
 
   @javascript
   Scenario: It should filter operators by the type of the selected criteria

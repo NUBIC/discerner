@@ -40,6 +40,16 @@ module Discerner
           search_parameters.any? || export_parameters.any?
         end
 
+        def display_name
+          "#{parameter_category.name} - #{name}"
+        end
+
+        def css_class_name
+          css_class_array = [parameter_type.name, parameter_category.css_class_name, parameter_category.dictionary.css_class_name]
+          css_class_array << 'exclusive' if exclusive
+          css_class_array.join(' ')
+        end
+
         private
           def validate_search_parameters
             errors.add(:base,"Search should have at least one search criteria.") if

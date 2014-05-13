@@ -101,6 +101,7 @@ Feature: Exporting results for existing searches
     When I am on the search export page
     Then "#discerner_search_summary" should contain text "Awesome search"
 
+  @javascript
   Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists
     And an executed search should pass the username to dictionary instance
@@ -110,6 +111,7 @@ Feature: Exporting results for existing searches
     And I press "Export"
     Then I should receive a ".xls" file with name "awesome_search_"
 
+  @javascript
   Scenario: It should allow to export unnamed searches
     Given exportable search "" exists
     When I am on the search edit page

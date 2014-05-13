@@ -9,6 +9,8 @@ module Discerner
         def values
           @parameter_values = @parameter.parameter_values.not_deleted.order('name')
           @search_parameter_value_id = params[:search_parameter_value_id]
+          @searchable_parameter_values = {}
+          @searchable_parameter_values[@parameter.id] = @parameter_values
           respond_to do |format|
             format.html { render :layout => false }
             format.json { render :text => { :type => @parameter.parameter_type.name,
