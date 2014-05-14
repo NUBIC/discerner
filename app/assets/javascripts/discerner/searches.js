@@ -23,7 +23,9 @@ Discerner.Search.UI = function (config) {
   $(dictionarySelector).bind('change', function(){
     $('a.delete_search_parameters').trigger('click');
     $('a.delete_search_combinations').trigger('click');
-    toggleControls()
+    toggleControls();
+    $('a.add_search_parameters').trigger('click');
+    $('a.add_search_combinations').trigger('click');
   });
 
   // block UI on form submit
@@ -77,6 +79,13 @@ Discerner.Search.UI = function (config) {
     $('span.discerner_search_name_edit_dialog').remove();
     $("#messages").html('');
     return false;
+  });
+
+  $(document).ready(function(){
+    if ((dictionarySelector.length == 0 || selectedDictionaryOption.length != 0) && ($('tr.search_parameter:visible').length == 0)){
+      $('a.add_search_parameters').trigger('click');
+      $('a.add_search_combinations').trigger('click');
+    }
   });
 
   toggleControls();
