@@ -1,5 +1,17 @@
 Discerner History
 ============
+1.1.9
+-----
+- Extracted warnings logic from Search, SearchParameter and SearchParameterValue into Warnings module.
+- Do not store search_parameter_value value if presence operator is selected.
+- Fixed spec for searches index that got broken after ordering got changed.
+- Refactored validations. Added inverse_of specifications whenever is applicable.
+- More code refactoring, reduced number of database requests.
+- Search parameter combo box watermark: replaced ‘question’ with ‘criteria’
+- Removed unused builders from discerner controller
+- Automatically initiate search criteria and combined search options when new search is started.
+- Extracted search control buttons into a partial that can be overriden by host application
+
 1.1.8
 -----
 - Fixed bug with searches being ambiguously ordered by id column. Specified discerner_searches relation and updated_at columns to be used for ordering, so recent searches will stay on top of the list.
