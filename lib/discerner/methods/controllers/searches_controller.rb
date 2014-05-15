@@ -81,7 +81,7 @@ module Discerner
           if params[:query].blank?
             @discerner_searches = searches.order("discerner_searches.updated_at DESC")
           else
-            @discerner_searches = searches.where('name like ?', '%' + params[:query] + '%').to_a
+            @discerner_searches = searches.where('discerner_searches.name like ?', '%' + params[:query] + '%').to_a
           end
         end
 
