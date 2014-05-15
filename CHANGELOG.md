@@ -1,5 +1,10 @@
 Discerner History
 ============
+1.1.10
+-----
+- Specified table name in sorting conditions for search index page.
+- Renamed “Search Summary” to “Search criteria”
+
 1.1.9
 -----
 - Extracted warnings logic from Search, SearchParameter and SearchParameterValue into Warnings module.
