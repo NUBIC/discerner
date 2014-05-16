@@ -169,7 +169,7 @@ module Discerner
           end
 
           def set_searchables
-            @searchable_parameter_categories  = Discerner::ParameterCategory.includes(:dictionary).where(:dictionary_id => @searchable_dictionaries.map(&:id)).not_deleted.searchable.to_a
+            @searchable_parameter_categories  = Discerner::ParameterCategory.includes(:dictionary).where(:dictionary_id => @searchable_dictionaries.map(&:id)).not_deleted.searchable.order('discerner_parameter_categories.name').to_a
             parameters_available              = Discerner::Parameter.includes(:parameter_type, :parameter_category => [:dictionary]).where(:parameter_category_id => @searchable_parameter_categories.map(&:id)).not_deleted.searchable.to_a
             parameters_used                   = @discerner_search && @discerner_search.persisted? ? @discerner_search.search_parameters.map{ |sp| sp.parameter } : []
             @searchable_parameters            = parameters_available.flatten | parameters_used.flatten

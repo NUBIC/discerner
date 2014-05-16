@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.11
+-----
+- Refactored parameters drop-down: sort categories and parameters alphabetically
+
 1.1.10
 -----
 - Specified table name in sorting conditions for search index page.
@@ -40,6 +44,7 @@ Discerner History
 1.1.3
 -----
 - Hide "Export parameters" link from the searches list if exporting is disabled
+
 1.1.2
 -----
 - Fixed bug with dictionary being deleted after parcing error

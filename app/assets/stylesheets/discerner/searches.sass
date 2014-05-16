@@ -115,6 +115,14 @@
 
       .div-category-popup
         :width 70em
+
+        ul
+          :padding 0
+          :margin 0
+        li
+          :list-style none outside none
+          :padding-bottom .25em
+
       input.ui-autocomplete-input
         :width 24em
       .column
@@ -177,6 +185,9 @@
                 :margin-top 3px
                 a
                   :text-decoration none
+                a:hover
+                  :border-bottom 1px dotted
+
 
         .selection_disabled
           :color #cccccc

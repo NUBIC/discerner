@@ -23,13 +23,21 @@
             = div_for parameter_category, :class => "#{parameter_category.dictionary.css_class_name}" do
               %p{ :class => 'parameter_category_name' }
                 = parameter_category.name
-              - items = @searchable_parameters.select{|sp| sp.parameter_category_id == parameter_category.id}.map{ |p| {:name => p.name, :rel => searchable_object_index(p, search_parameter_id)}}
+              - items = @searchable_parameters.select{|sp| sp.parameter_category_id == parameter_category.id}.sort{|a,b| a.name <=> b.name}.map{ |p| {:name => p.name, :rel => searchable_object_index(p, search_parameter_id)}}
               - unless items.empty?
-                - (0...items.size).each do |i|
-                  - unless items[i].nil?
-                    .column
-                      .criteria
-                        = link_to items[i][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[i][:rel]}"
+                - columns_count = 4
+                - column_items_count = (items.size.to_f/columns_count).ceil
+                - (0...columns_count).each do |i|
+                  .column
+                    %ul
+                      - from = i*column_items_count
+                      - to = (i+1)*column_items_count
+                      - to = items.size if to > items.size
+                      - (from...to).each do |j|
+                        .criteria
+                          %li
+                            = link_to items[j][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[j][:rel]}"
+
         .div-instruction-bar
   %td.remove
     = link_to_remove_fields 'Remove', f, :search_parameters
