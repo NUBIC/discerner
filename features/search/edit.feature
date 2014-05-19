@@ -64,6 +64,17 @@ Feature: Viewing existing searches
     And the last search criteria selection value should be "2012-10-22"
 
   @javascript
+  Scenario: It should only include search categories present within it dictionary
+    Given I create search with name "Awesome search"
+    When I am on the search edit page
+    And I follow "Select" within the last ".parameter"
+    And I wait 5 seconds
+    Then ".div-category-popup" should not contain text "Book criteria"
+    And ".div-category-popup" should not contain text "By author"
+    And ".div-category-popup" should contain text "Case criteria"
+    And ".div-category-popup" should contain text "Demographic criteria"
+
+  @javascript
   Scenario: It should allow to add and remove multiple criteria selections
     Given I create search with name "Awesome search"
     When I follow "Add selection" within the last ".search_parameter"
