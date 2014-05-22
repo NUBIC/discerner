@@ -25,18 +25,7 @@
                 = parameter_category.name
               - items = @searchable_parameters.select{|sp| sp.parameter_category_id == parameter_category.id}.sort{|a,b| a.name <=> b.name}.map{ |p| {:name => p.name, :rel => searchable_object_index(p, search_parameter_id)}}
               - unless items.empty?
-                - columns_count = 4
-                - column_items_count = (items.size.to_f/columns_count).ceil
-                - (0...columns_count).each do |i|
-                  .column
-                    %ul
-                      - from = i*column_items_count
-                      - to = (i+1)*column_items_count
-                      - to = items.size if to > items.size
-                      - (from...to).each do |j|
-                        .criteria
-                          %li
-                            = link_to items[j][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[j][:rel]}"
+                = render :partial => 'discerner/shared/categorized_autocompleter_items', :locals => { :columns_count => 4, :items => items }
 
         .div-instruction-bar
   %td.remove

@@ -25,11 +25,24 @@
                 = c.name
                 %a{ :class => "select_all_parameters", :href => "#"}
                   Select all
-              - exportable_parameters(@discerner_search, c).each do |p|
-                %div{ :class => "column #{'error' if p.deleted?}"}
-                  - is_checked = selected_parameters.select{ |cp| cp.parameter_id == p.id }.blank? ? false : true
-                  = check_box_tag "parameter_ids[]", p.id, is_checked, :id => "parameter_ids_#{p.id}"
-                  = label_tag "parameter_ids_#{p.id}", p.name
+
+              - items = exportable_parameters(@discerner_search, c)
+              - columns_count = 3
+              - items_rendered_count = 0
+              - (0...columns_count).each do |i|
+                .column
+                  - column_items_count = ((items.size - items_rendered_count).to_f/(columns_count-i)).ceil
+                  - from  = items_rendered_count
+                  - to    = items_rendered_count + column_items_count
+                  - to    = items.size if to > items.size
+                  - items_rendered_count = to
+                  - (from...to).each do |j|
+                    - export_parameter = items[j]
+                    %div{ :class => "export_parameter #{'error' if export_parameter.deleted?}"}
+                      - is_checked = selected_parameters.select{ |cp| cp.parameter_id == export_parameter.id }.blank? ? false : true
+                      = check_box_tag "parameter_ids[]", export_parameter.id, is_checked, :id => "parameter_ids_#{export_parameter.id}"
+                      = label_tag "parameter_ids_#{export_parameter.id}", export_parameter.name
+
           .clear
           .discerner-buttons
             - if @discerner_search.disabled?

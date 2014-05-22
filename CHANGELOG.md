@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.14
+-----
+- Refactored the way export parameters and search parameter values are ordered for display.
+
 1.1.13
 -----
 - Refactored ordering, added scopes for frequently used order statements, specified table names in sorting statements.

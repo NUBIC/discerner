@@ -1,0 +1,15 @@
+- columns_count ||= 4
+- unless items.blank?
+  - items_rendered_count = 0
+  - (0...columns_count).each do |i|
+    .column
+      %ul
+        - column_items_count = ((items.size - items_rendered_count).to_f/(columns_count-i)).ceil
+        - from  = items_rendered_count
+        - to    = items_rendered_count + column_items_count
+        - to    = items.size if to > items.size
+        - items_rendered_count = to
+        - (from...to).each do |j|
+          .criteria
+            %li
+              = link_to items[j][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[j][:rel]}"

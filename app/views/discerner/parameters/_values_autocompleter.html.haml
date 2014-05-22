@@ -28,11 +28,7 @@
               .category-items{:style => "#{parameter_value_category.collapse ? 'display:none;' : ''}"}
                 - items = parameter_value_category.parameter_values.not_deleted.ordered_by_name.to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
                 - unless items.empty?
-                  - (0...items.size).each do |i|
-                    - unless items[i].nil?
-                      .column
-                        .criteria
-                          = link_to items[i][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[i][:rel]}"
+                  = render :partial => 'discerner/shared/categorized_autocompleter_items', :locals => { :columns_count => 2, :items => items }
             .clear
 
         - uncategorized_items = parameter.parameter_values.uncategorized.ordered_by_name.to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
@@ -43,11 +39,7 @@
               %a{ :class => "hide-category-items", :href => "#"}
                 less
             .category-items
-              - (0...uncategorized_items.size).each do |i|
-                - unless uncategorized_items[i].nil?
-                  .column
-                    .criteria
-                      = link_to uncategorized_items[i][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{uncategorized_items[i][:rel]}"
+              = render :partial => 'discerner/shared/categorized_autocompleter_items', :locals => { :columns_count => 2, :items => uncategorized_items }
 
       .div-instruction-bar
 - else
