@@ -14,8 +14,8 @@
       - if exportable_parameter_categories.blank?
         = "-- No exportable parameters detected --"
       - else
-        - selected_parameters = @discerner_search.export_parameters.order(:id).to_a
-        - selected_parameters = @discerner_search.search_parameters.order(:id).to_a + @discerner_search.nested_searches.map{|s| s.search_parameters}.flatten if selected_parameters.empty?
+        - selected_parameters = @discerner_search.export_parameters.ordered.to_a
+        - selected_parameters = @discerner_search.search_parameters.ordered.to_a + @discerner_search.nested_searches.map{|s| s.search_parameters}.flatten if selected_parameters.empty?
 
         = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
           - exportable_parameter_categories.each do |c|

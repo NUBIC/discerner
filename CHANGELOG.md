@@ -1,5 +1,14 @@
 Discerner History
 ============
+1.1.13
+-----
+- Refactored ordering, added scopes for frequently used order statements, specified table names in sorting statements.
+- Added 'by_parameter_category' scope to export_parameters
+
+1.1.12
+-----
+- Fixed bug with search parameters and search parameter categories from other dictionaries showing up in the edit page of a search.
+
 1.1.11
 -----
 - Refactored parameters drop-down: sort categories and parameters alphabetically

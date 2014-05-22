@@ -13,6 +13,7 @@ module Discerner
 
           # Scopes
           base.send(:scope, :chosen, -> { base.where(:chosen => true) })
+          base.send(:scope, :ordered_by_display_order, -> { base.order('discerner_search_parameter_values.display_order ASC') })
 
           #Validations
           base.send :validate,  :validate_operator

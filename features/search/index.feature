@@ -16,11 +16,11 @@ Feature: Viewing existing searches
     And search "another search" exists
     When I go to the searches page
     And I fill in "Filter by name" with "best"
-    And I wait 2 seconds
+    And I wait for the ajax request to finish
     Then "#searches-list" should contain text "best search ever"
     And "#searches-list" should not contain text "another search"
     When I fill in "Filter by name" with "another"
-    And I wait 2 seconds
+    And I wait for the ajax request to finish
     Then "#searches-list" should not contain text "best search ever"
     And "#searches-list" should contain text "another search"
 

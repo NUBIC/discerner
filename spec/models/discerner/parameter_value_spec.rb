@@ -133,7 +133,7 @@ describe Discerner::ParameterValue do
     spv.class.should_not exist(spv)
   end
 
-  it "creates additional search_parameter_values for list and combobox parameters" do
+  it "creates additional search_parameter_values for list parameters" do
     v = parameter_value
     p = v.parameter
     p.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')

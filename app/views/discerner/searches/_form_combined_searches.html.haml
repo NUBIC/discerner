@@ -12,7 +12,7 @@
         No qualifying searches found
     - else
       - @discernerSearchCombinationsTemplate = generate_nested_attributes_template(f, :search_combinations, 'search_combination')
-      = f.fields_for :search_combinations, f.object.search_combinations.order(:display_order) do |search_combination|
+      = f.fields_for :search_combinations, f.object.search_combinations.ordered_by_display_order do |search_combination|
         = render :partial => 'search_combination_fields', :locals => { :f => search_combination }
 
       %tfoot

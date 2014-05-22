@@ -14,7 +14,7 @@
       Select
     .div-category-popup{ :style => "display: none;"}
       .div-category-list
-        - parameter.parameter_value_categories.order(:display_order, :name).each do |parameter_value_category|
+        - parameter.parameter_value_categories.ordered_by_display_order_and_name.each do |parameter_value_category|
           - unless parameter_value_category.parameter_values.empty?
             = div_for parameter_value_category, :class => "#{parameter_value_category.css_class} categorized-parameter-values" do
               %p{ :class => 'parameter_value_category_name' }
@@ -26,7 +26,7 @@
                   %a{ :class => "hide-category-items", :href => "#"}
                     less
               .category-items{:style => "#{parameter_value_category.collapse ? 'display:none;' : ''}"}
-                - items = parameter_value_category.parameter_values.not_deleted.order('discerner_parameter_values.name').to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
+                - items = parameter_value_category.parameter_values.not_deleted.ordered_by_name.to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
                 - unless items.empty?
                   - (0...items.size).each do |i|
                     - unless items[i].nil?
@@ -35,7 +35,7 @@
                           = link_to items[i][:name], 'javascript:void(0);', :class => 'categorized_autocompleter_item_link', :rel => "#{items[i][:rel]}"
             .clear
 
-        - uncategorized_items = parameter.parameter_values.uncategorized.order('discerner_parameter_values.name').to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
+        - uncategorized_items = parameter.parameter_values.uncategorized.ordered_by_name.to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
         - unless uncategorized_items.empty?
           .uncategorized-parameter-values.parameter_value_category
             %p{ :class => 'parameter_value_category_name' }

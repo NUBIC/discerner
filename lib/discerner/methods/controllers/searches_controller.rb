@@ -176,7 +176,7 @@ module Discerner
               dictionary_ids = @searchable_dictionaries.map(&:id)
             end
 
-            @searchable_parameter_categories  = Discerner::ParameterCategory.includes(:dictionary).where(:dictionary_id => dictionary_ids).not_deleted.searchable.order('discerner_parameter_categories.name').to_a
+            @searchable_parameter_categories  = Discerner::ParameterCategory.includes(:dictionary).where(:dictionary_id => dictionary_ids).not_deleted.searchable.ordered_by_name.to_a
             parameters_available              = Discerner::Parameter.includes(:parameter_type, :parameter_category => [:dictionary]).where(:parameter_category_id => @searchable_parameter_categories.map(&:id)).not_deleted.searchable.to_a
             parameters_used                   = @discerner_search && @discerner_search.persisted? ? @discerner_search.search_parameters.map{ |sp| sp.parameter } : []
             @searchable_parameters            = parameters_available.flatten | parameters_used.flatten
@@ -187,10 +187,10 @@ module Discerner
             searchable_values = {}
 
             # getting all values at once to save database calls
-            values_available = Discerner::ParameterValue.not_deleted.where(:parameter_id => @searchable_parameters.map(&:id)).order(:parameter_id, :name).to_a
+            values_available = Discerner::ParameterValue.not_deleted.where(:parameter_id => @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.to_a
             values_used = []
             if @discerner_search && @discerner_search.persisted?
-              values_used = Discerner::ParameterValue.joins(:search_parameter_values => :search_parameter).where(:discerner_search_parameters => {:search_id => @discerner_search.id}).order(:parameter_id, :name).to_a
+              values_used = Discerner::ParameterValue.joins(:search_parameter_values => :search_parameter).where(:discerner_search_parameters => {:search_id => @discerner_search.id}).ordered_by_parameter_and_name.to_a
             end
 
             @searchable_parameters.each do |sp|

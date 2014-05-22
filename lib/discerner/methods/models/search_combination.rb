@@ -11,6 +11,9 @@ module Discerner
           base.send :belongs_to, :search,   :inverse_of => :search_combinations,  :foreign_key => :search_id
           base.send :belongs_to, :combined_search, :foreign_key => :combined_search_id, :class_name => 'Discerner::Search'
 
+          # Scopes
+          base.send(:scope, :ordered_by_display_order, -> { base.order('discerner_search_combinations.display_order ASC') })
+
           # Validations
           base.send :validates_presence_of, :search, :combined_search
           base.send :validate, :validate_searches

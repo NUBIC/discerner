@@ -13,6 +13,8 @@ module Discerner
 
           # Scopes
           base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
+          base.send(:scope, :ordered_by_display_order, -> { base.order('discerner_search_parameters.display_order ASC') })
+          base.send(:scope, :ordered, -> { base.order('discerner_search_parameters.id ASC') })
 
           #Validations
           base.send :validates_presence_of, :search, :parameter
@@ -110,6 +112,8 @@ module Discerner
             return true
           end
         end
+
+
 
         private
           def update_associations

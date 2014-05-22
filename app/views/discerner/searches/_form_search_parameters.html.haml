@@ -8,7 +8,7 @@
       %th.parameter_values
         Selections
   %tbody.nested_records_search_parameters
-    = f.fields_for :search_parameters, f.object.search_parameters.order(:display_order) do |search_parameter|
+    = f.fields_for :search_parameters, f.object.search_parameters.ordered_by_display_order do |search_parameter|
       = render :partial => 'search_parameter_fields', :locals => { :f => search_parameter }
   %tfoot
     %tr

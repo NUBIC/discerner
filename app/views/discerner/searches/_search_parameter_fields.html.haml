@@ -45,7 +45,7 @@
     .search_parameter_values
       %table{ :class => 'records' }
         %tbody.nested_records_search_parameter_values
-          = f.fields_for :search_parameter_values, f.object.search_parameter_values.order(:display_order) do |search_parameter_value_form|
+          = f.fields_for :search_parameter_values, f.object.search_parameter_values.ordered_by_display_order do |search_parameter_value_form|
             = render :partial => 'search_parameter_value_fields', :locals => { :f => search_parameter_value_form }
       %span{ :class => 'add_header'}
         = link_to_add_fields "Add selection", :search_parameter_values, {:style => "display:none;"}
