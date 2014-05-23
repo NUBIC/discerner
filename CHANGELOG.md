@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.16
+-----
+- Fixed bug with sorting not maintained while filtering searches by name.
+
 1.1.15
 -----
 - Fixed bug with scoping export parameters by parameter category.

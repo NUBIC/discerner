@@ -78,11 +78,8 @@ module Discerner
           username = discerner_user.username unless discerner_user.blank?
           searches = searches.by_user(username) unless username.blank?
 
-          if params[:query].blank?
-            @discerner_searches = searches.order("discerner_searches.updated_at DESC")
-          else
-            @discerner_searches = searches.where('discerner_searches.name like ?', '%' + params[:query] + '%').to_a
-          end
+          searches = searches.where('discerner_searches.name like ?', '%' + params[:query] + '%') unless params[:query].blank?
+          @discerner_searches = searches.order("discerner_searches.updated_at DESC")
         end
 
         def destroy
