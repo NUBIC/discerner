@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.15
+-----
+- Fixed bug with scoping export parameters by parameter category.
+
 1.1.14
 -----
 - Refactored the way export parameters and search parameter values are ordered for display.

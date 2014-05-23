@@ -11,7 +11,7 @@ module Discerner
 
           # Scopes
           base.send(:scope, :ordered, -> { base.order('discerner_export_parameters.id ASC') })
-          base.send(:scope, :by_parameter_category, ->(parameter_category) { includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
+          base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
 
           # Validations
           base.send :validates, :parameter, :search, :presence => { :message => "for export parameter can't be blank" }

@@ -44,4 +44,15 @@ describe Discerner::ExportParameter do
     export_parameter.deleted_at = Time.now
     export_parameter.should be_disabled
   end
+
+  it "filters ecport paraeters by parameter category" do
+    pc = export_parameter.parameter.parameter_category
+    pc.should_not be_blank
+    Discerner::ExportParameter.by_parameter_category(pc).should_not be_blank
+    Discerner::ExportParameter.by_parameter_category(pc).should include(export_parameter)
+
+    pc = FactoryGirl.create(:parameter_category, :name => 'another category')
+    pc.should_not be_blank
+    Discerner::ExportParameter.by_parameter_category(pc).should be_blank
+  end
 end
