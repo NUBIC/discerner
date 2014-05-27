@@ -3,7 +3,6 @@
 
   #discerner_search_form
     = form_for @discerner_search, :html => { :id => 'search' } do |f|
-      = f.hidden_field :username, :value => discerner_user.username unless discerner_user.blank?
       = render :partial => 'form_header', :locals => { :f => f }
       - unless enable_combined_searches?.blank?
         = render :partial => 'form_combined_searches', :locals => { :f => f }

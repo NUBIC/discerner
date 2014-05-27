@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.18
+-----
+- Assign user when search is created and do not update it through the form.
+
 1.1.17
 -----
 - Increase performance of loading of autocompleter lists for paramater values.

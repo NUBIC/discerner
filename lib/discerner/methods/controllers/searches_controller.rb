@@ -17,7 +17,9 @@ module Discerner
         end
 
         def create
-          @discerner_search = Discerner::Search.new(params[:search])
+          @discerner_search           = Discerner::Search.new(params[:search])
+          @discerner_search.username  = discerner_user.username unless discerner_user.blank?
+
           set_searchable_dictionaries
           set_searchables
           respond_to do |format|
