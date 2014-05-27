@@ -1,5 +1,9 @@
 Discerner History
 ============
+1.1.17
+-----
+- Increase performance of loading of autocompleter lists for paramater values.
+
 1.1.16
 -----
 - Fixed bug with sorting not maintained while filtering searches by name.
