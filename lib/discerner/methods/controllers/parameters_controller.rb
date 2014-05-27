@@ -7,7 +7,7 @@ module Discerner
         end
 
         def values
-          @parameter_values = @parameter.parameter_values.not_deleted.ordered_by_name
+          @parameter_values = @parameter.parameter_values.includes(:parameter_value_category).not_deleted.ordered_by_name
           @search_parameter_value_id = params[:search_parameter_value_id]
           @searchable_parameter_values = {}
           @searchable_parameter_values[@parameter.id] = @parameter_values

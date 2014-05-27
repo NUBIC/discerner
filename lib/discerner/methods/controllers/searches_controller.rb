@@ -184,10 +184,10 @@ module Discerner
             searchable_values = {}
 
             # getting all values at once to save database calls
-            values_available = Discerner::ParameterValue.not_deleted.where(:parameter_id => @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.to_a
+            values_available = Discerner::ParameterValue.includes(:parameter_value_category).not_deleted.where(:parameter_id => @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.to_a
             values_used = []
             if @discerner_search && @discerner_search.persisted?
-              values_used = Discerner::ParameterValue.joins(:search_parameter_values => :search_parameter).where(:discerner_search_parameters => {:search_id => @discerner_search.id}).ordered_by_parameter_and_name.to_a
+              values_used = Discerner::ParameterValue.includes(:parameter_value_category).joins(:search_parameter_values => :search_parameter).where(:discerner_search_parameters => {:search_id => @discerner_search.id}).ordered_by_parameter_and_name.to_a
             end
 
             @searchable_parameters.each do |sp|
