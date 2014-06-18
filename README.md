@@ -9,6 +9,9 @@ on [rubydoc.info][] so that the links will be followable.
 [YARD]: http://yardoc.org/
 [rubydoc.info]: http://rubydoc.info/github/NUBIC/discerner/master/file/README.md
 
+## Status
+[![Gem Version](https://badge.fury.io/rb/discerner.svg)](http://badge.fury.io/rb/discerner)
+
 # Requirements
 
 This code has been run and tested on Ruby 1.9. and Ruby 2.1
