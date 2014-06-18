@@ -6,3 +6,6 @@ spec/dummy/
 test/dummy/*
 .sass-cache/*
 chromedriver.log
+doc/yardoc
+.yardoc
+
