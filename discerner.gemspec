@@ -11,8 +11,8 @@ Gem::Specification.new do |s|
   s.licenses    = ['MIT']
   s.authors     = ['Michael Gurley, Yulia Bushmanova']
   s.email       = ['m-gurley@northwestern.edu, y.bushmanova@gmail.com']
-  s.summary     = 'Rails engine that provides dictionary-based search functionality for SQLServer datamart-based applications'
-  s.description = 'Rails engine that provides dictionary-based search functionality for SQLServer datamart-based applications'
+  s.summary     = 'Rails engine that provides dictionary-based search functionality'
+  s.description = 'Discerner is an engine for Rails that provides basic search UI, search reqults export UI and allows to configure available search parameters/values. Discerner is not aimed to be a SQL-generator, but it allows the host application to access stored search conditions and provide search results.'
 
   s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.md']
 
