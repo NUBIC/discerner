@@ -4,7 +4,6 @@ begin
   require 'cucumber/rake/task'
   require 'rspec/core/rake_task'
   require 'rubygems/package_task'
-  require 'nubic/gem_tasks'
 end
 
 gemspec = eval(File.read('discerner.gemspec'), binding, 'discerner.gemspec')
@@ -28,6 +27,3 @@ namespace :cucumber do
 end
 
 task :cucumber => 'cucumber:features'
-Nubic::GemTasks::DeployGemTask.new("pkg/#{gemspec.file_name}")
-task "deploy:gem" => :repackage
-Bundler::GemHelper.install_tasks

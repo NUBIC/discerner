@@ -1,5 +1,4 @@
 source "http://rubygems.org"
-source "http://download.bioinformatics.northwestern.edu/gems/"
 
 # Declare your gem's dependencies in discerner.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and
