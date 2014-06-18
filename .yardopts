@@ -1,0 +1,6 @@
+--no-private
+--title 'Discerner Documentation'
+--markup markdown
+--exclude 'test/dummy'
+--exclude 'templates/'
+- CHANGELOG.md

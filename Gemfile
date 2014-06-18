@@ -6,9 +6,6 @@ source "http://download.bioinformatics.northwestern.edu/gems/"
 # development dependencies will be added by default to the :development group.
 gemspec
 
-# jquery-rails is used by the dummy application
-gem "jquery-rails"
-gem "jquery-ui-rails"
 gem "cucumber-rails", :group => :development, :require => false
 
 # Declare any dependencies that are still in development here instead of in

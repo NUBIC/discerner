@@ -1,8 +1,0 @@
-Description:
-    Parses dictionary file and create corresponding model and views
-
-Example:
-    rails generate dictionary_initializer filename.yml
-
-    This will create:
-        what/will/it/create

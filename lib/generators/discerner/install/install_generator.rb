@@ -20,11 +20,9 @@ module Discerner
     desc "Used to install Discerner"
 
     def install_migrations
-      unless options["no-migrations"]
-        puts "Copying over Discerner migrations..."
-        Dir.chdir(Rails.root) do
-          `rake discerner:install:migrations`
-        end
+      puts "Copying over Discerner migrations..."
+      Dir.chdir(Rails.root) do
+        `rake discerner:install:migrations`
       end
     end
 
@@ -43,7 +41,7 @@ module Discerner
 }
       inject_into_file("#{Rails.root}/app/controllers/application_controller.rb",
                        discerner_user_method,
-                       :after => "ActionController::Base\n")
+                       :after => "ActionController::Base\n", :force => false)
     end
 
     def add_discerner_view_helpers
