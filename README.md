@@ -3,11 +3,11 @@
 Discerner is an engine for Rails that provides basic search UI, search reqults export UI and allows to configure available search parameters/values. Discerner is not aimed to be a SQL-generator, but it allows the host application to access stored search conditions and provide search results.
 
 Reader's note: this README uses [YARD][] markup to provide links to
-Abstractor's API documentation. If you aren't already, consider reading it
+Discerner's API documentation. If you aren't already, consider reading it
 on [rubydoc.info][] so that the links will be followable.
 
 [YARD]: http://yardoc.org/
-[rubydoc.info]: http://rubydoc.info/github/NUBIC/abstractor/master/file/README.md
+[rubydoc.info]: http://rubydoc.info/github/NUBIC/discerner/master/file/README.md
 
 # Requirements
 
