@@ -1,5 +1,12 @@
 Discerner History
 ============
+1.1.19
+-----
+- Require jquery-rails and jquery-ui-rails.
+- Updated documentation.
+- Removed NUBIC dependencies.
+- Updated gem summary and description.
+
 1.1.18
 -----
 - Assign user when search is created and do not update it through the form.
