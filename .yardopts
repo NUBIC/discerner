@@ -3,4 +3,5 @@
 --markup markdown
 --exclude 'test/dummy'
 --exclude 'templates/'
+--output-dir 'doc/yardoc'
 - CHANGELOG.md
