@@ -3,10 +3,13 @@
     %h3 Saved searches
 
   #filter
-    = form_tag searches_path, :id => 'discerner_searches_filter', :class => "filter", :method => 'get', :remote => true do
+    = form_tag searches_path, :id => 'discerner_searches_filter', :class => "filter", :method => 'get' do
       %div.filter
         = label_tag :query, "Filter by name"
         = text_field_tag :query, params[:query]
+
+        = submit_tag "Search", class: 'button positive'
+        = link_to "Clear search", searches_path
   #searches-list
     = render :partial => "list"
   .discerner-buttons
