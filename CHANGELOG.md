@@ -1,5 +1,13 @@
 Discerner History
 ============
+1.1.20
+-----
+- Added discerner schema image.
+- Replaced ajax-based filter for saved searches with regular form.
+- Ignore YARD documentation files.
+- Changed YARD output directory.
+- Added status badge to README file.
+
 1.1.19
 -----
 - Require jquery-rails and jquery-ui-rails.
