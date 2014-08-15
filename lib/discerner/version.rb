@@ -1,3 +1,3 @@
 module Discerner
-  VERSION = "1.1.20"
+  VERSION = "2.0.0"
 end

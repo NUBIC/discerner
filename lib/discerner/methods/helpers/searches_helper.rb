@@ -39,8 +39,7 @@ module Discerner
         def operator_options(type=nil)
           operators = Discerner::Operator.not_deleted
           unless type.blank?
-            operators = operators.joins(:parameter_types).where("discerner_parameter_types.name in (?)", type).
-            select('DISTINCT text, discerner_operators.id, discerner_operators.operator_type')
+            operators = operators.joins(:parameter_types).where("discerner_parameter_types.name in (?)", type)
           end
           operators.includes(:parameter_types).uniq.map {|o| [o.text, o.id, {:class => o.css_class_name}]}
         end

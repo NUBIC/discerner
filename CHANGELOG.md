@@ -1,5 +1,10 @@
 Discerner History
 ============
+2.0.0
+-----
+- Rails 4 support
+
+
 1.1.20
 -----
 - Added discerner schema image.

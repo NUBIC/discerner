@@ -26,9 +26,6 @@ module Discerner
           base.send :after_commit, :update_search_parameter_values, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
           base.send :scope, :categorized, -> {base.joins(:parameter_value_category)}
           base.send :scope, :uncategorized, -> {base.includes(:parameter_value_category).where(:discerner_parameter_value_categories => {:name => nil})}
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :search_value, :name, :parameter, :parameter_id
         end
 
         # Instance Methods

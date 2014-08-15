@@ -17,7 +17,7 @@ module Discerner
         end
 
         def create
-          @discerner_search           = Discerner::Search.new(params[:search])
+          @discerner_search           = Discerner::Search.new(search_params)
           @discerner_search.username  = discerner_user.username unless discerner_user.blank?
 
           set_searchable_dictionaries
@@ -60,7 +60,7 @@ module Discerner
           set_searchable_dictionaries
           set_searchables
           respond_to do |format|
-            if @discerner_search.update_attributes(params[:search])
+            if @discerner_search.update_attributes(search_params)
               format.html { redirect_to(edit_search_path(@discerner_search), :notice => 'Search was successfully updated.') }
               format.js
             else
@@ -197,6 +197,13 @@ module Discerner
               searchable_values[sp.id] = values.uniq.reject{|v| v.blank?}
             end
             searchable_values
+          end
+
+          def search_params
+            params.require(:search).permit(:id, :dictionary_id, :deleted_at, :name, :username, :_destroy,
+              search_combinations_attributes: [:display_order, :operator_id, :combined_search_id, :_destroy],
+              search_parameters_attributes: [:display_order, :parameter_id, :_destroy, :id,
+                search_parameter_values_attributes: [:id, :display_order, :operator_id, :chosen, :parameter_value_id, :value, :additional_value, :_destroy]])
           end
      end
     end

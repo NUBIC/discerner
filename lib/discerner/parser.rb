@@ -86,7 +86,7 @@ module Discerner
       error_message 'dictionary name cannot be blank' if dictionary_name.blank?
       notification_message "processing dictionary '#{dictionary_name}'"
 
-      dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
+      dictionary = Discerner::Dictionary.find_or_initialize_by(name: dictionary_name)
       dictionary.deleted_at = nil
 
       if dictionary.new_record?
@@ -109,7 +109,7 @@ module Discerner
       error_message 'parameter category name cannot be blank' if parameter_category_name.blank?
       notification_message "processing parameter category  '#{parameter_category_name}'"
 
-      parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_name, :dictionary_id => dictionary.id).first_or_initialize
+      parameter_category = Discerner::ParameterCategory.where(name: parameter_category_name, dictionary_id: dictionary.id).first_or_initialize
       parameter_category.deleted_at = nil
 
       if parameter_category.new_record?
@@ -136,9 +136,10 @@ module Discerner
       error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
 
       existing_parameter    = Discerner::Parameter.
-                              includes({:parameter_category => :dictionary}).
-                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
-      parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category)
+                              includes({parameter_category: :dictionary}).
+                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).
+                              references(:discerner_parameters, :discerner_dictionaries).first
+      parameter             = existing_parameter || Discerner::Parameter.new(unique_identifier: unique_identifier, parameter_category: parameter_category)
 
       parameter.name        = parameter_name
       parameter.deleted_at  = nil
@@ -277,7 +278,7 @@ module Discerner
          operators_from_file.each do |operator_from_file|
            error_message 'unique identifier has to be defined' if operator_from_file[:unique_identifier].blank?
 
-           operator = Discerner::Operator.find_or_initialize_by_unique_identifier(operator_from_file[:unique_identifier])
+           operator = Discerner::Operator.find_or_initialize_by(unique_identifier: operator_from_file[:unique_identifier])
            if operator.new_record?
              notification_message "creating operator '#{operator_from_file[:unique_identifier]}'"
              operator.created_at = Time.now
@@ -309,7 +310,7 @@ module Discerner
       error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
 
       ## find or initialize parameter type
-      parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name.downcase)
+      parameter_type = Discerner::ParameterType.find_or_initialize_by(name: name.downcase)
       if parameter_type.new_record?
         notification_message "Creating parameter type '#{name}'"
         parameter_type.created_at = Time.now
@@ -325,7 +326,7 @@ module Discerner
       search_value = search_value.to_s
       notification_message "processing parameter value '#{search_value}'"
 
-      parameter_value = Discerner::ParameterValue.where(:search_value => search_value, :parameter_id => parameter.id).first_or_initialize
+      parameter_value = Discerner::ParameterValue.where(search_value: search_value, parameter_id: parameter.id).first_or_initialize
       if parameter_value.new_record?
         notification_message "creating parameter value ..."
         parameter_value.created_at = Time.now
@@ -335,7 +336,7 @@ module Discerner
       end
 
       unless parameter_value_category_identifier.blank?
-        parameter_value_category = Discerner::ParameterValueCategory.where(:unique_identifier => parameter_value_category_identifier, :parameter_id => parameter.id).first_or_initialize
+        parameter_value_category = Discerner::ParameterValueCategory.where(unique_identifier: parameter_value_category_identifier, parameter_id: parameter.id).first_or_initialize
         if parameter_value_category.blank?
           error_message "parameter value category with unique identifier #{parameter_value_category_identifier} is not found for parameter #{parameter.name}"
         else
@@ -358,7 +359,7 @@ module Discerner
       unique_identifier = unique_identifier.to_s
       notification_message "processing parameter value category '#{unique_identifier}'"
 
-      parameter_value_category = Discerner::ParameterValueCategory.where(:unique_identifier => unique_identifier, :parameter_id => parameter.id).first_or_initialize
+      parameter_value_category = Discerner::ParameterValueCategory.where(unique_identifier: unique_identifier, parameter_id: parameter.id).first_or_initialize
       if parameter_value_category.new_record?
         notification_message "creating parameter value category..."
         parameter_value_category.created_at = Time.now

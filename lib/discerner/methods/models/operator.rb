@@ -14,9 +14,6 @@ module Discerner
           base.send :validates, :symbol, :presence => true, :uniqueness => {:message => "for operator has already been taken"}
           base.send :validates, :operator_type, :presence => true
           base.send :validate,  :type_supported?
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :operator_type, :symbol, :text, :deleted_at
         end
 
         # Instance Methods

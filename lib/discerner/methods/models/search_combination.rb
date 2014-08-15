@@ -17,9 +17,6 @@ module Discerner
           # Validations
           base.send :validates_presence_of, :search, :combined_search
           base.send :validate, :validate_searches
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :combined_search_id, :display_order, :operator_id, :search_id, :search, :combined_search
         end
 
         # Instance Methods

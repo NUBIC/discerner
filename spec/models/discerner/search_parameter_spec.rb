@@ -12,11 +12,11 @@ describe Discerner::SearchParameter do
   }
 
   it "is valid with valid attributes" do
-    search_parameter.should be_valid
+    expect(search_parameter).to be_valid
   end
 
   it "allows to access matching search parameter values" do
-    search_parameter.should respond_to :search_parameter_values
+    expect(search_parameter).to respond_to :search_parameter_values
   end
 
   it "should accept attributes for search parameter values" do
@@ -26,18 +26,17 @@ describe Discerner::SearchParameter do
       :parameter => p,
       :search_parameter_values_attributes => { "0" => { :operator => FactoryGirl.build(:operator), :parameter_value => FactoryGirl.build(:parameter_value, :parameter => p)}})
     s.save
-    puts s.errors.full_messages
-    s.reload.should have(1).search_parameter_values
+    expect(s.reload.search_parameter_values.length).to eq 1
   end
 
   it "should not throw error if 'to_sql' is called on parameter without search model" do
-    lambda {search_parameter.to_sql}.should_not raise_error
+    expect{search_parameter.to_sql}.to_not raise_error
   end
 
   it "should not throw error if 'to_sql' is called on parameter without search model" do
     search_parameter.parameter.search_model   = 'Surgery'
     search_parameter.parameter.search_method  = 'id'
-    lambda {search_parameter.to_sql}.should raise_error(RuntimeError, /could not be found/)
+    expect{search_parameter.to_sql}.to raise_error(RuntimeError, /could not be found/)
   end
 
   describe 'using attribute-based parameters' do
@@ -49,9 +48,9 @@ describe Discerner::SearchParameter do
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :value => '50', :operator => FactoryGirl.create(:operator, :symbol => '<', :text => 'is less than'))
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :value => '60', :additional_value => '70', :operator => FactoryGirl.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range'))
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :operator => FactoryGirl.create(:operator, :symbol => 'is null', :text => 'none', :operator_type => 'presence'))
-      search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "(age_at_case_collect < ? or age_at_case_collect between ? and ? or age_at_case_collect is null)"
-      search_parameter.to_sql[:values].should    ==  [50.0, 60.0, 70.0]
+      expect(search_parameter.to_sql).to_not be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "(age_at_case_collect < ? or age_at_case_collect between ? and ? or age_at_case_collect is null)"
+      expect(search_parameter.to_sql[:values]).to eq [50.0, 60.0, 70.0]
     end
 
     it "should allow to convert 'date' search parameter to sql" do
@@ -66,9 +65,9 @@ describe Discerner::SearchParameter do
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :value => date1, :operator => FactoryGirl.create(:operator, :symbol => '<', :text => 'is less than'))
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :value => date2, :additional_value => date3, :operator => FactoryGirl.create(:operator, :symbol => 'between', :text => 'is in the range', :operator_type => 'range'))
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :operator => FactoryGirl.create(:operator, :symbol => 'is null', :text => 'none', :operator_type => 'presence'))
-      search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "(age_at_case_collect < ? or age_at_case_collect between ? and ? or age_at_case_collect is null)"
-      search_parameter.to_sql[:values].should    ==  [date1.to_date, date2.to_date, date3.to_date]
+      expect(search_parameter.to_sql).to_not eq be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "(age_at_case_collect < ? or age_at_case_collect between ? and ? or age_at_case_collect is null)"
+      expect(search_parameter.to_sql[:values]).to eq [date1.to_date, date2.to_date, date3.to_date]
     end
 
     it "should allow to convert 'text' and 'string' search parameter to sql" do
@@ -81,9 +80,9 @@ describe Discerner::SearchParameter do
       ['text', 'string'].each do |type|
         parameter.parameter_type = Discerner::ParameterType.find_by_name(type) || FactoryGirl.build(:parameter_type, :name => type)
         parameter.save!
-        search_parameter.to_sql.should_not == {}
-        search_parameter.to_sql[:predicates].should == "(age_at_case_collect is like ? or age_at_case_collect is not like ? or age_at_case_collect is null)"
-        search_parameter.to_sql[:values].should    ==  ['%first string%', '%second string%']
+        expect(search_parameter.to_sql).to_not eq be_empty
+        expect(search_parameter.to_sql[:predicates]).to eq "(age_at_case_collect is like ? or age_at_case_collect is not like ? or age_at_case_collect is null)"
+        expect(search_parameter.to_sql[:values]).to eq ['%first string%', '%second string%']
       end
     end
 
@@ -97,9 +96,9 @@ describe Discerner::SearchParameter do
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'another value', :search_value => 'another_value', :parameter => parameter) )
 
       parameter.save!
-      search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "age_at_case_collect in (?)"
-      search_parameter.to_sql[:values].should    ==  [['first_value', 'another_value']]
+      expect(search_parameter.to_sql).to_not eq be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "age_at_case_collect in (?)"
+      expect(search_parameter.to_sql[:values]).to eq [['first_value', 'another_value']]
     end
 
     it "should allow to convert 'list' search parameter to sql" do
@@ -113,9 +112,9 @@ describe Discerner::SearchParameter do
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :chosen => false, :operator => nil, :parameter_value => FactoryGirl.create(:parameter_value, :name => 'yet another value', :search_value => 'yet_another_value', :parameter => parameter) )
 
       parameter.save!
-      search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "age_at_case_collect in (?)"
-      search_parameter.to_sql[:values].should    ==  [['first_value', 'another_value']]
+      expect(search_parameter.to_sql).to_not eq be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "age_at_case_collect in (?)"
+      expect(search_parameter.to_sql[:values]).to eq [['first_value', 'another_value']]
     end
   end
 
@@ -123,7 +122,7 @@ describe Discerner::SearchParameter do
     it "should throw error if 'to_sql' if method does not exist for selected model" do
       search_parameter.parameter.search_model   = 'Patient'
       search_parameter.parameter.search_method  = 'blah'
-      lambda {search_parameter.to_sql}.should raise_error(RuntimeError, /does not respond to search method/)
+      expect{search_parameter.to_sql}.to raise_error(RuntimeError, /does not respond to search method/)
     end
 
     it "should allow to convert search parameter to sql" do
@@ -132,9 +131,9 @@ describe Discerner::SearchParameter do
       parameter.search_method  = 'having_gender'
       parameter.save!
       FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :value => '0', :operator => FactoryGirl.create(:operator, :symbol => '<', :text => 'is less than'))
-      search_parameter.to_sql.should_not == {}
-      search_parameter.to_sql[:predicates].should == "patients.gender in (?)"
-      search_parameter.to_sql[:values].should     ==  [0.0]
+      expect(search_parameter.to_sql).to_not eq be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "patients.gender in (?)"
+      expect(search_parameter.to_sql[:values]).to eq [0.0]
     end
   end
 
@@ -142,9 +141,9 @@ describe Discerner::SearchParameter do
     FactoryGirl.create(:search_parameter_value, :search_parameter => search_parameter, :value => '0', :operator => FactoryGirl.create(:operator, :symbol => '<', :text => 'is less than'))
     search_parameter.deleted_at = Time.now
     search_parameter.save
-    search_parameter.reload.search_parameter_values.should_not be_blank
+    expect(search_parameter.reload.search_parameter_values).to_not be_blank
     search_parameter.search_parameter_values.each do |spv|
-      spv.should be_deleted
+      expect(spv).to be_deleted
     end
   end
 
@@ -154,47 +153,47 @@ describe Discerner::SearchParameter do
     end
 
     it "disables search parameter without parameter" do
-      search_parameter.should_not be_disabled
+      expect(search_parameter).to_not be_disabled
       search_parameter.parameter = nil
-      search_parameter.should be_disabled
-      search_parameter.warnings.full_messages.should include("Parameter has to be selected")
+      expect(search_parameter).to be_disabled
+      expect(search_parameter.warnings.full_messages).to include("Parameter has to be selected")
     end
 
     it "disables search parameter with deleted parameter" do
-      search_parameter.should_not be_disabled
+      expect(search_parameter).to_not be_disabled
       search_parameter.parameter.deleted_at = Time.now
-      search_parameter.should be_disabled
-      search_parameter.warnings.full_messages.should include("Parameter has been deleted and has to be removed from the search")
+      expect(search_parameter).to be_disabled
+      expect(search_parameter.warnings.full_messages).to include("Parameter has been deleted and has to be removed from the search")
     end
 
     it "disables search parameter without search parameter value" do
-      search_parameter.should_not be_disabled
+      expect(search_parameter).to_not be_disabled
       search_parameter.search_parameter_values = []
-      search_parameter.should be_disabled
-      search_parameter.warnings.full_messages.should include("Parameter value has to be selected")
+      expect(search_parameter).to be_disabled
+      expect(search_parameter.warnings.full_messages).to include("Parameter value has to be selected")
     end
 
     it "disables list and combobox search parameters without chosen search parameter value" do
-      search_parameter.should_not be_disabled
+      expect(search_parameter).to_not be_disabled
       search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, :name => 'list')
-      search_parameter.should be_disabled
+      expect(search_parameter).to be_disabled
     end
 
     it "disables search parameter with disabled search parameter value" do
-      search_parameter.should_not be_disabled
+      expect(search_parameter).to_not be_disabled
 
       search_parameter.search_parameter_values.first.value = nil
-      search_parameter.should be_disabled
+      expect(search_parameter).to be_disabled
 
       search_parameter.search_parameter_values.first.parameter_value = FactoryGirl.create(:parameter_value, :parameter => search_parameter.parameter)
-      search_parameter.should_not be_disabled
+      expect(search_parameter).to_not be_disabled
 
       search_parameter.search_parameter_values.first.parameter_value.deleted_at = Time.now
-      search_parameter.should be_disabled
+      expect(search_parameter).to be_disabled
 
       search_parameter.search_parameter_values.first.chosen = true
-      search_parameter.should be_disabled
-      search_parameter.warnings.should be_blank
+      expect(search_parameter).to be_disabled
+      expect(search_parameter.warnings).to be_blank
     end
   end
 end

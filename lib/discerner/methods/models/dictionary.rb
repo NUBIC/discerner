@@ -14,9 +14,6 @@ module Discerner
 
           # Hooks
           base.send :after_commit, :cascade_delete_parameter_categories, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :name, :deleted_at
         end
 
         # Instance Methods

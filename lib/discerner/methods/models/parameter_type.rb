@@ -12,9 +12,6 @@ module Discerner
           # Validations
           base.send :validates, :name, :presence => true, :uniqueness => {:message => "for parameter type has already been taken"}
           base.send :validate,  :name_supported?
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :deleted_at, :name
         end
 
         # Instance Methods

@@ -14,15 +14,12 @@ module Discerner
           base.send :validates, :dictionary, :presence => { :message => "for parameter category can't be blank" }
 
           # Scopes
-          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null')})
-          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null')})
+          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null').references(:discerner_parameters)})
+          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null').references(:discerner_parameters)})
           base.send(:scope, :ordered_by_name, -> {base.order('discerner_parameter_categories.name ASC')})
 
           # Hooks
           base.send :after_commit, :cascade_delete_parameters, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :deleted_at, :dictionary, :dictionary_id, :name
         end
 
         # Instance Methods
