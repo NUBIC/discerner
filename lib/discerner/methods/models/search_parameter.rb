@@ -7,9 +7,9 @@ module Discerner
           base.send :include, Warning
 
           # Associations
-          base.send :belongs_to,  :search,     :inverse_of => :search_parameters
-          base.send :belongs_to,  :parameter,  :inverse_of => :search_parameters
-          base.send :has_many,    :search_parameter_values, :dependent => :destroy, :inverse_of => :search_parameter
+          base.send :belongs_to,  :search,     inverse_of: :search_parameters
+          base.send :belongs_to,  :parameter,  inverse_of: :search_parameters
+          base.send :has_many,    :search_parameter_values, dependent: :destroy, inverse_of: :search_parameter
 
           # Scopes
           base.send(:scope, :by_parameter_category, ->(parameter_category) { base.includes(:parameter).where('discerner_parameters.parameter_category_id' => parameter_category.id) unless parameter_category.blank?})
@@ -20,10 +20,10 @@ module Discerner
           base.send :validates_presence_of, :search, :parameter
 
           # Nested attributes
-          base.send :accepts_nested_attributes_for, :search_parameter_values, :allow_destroy => true
+          base.send :accepts_nested_attributes_for, :search_parameter_values, allow_destroy: true
 
           # Hooks
-          base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+          base.send :after_commit, :update_associations, on: :update, if: Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
 
         # Instance Methods

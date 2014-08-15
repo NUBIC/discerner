@@ -1,22 +1,22 @@
 - if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
-    %td.warnings{:colspan => "4"}
+    %td.warnings{colspan: "4"}
       %span
         = f.object.warnings.full_messages.join(', ')
 
 - unless f.blank?
   - search_combination_id = nested_record_id(f, :search_combination)
-  %tr{ :id => "#{search_combination_id}", :class => "search_combination fields #{'error' if f.object.warnings.any?}" }
+  %tr{ id: "#{search_combination_id}", class: "search_combination fields #{'error' if f.object.warnings.any?}" }
     %td.combined_search_operator
       %span
         restrict to
     %td.combined_search
       %div.combined_search_combobox
         = f.hidden_field :display_order
-        = f.hidden_field :operator_id, :value => Discerner::Operator.where(:symbol => 'include').first.id
+        = f.hidden_field :operator_id, value: Discerner::Operator.where(symbol: 'include').first.id
         -#= f.select(:operator_id, operator_options('search'))
-        = f.select(:combined_search_id, combined_searches_options(@discerner_search), { :include_blank => true },{ :class => 'search_combinations_combobox_autocompleter' })
+        = f.select(:combined_search_id, combined_searches_options(@discerner_search), { include_blank: true },{ class: 'search_combinations_combobox_autocompleter' })
     %td.remove
       = link_to_remove_fields 'Remove', f, :search_combinations
     %td

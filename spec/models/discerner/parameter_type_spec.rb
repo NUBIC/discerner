@@ -14,17 +14,17 @@ describe Discerner::ParameterType do
   end
 
   it "validates uniqueness of name for not-deleted records" do
-    d = Discerner::ParameterType.new(:name => parameter_type.name)
+    d = Discerner::ParameterType.new(name: parameter_type.name)
     expect(d).to_not be_valid
     expect(d.errors.full_messages).to include 'Name for parameter type has already been taken'
   end
 
   it "does not allow to reuse name if record has been deleted" do
-    d = Discerner::ParameterType.new(:name => parameter_type.name, :deleted_at => Time.now)
+    d = Discerner::ParameterType.new(name: parameter_type.name, deleted_at: Time.now)
     expect(d).to_not be_valid
 
-    FactoryGirl.create(:parameter_type, :name => 'numeric', :deleted_at => Time.now)
-    d = Discerner::ParameterType.new(:name => 'numeric')
+    FactoryGirl.create(:parameter_type, name: 'numeric', deleted_at: Time.now)
+    d = Discerner::ParameterType.new(name: 'numeric')
     expect(d).to_not be_valid
 
     d.deleted_at = Time.now

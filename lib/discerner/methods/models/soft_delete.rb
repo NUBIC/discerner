@@ -4,7 +4,7 @@ module Discerner
       module SoftDelete
         def self.included(base)
           attr_accessor :soft_delete
-          base.send(:scope, :not_deleted, -> { base.where(:deleted_at => nil) })
+          base.send(:scope, :not_deleted, -> { base.where(deleted_at: nil) })
         end
 
         def process_soft_delete

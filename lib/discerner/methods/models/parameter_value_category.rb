@@ -6,9 +6,9 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
-          base.send :belongs_to, :parameter,                       :inverse_of => :parameter_value_categories
-          base.send :has_many,   :parameter_value_categorizations, :dependent => :destroy
-          base.send :has_many,   :parameter_values, :through => :parameter_value_categorizations
+          base.send :belongs_to, :parameter,                       inverse_of: :parameter_value_categories
+          base.send :has_many,   :parameter_value_categorizations, dependent: :destroy
+          base.send :has_many,   :parameter_values, through: :parameter_value_categorizations
 
           # Scopes
           base.send(:scope, :ordered_by_name, -> { base.order('discerner_parameter_value_categories.name ASC') })
@@ -16,7 +16,7 @@ module Discerner
 
           # Validations
           base.send :validates_presence_of, :parameter, :unique_identifier, :name
-          base.send :validates, :unique_identifier, :uniqueness => {:scope => [:parameter_id, :deleted_at], :message => "for parameter value category has already been taken"}
+          base.send :validates, :unique_identifier, uniqueness: {scope: [:parameter_id, :deleted_at], message: "for parameter value category has already been taken"}
           base.send :validate, :parameter_value_belongs_to_parameter
         end
 

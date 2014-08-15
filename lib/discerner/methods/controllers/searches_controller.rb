@@ -3,7 +3,7 @@ module Discerner
     module Controllers
       module SearchesController
         def self.included(base)
-          base.send :before_filter, :load_search, :only => [:edit, :update, :rename, :destroy, :show]
+          base.send :before_filter, :load_search, only: [:edit, :update, :rename, :destroy, :show]
         end
 
         def new
@@ -26,7 +26,7 @@ module Discerner
             if @discerner_search.save
               format.html { redirect_to(edit_search_path(@discerner_search)) }
             else
-              format.html { render :action => "new" }
+              format.html { render action: "new" }
             end
           end
         end
@@ -61,10 +61,10 @@ module Discerner
           set_searchables
           respond_to do |format|
             if @discerner_search.update_attributes(search_params)
-              format.html { redirect_to(edit_search_path(@discerner_search), :notice => 'Search was successfully updated.') }
+              format.html { redirect_to(edit_search_path(@discerner_search), notice: 'Search was successfully updated.') }
               format.js
             else
-              format.html { render :action => "edit" }
+              format.html { render action: "edit" }
               format.js
             end
           end
@@ -73,9 +73,9 @@ module Discerner
         def index
           searches = Discerner::Search.not_deleted.includes(
             :dictionary,
-            :export_parameters   => [:parameter => [:parameter_type]],
-            :search_combinations => [:combined_search => [:search_parameters => [:parameter => [:parameter_type], :search_parameter_values => [:parameter_value]]]],
-            :search_parameters   => [:parameter => [:parameter_type], :search_parameter_values => [:parameter_value]])
+            :export_parameters   => [parameter: [:parameter_type]],
+            search_combinations: [combined_search: [search_parameters: [parameter: [:parameter_type], search_parameter_values: [:parameter_value]]]],
+            :search_parameters   => [parameter: [:parameter_type], search_parameter_values: [:parameter_value]])
 
           username = discerner_user.username unless discerner_user.blank?
           searches = searches.by_user(username) unless username.blank?
@@ -123,8 +123,8 @@ module Discerner
               format.csv do
 
                 send_data @export_data,
-                  :type => 'text/csv; charset=iso-8859-1; header=present',
-                  :disposition => "attachment; filename=#{filename}.csv"
+                  type: 'text/csv; charset=iso-8859-1; header=present',
+                  disposition: "attachment; filename=#{filename}.csv"
               end
               format.xls do
                 headers["Content-type"] = "application/vnd.ms-excel"
@@ -154,7 +154,7 @@ module Discerner
           end
 
           def dictionary_search_options
-            options = { :username => nil }
+            options = { username: nil }
             options[:username] = discerner_user.username unless discerner_user.blank?
             options
           end
@@ -175,8 +175,8 @@ module Discerner
               dictionary_ids = @searchable_dictionaries.map(&:id)
             end
 
-            @searchable_parameter_categories  = Discerner::ParameterCategory.includes(:dictionary).where(:dictionary_id => dictionary_ids).not_deleted.searchable.ordered_by_name.to_a
-            parameters_available              = Discerner::Parameter.includes(:parameter_type, :parameter_category => [:dictionary]).where(:parameter_category_id => @searchable_parameter_categories.map(&:id)).not_deleted.searchable.to_a
+            @searchable_parameter_categories  = Discerner::ParameterCategory.includes(:dictionary).where(dictionary_id: dictionary_ids).not_deleted.searchable.ordered_by_name.to_a
+            parameters_available              = Discerner::Parameter.includes(:parameter_type, parameter_category: [:dictionary]).where(parameter_category_id: @searchable_parameter_categories.map(&:id)).not_deleted.searchable.to_a
             parameters_used                   = @discerner_search && @discerner_search.persisted? ? @discerner_search.search_parameters.map{ |sp| sp.parameter } : []
             @searchable_parameters            = parameters_available.flatten | parameters_used.flatten
             @searchable_parameter_values      = map_searchable_values
@@ -186,10 +186,10 @@ module Discerner
             searchable_values = {}
 
             # getting all values at once to save database calls
-            values_available = Discerner::ParameterValue.includes(:parameter_value_category).not_deleted.where(:parameter_id => @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.to_a
+            values_available = Discerner::ParameterValue.includes(:parameter_value_category).not_deleted.where(parameter_id: @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.to_a
             values_used = []
             if @discerner_search && @discerner_search.persisted?
-              values_used = Discerner::ParameterValue.includes(:parameter_value_category).joins(:search_parameter_values => :search_parameter).where(:discerner_search_parameters => {:search_id => @discerner_search.id}).ordered_by_parameter_and_name.to_a
+              values_used = Discerner::ParameterValue.includes(:parameter_value_category).joins(search_parameter_values: :search_parameter).where(discerner_search_parameters: {search_id: @discerner_search.id}).ordered_by_parameter_and_name.to_a
             end
 
             @searchable_parameters.each do |sp|

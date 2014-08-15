@@ -2,23 +2,23 @@
 - if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
-    %td.warnings{:colspan => "6"}
+    %td.warnings{colspan: "6"}
       %span
         = f.object.warnings.full_messages.join(', ')
 
-%tr{ :id => "#{search_parameter_value_id}", :class => "search_parameter_value fields #{'error' if f.object.warnings.any?} search_parameter_value_new" }
+%tr{ id: "#{search_parameter_value_id}", class: "search_parameter_value fields #{'error' if f.object.warnings.any?} search_parameter_value_new" }
   %td.parameter_values_boolean_operator
     = f.hidden_field :display_order
     %span
 
   - if f.object.new_record? # this part is used for rendering newly added parameter values
     %td.operator
-      = f.select(:operator_id, operator_options, { :include_blank => true })
+      = f.select(:operator_id, operator_options, { include_blank: true })
     %td.chosen
       = f.check_box :chosen
     %td.parameter_value
-      = f.hidden_field :parameter_value_id, :class => 'parameter_value_id'
-      %span{ :class => 'parameter_value_text' }
+      = f.hidden_field :parameter_value_id, class: 'parameter_value_id'
+      %span{ class: 'parameter_value_text' }
     %td.value
       = f.text_field :value
     %td.additional_value
@@ -35,15 +35,15 @@
       %td.chosen
         = f.check_box :chosen
       %td.parameter_value
-        = f.hidden_field :parameter_value_id, :class => 'parameter_value_id'
-        %span{ :class => 'parameter_value_text' }
+        = f.hidden_field :parameter_value_id, class: 'parameter_value_id'
+        %span{ class: 'parameter_value_text' }
           = f.object.parameter_value.name
-      %td{:class => "remove", :class => "invisible"}
+      %td{class: "remove", class: "invisible"}
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 
     - when 'combobox'
       %td.parameter_value
-        = render :partial => 'discerner/parameters/values_autocompleter', :locals => {:parameter => parameter, :f => f, :search_parameter_value_id => search_parameter_value_id}
+        = render partial: 'discerner/parameters/values_autocompleter', locals: {parameter: parameter, f: f, search_parameter_value_id: search_parameter_value_id}
       %td.remove
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 
@@ -52,11 +52,11 @@
         - selected = f.object.operator.blank? ? nil : f.object.operator.id
         = f.select(:operator_id, options_for_select([["", ""]] + operator_options(type), selected))
 
-      %td{:class => "value #{'invisible' if f.object.operator && f.object.operator.operator_type == 'presence'}"}
-        = f.text_field :value, :class => "#{type == 'date' ? 'datepicker' : nil}"
+      %td{class: "value #{'invisible' if f.object.operator && f.object.operator.operator_type == 'presence'}"}
+        = f.text_field :value, class: "#{type == 'date' ? 'datepicker' : nil}"
 
-      %td{:class => "additional_value #{'invisible' unless f.object.operator && f.object.operator.operator_type == 'range'}"}
-        = f.text_field :additional_value, :class => "#{type == 'date' ? 'datepicker' : nil}"
+      %td{class: "additional_value #{'invisible' unless f.object.operator && f.object.operator.operator_type == 'range'}"}
+        = f.text_field :additional_value, class: "#{type == 'date' ? 'datepicker' : nil}"
       %td.remove
         = link_to_remove_fields 'Remove', f, :search_parameter_values
 

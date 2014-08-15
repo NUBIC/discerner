@@ -3,13 +3,13 @@ require "rails/generators"
 
 module Discerner
   class InstallGenerator < Rails::Generators::Base
-    class_option "no-migrate", :type => :boolean
-    class_option "customize-all", :type => :boolean
-    class_option "customize-controllers", :type => :boolean
-    class_option "customize-models", :type => :boolean
-    class_option "customize-helpers", :type => :boolean
-    class_option "customize-layout", :type => :boolean
-    class_option "current-user-helper", :type => :string
+    class_option "no-migrate", type: :boolean
+    class_option "customize-all", type: :boolean
+    class_option "customize-controllers", type: :boolean
+    class_option "customize-models", type: :boolean
+    class_option "customize-helpers", type: :boolean
+    class_option "customize-layout", type: :boolean
+    class_option "current-user-helper", type: :string
 
     def self.source_paths
       paths = self.superclass.source_paths
@@ -41,7 +41,7 @@ module Discerner
 }
       inject_into_file("#{Rails.root}/app/controllers/application_controller.rb",
                        discerner_user_method,
-                       :after => "ActionController::Base\n", :force => false)
+                       after: "ActionController::Base\n", force: false)
     end
 
     def add_discerner_view_helpers
@@ -62,7 +62,7 @@ module Discerner
 }
       inject_into_file("#{Rails.root}/app/helpers/application_helper.rb",
                        discerner_helper_methods,
-                       :after => "ApplicationHelper\n")
+                       after: "ApplicationHelper\n")
     end
 
     def run_migrations
@@ -81,8 +81,8 @@ module Discerner
 
     def mount_engine
       puts "Mounting Discerner::Engine at \"/\" in config/routes.rb..."
-      insert_into_file("#{Rails.root}/config/routes.rb", :after => /routes.draw.do\n/) do
-        %Q{  mount Discerner::Engine, :at => "/"\n}
+      insert_into_file("#{Rails.root}/config/routes.rb", after: /routes.draw.do\n/) do
+        %Q{  mount Discerner::Engine, at: "/"\n}
       end
     end
 
@@ -141,7 +141,7 @@ module Discerner
         output += "-- Seed operators were loaded into your database.\n"
       end
       output += "-- The engine was mounted in your config/routes.rb file using this line:
-        mount Discerner::Engine, :at => \"/\""
+        mount Discerner::Engine, at: \"/\""
       output += "\nIf you want to change where the searches are located, just change the \"/searches\" path at the end of this line to whatever you want."
       output += "\n--  Sample search dictionary was copied into lib/setup. If you want to try it out, run `rails generate discerner:dictionary lib/setup/dictionaries.yml`. This will:\n"
       output += "\n-- parse dictionary definitions from lib/setup/dictionaries.yml into the database."

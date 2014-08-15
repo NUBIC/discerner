@@ -58,11 +58,11 @@ When /^(?:|I )follow "([^\"]*)"$/ do |link|
 end
 
 When /^(?:|I )fill in "([^\"]*)" with "([^\"]*)"$/ do |field, value|
-  fill_in(field, :with => value)
+  fill_in(field, with: value)
 end
 
 When /^(?:|I )fill in "([^\"]*)" for "([^\"]*)"$/ do |value, field|
-  fill_in(field, :with => value)
+  fill_in(field, with: value)
 end
 
 # Use this to fill in an entire form with data from a table. Example:
@@ -83,7 +83,7 @@ When /^(?:|I )fill in the following:$/ do |fields|
 end
 
 When /^(?:|I )select "([^\"]*)" from "([^\"]*)"$/ do |value, field|
-  select(value, :from => field)
+  select(value, from: field)
 end
 
 When /^(?:|I )check "([^\"]*)"$/ do |field|
@@ -180,7 +180,7 @@ end
 
 Then /^the element "([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? be visible$/ do |selector, position, scope_selector, negation|
   within_scope(get_scope(position, scope_selector)) {
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.each do |e|
       e.should_not have_css('.invisible')
     end
@@ -194,7 +194,7 @@ end
 
 Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain "([^\"]*)"$/ do |selector, position, scope_selector, negation, value|
   within_scope(get_scope(position, scope_selector)) {
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.should_not be_empty
     if negation.blank?
       elements.each{ |e| e.value.should == value}
@@ -233,7 +233,7 @@ end
 
 Then /^"([^\"]*)"(?: in the (first|last) "([^\"]*)")? should(?: (not))? contain text "(.+?)"$/ do |selector, position, scope_selector, negation, value|
   within_scope(get_scope(position, scope_selector)) {
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.should_not be_empty
     if negation.blank?
       elements.each{ |e| e.find(:xpath, ".//*[text()[contains(.,'#{value}')]]").should be_present }
@@ -260,7 +260,7 @@ end
 
 When /^I focus on "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.should_not be_empty
     elements.each{ |e| e.click }
   }
@@ -271,7 +271,7 @@ end
 
 When /^I check "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.should_not be_empty
     elements.each{ |e| e.click }
   }
@@ -280,7 +280,7 @@ end
 When /^I uncheck "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
     selector = "#{selector}[checked='checked']"
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.should_not be_empty
     elements.each{ |e| e.click }
   }
@@ -288,7 +288,7 @@ end
 
 When /^I enter "([^\"]*)" into "([^\"]*)" within(?: the (first|last))? "([^\"]*)"$/ do |value, selector, position, scope_selector|
   within_scope(get_scope(position, scope_selector)) {
-    elements = all(selector, :visible => true)
+    elements = all(selector, visible: true)
     elements.should_not be_empty
     elements.each do |e|
       e.set(value)
@@ -329,7 +329,7 @@ end
 
 def get_scope(position, scope_selector)
   return unless scope_selector
-  items = page.all("#{scope_selector}", :visible => true)
+  items = page.all("#{scope_selector}", visible: true)
   case position
   when 'first'
     item = items.first

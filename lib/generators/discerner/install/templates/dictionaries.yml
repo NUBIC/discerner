@@ -15,7 +15,7 @@
 #               :parameter_type: numeric/date/list/combobox/text/string         # used to define applicable operators/display options. does not have to be restricted to the given list, but additional parameters will require adding operators to match
 #               :parameter_value_categories_source:                             # used to define parameter value categories
 #                 :model: string                                                # source model to be used to load parameter value categiories
-#                 :method: string                                               # method in the source model that returns parameter_value_categories in a form of [{:name => 'string, :unique_identifier => 'adventure', :display_order => 1, :collapse => true}]
+#                 :method: string                                               # method in the source model that returns parameter_value_categories in a form of [{name: 'string, unique_identifier: 'adventure', display_order: 1, collapse: true}]
 #               :parameter_value_categories:                                    # used to define parameter value categories
 #                 - :name: string
 #                   :unique_identifier: string                                  # has to be unique within parameter

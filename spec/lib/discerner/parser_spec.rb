@@ -33,7 +33,7 @@ describe Discerner::Parser do
     expect(dictionary.parameter_categories.last.parameters.length).to eq 2
     expect(dictionary.parameter_categories.last).to_not be_deleted
 
-    expect(dictionary.parameter_categories.first.parameters.where(:unique_identifier => 'ethnic_grp').first.parameter_values.length).to eq 5 # extra 'None' value added
+    expect(dictionary.parameter_categories.first.parameters.where(unique_identifier: 'ethnic_grp').first.parameter_values.length).to eq 5 # extra 'None' value added
   end
 
   it "parses parameters with source model and method" do
@@ -410,7 +410,7 @@ describe Discerner::Parser do
                 :unique_identifier: consented
     }
     parser.parse_dictionaries(dictionaries)
-    p = Discerner::Parameter.where(:unique_identifier => 'consented').first
+    p = Discerner::Parameter.where(unique_identifier: 'consented').first
     expect(p).to_not be_blank
     expect(p.name).to eq 'Consented'
     expect(p.parameter_category.name).to eq 'Demographic criteria'
@@ -425,7 +425,7 @@ describe Discerner::Parser do
                 :unique_identifier: consented
     }
     parser.parse_dictionaries(dictionaries)
-    p = Discerner::Parameter.where(:unique_identifier => 'consented').first
+    p = Discerner::Parameter.where(unique_identifier: 'consented').first
     expect(p).to_not be_blank
     expect(p.name).to eq 'Consented already'
     expect(p.parameter_category.name).to eq 'Another criteria'
@@ -461,8 +461,8 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     expect(Discerner::ParameterValueCategory.order(:id).to_a.length).to eq 3
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure')).to_not be_empty
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.collapse).to eq true
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure')).to_not be_empty
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure').first.collapse).to eq true
   end
 
   it "parses parameter value categories from source model and method" do
@@ -489,10 +489,10 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     expect(Discerner::ParameterValueCategory.order(:id).to_a.length).to eq 2
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure')).to_not be_empty
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.collapse).to eq true
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'drama')).to_not be_empty
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'drama').first.collapse).to eq false
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure')).to_not be_empty
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure').first.collapse).to eq true
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'drama')).to_not be_empty
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'drama').first.collapse).to eq false
   end
 
   it "raisers an error message if parameter value category source model and method do not adhere to the interface" do
@@ -546,9 +546,9 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     expect(Discerner::ParameterValueCategory.order(:id).to_a.length).to eq 1
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure')).to_not be_empty
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.parameter_values.length).to eq 1
-    expect(Discerner::ParameterValueCategory.where(:unique_identifier => 'adventure').first.parameter_values.first.search_value).to eq 'Robinsonade'
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure')).to_not be_empty
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure').first.parameter_values.length).to eq 1
+    expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure').first.parameter_values.first.search_value).to eq 'Robinsonade'
   end
 
   it "deletes dictionaries that are no longer defined in the definition file and are not used in searches" do
@@ -580,8 +580,8 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_dictionaries.length).to eq 2
     expect(Discerner::Dictionary.order(:id).to_a).to_not be_empty
-    expect(Discerner::Dictionary.where(:name => 'Sample dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(:name => 'Another dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
 
     dictionaries = %Q{
     :dictionaries:
@@ -599,8 +599,8 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_dictionaries.length).to eq 1
     expect(Discerner::Dictionary.order(:id).to_a).to_not be_empty
-    expect(Discerner::Dictionary.where(:name => 'Sample dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(:name => 'Another dictionary')).to be_blank
+    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to be_blank
   end
 
   it "deletes categories that are no longer defined in the definition file and are not used in searches" do
@@ -631,8 +631,8 @@ describe Discerner::Parser do
     expect(parser.updated_categories.length).to eq 2
     expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
-    expect(Discerner::ParameterCategory.where(:name => 'Demographic criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(:name => 'Patient criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
 
     dictionaries = %Q{
     :dictionaries:
@@ -651,8 +651,8 @@ describe Discerner::Parser do
     expect(parser.updated_categories.length).to eq 1
     expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 1
-    expect(Discerner::ParameterCategory.where(:name => 'Demographic criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(:name => 'Patient criteria')).to be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to be_blank
   end
 
   it "deletes parameters that are no longer defined in the definition file and are not used in searches" do
@@ -681,8 +681,8 @@ describe Discerner::Parser do
     expect(parser.updated_parameters.length).to eq 2
     expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
     expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
-    expect(Discerner::Parameter.where(:unique_identifier => 'ethnic_grp')).to_not be_blank
-    expect(Discerner::Parameter.where(:unique_identifier => 'gender')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
 
     dictionaries = %Q{
     :dictionaries:
@@ -701,8 +701,8 @@ describe Discerner::Parser do
     expect(parser.updated_parameters.length).to eq 1
     expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
     expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
-    expect(Discerner::Parameter.where(:unique_identifier => 'ethnic_grp')).to_not be_blank
-    expect(Discerner::Parameter.where(:unique_identifier => 'gender')).to be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to be_blank
   end
 
   it "deletes parameter values that are no longer defined in the definition file and are not used in searches" do
@@ -729,9 +729,9 @@ describe Discerner::Parser do
     expect(parser.updated_parameter_values.length).to eq 2
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
 
     dictionaries = %Q{
     :dictionaries:
@@ -752,9 +752,9 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_parameter_values.length).to eq 1
     expect(parser.blank_parameter_values.length).to eq 1
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to be_blank
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
   end
 
   it "deletes parameter values that are no longer defined in the definition file and used in list searches as not chosen options" do
@@ -782,16 +782,16 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_parameter_values.length).to eq 3
     expect(parser.blank_parameter_values.length).to eq 1
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'unknown')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
 
-    value = Discerner::ParameterValue.where(:search_value => "unknown").first
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
     s.save!
-    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value)
 
     dictionaries = %Q{
     :dictionaries:
@@ -815,10 +815,10 @@ describe Discerner::Parser do
     expect(parser.updated_parameter_values.length).to eq 2
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'unknown')).to be_blank
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
   end
 
   it "soft-deletes dictionaries that are no longer defined in the definition file but are used in searches" do
@@ -849,13 +849,13 @@ describe Discerner::Parser do
     }
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_dictionaries.length).to eq 2
-    expect(Discerner::Dictionary.where(:name => 'Sample dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(:name => 'Another dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(:name => 'Another dictionary').first).to_not be_deleted
+    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary').first).to_not be_deleted
 
-    dictionary = Discerner::Dictionary.where(:name => "Another dictionary").first
+    dictionary = Discerner::Dictionary.where(name: "Another dictionary").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s)
     s.dictionary = dictionary
     s.save!
 
@@ -875,9 +875,9 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_dictionaries.length).to eq 1
     expect(Discerner::Dictionary.order(:id).to_a).to_not be_empty
-    expect(Discerner::Dictionary.where(:name => 'Sample dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(:name => 'Another dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(:name => 'Another dictionary').first).to be_deleted
+    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary').first).to be_deleted
   end
 
   it "soft-deletes categories that are no longer defined in the definition file but are used in searches" do
@@ -907,13 +907,13 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_categories.length).to eq 2
     expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
-    expect(Discerner::ParameterCategory.where(:name => 'Demographic criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(:name => 'Patient criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(:name => 'Patient criteria').first).to_not be_deleted
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria').first).to_not be_deleted
 
-    category = Discerner::ParameterCategory.where(:name => "Patient criteria").first
+    category = Discerner::ParameterCategory.where(name: "Patient criteria").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => category.parameters.first)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: category.parameters.first)
     s.save!
 
     dictionaries = %Q{
@@ -932,9 +932,9 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_categories.length).to eq 1
     expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
-    expect(Discerner::ParameterCategory.where(:name => 'Demographic criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(:name => 'Patient criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(:name => 'Patient criteria').first).to be_deleted
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria').first).to be_deleted
   end
 
   it "soft-deletes parameters that are no longer defined in the definition file but are used in searches" do
@@ -962,13 +962,13 @@ describe Discerner::Parser do
     parser.parse_dictionaries(dictionaries)
     expect(parser.updated_parameters.length).to eq 2
     expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
-    expect(Discerner::Parameter.where(:unique_identifier => 'ethnic_grp')).to_not be_blank
-    expect(Discerner::Parameter.where(:unique_identifier => 'gender')).to_not be_blank
-    expect(Discerner::Parameter.where(:unique_identifier => 'gender').first).to_not be_deleted
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender').first).to_not be_deleted
 
-    parameter = Discerner::Parameter.where(:unique_identifier => "gender").first
+    parameter = Discerner::Parameter.where(unique_identifier: "gender").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => parameter)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: parameter)
     s.save!
 
     dictionaries = %Q{
@@ -988,9 +988,9 @@ describe Discerner::Parser do
     expect(parser.updated_parameters.length).to eq 1
     expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
     expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
-    expect(Discerner::Parameter.where(:unique_identifier => 'ethnic_grp')).to_not be_blank
-    expect(Discerner::Parameter.where(:unique_identifier => 'gender')).to_not be_blank
-    expect(Discerner::Parameter.where(:unique_identifier => 'gender').first).to be_deleted
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender').first).to be_deleted
   end
 
   it "soft-deletes parameter values that are no longer defined in the definition file but are used in searches" do
@@ -1020,18 +1020,18 @@ describe Discerner::Parser do
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 4
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'unknown')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'unknown').first).to_not be_deleted
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to_not be_deleted
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
 
-    value = Discerner::ParameterValue.where(:search_value => "unknown").first
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
     s.save!
-    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :chosen => true)
-    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :operator => Discerner::Operator.last)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, chosen: true)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, operator: Discerner::Operator.last)
 
     dictionaries = %Q{
     :dictionaries:
@@ -1055,11 +1055,11 @@ describe Discerner::Parser do
     expect(parser.updated_parameter_values.length).to eq 2
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 4
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'unknown')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'unknown').first).to be_deleted
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to be_deleted
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
   end
 
   it "creates options with newly added values for search parameters linked with updated parameter" do
@@ -1084,14 +1084,14 @@ describe Discerner::Parser do
     expect(parser.updated_parameter_values.length).to eq 1
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
 
-    value = Discerner::ParameterValue.where(:search_value => "not_hisp_or_latino").first
+    value = Discerner::ParameterValue.where(search_value: "not_hisp_or_latino").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
     s.save!
-    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value)
 
     dictionaries = %Q{
     :dictionaries:
@@ -1117,12 +1117,12 @@ describe Discerner::Parser do
     expect(parser.updated_parameter_values.length).to eq 3
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => '')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
 
-    expect(Discerner::ParameterValue.where(:search_value => 'hisp_or_latino').first.search_parameter_values).to_not be_blank
-    expect(Discerner::ParameterValue.where(:search_value => 'not_hisp_or_latino').first.search_parameter_values).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino').first.search_parameter_values).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino').first.search_parameter_values).to_not be_blank
   end
 
   it "creates options with un-deleted values for search parameters linked with updated parameter" do
@@ -1151,11 +1151,11 @@ describe Discerner::Parser do
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 3
 
-    value = Discerner::ParameterValue.where(:search_value => "hisp_or_latino").first
+    value = Discerner::ParameterValue.where(search_value: "hisp_or_latino").first
     s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => value.parameter)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
     s.save!
-    FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :parameter_value => value, :chosen => true)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, chosen: true)
 
 
     dictionaries = %Q{

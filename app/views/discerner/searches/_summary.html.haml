@@ -13,7 +13,7 @@
       - search_parameters =  search_parameters.by_parameter_category(category) if category
       - unless search_parameters.blank?
         %tr.parameter_category
-          %th{:colspan => "2"}
+          %th{colspan: "2"}
             = category.name
         - search_parameters.each do |sp|
           %tr.search_parameter_summary

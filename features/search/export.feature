@@ -104,8 +104,6 @@ Feature: Exporting results for existing searches
   @javascript
   Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists
-    And an executed search should pass the username to dictionary instance
-    And an exported search should pass the username to dictionary instance
     When I am on the search edit page
     And I follow "Export options"
     And I press "Export"

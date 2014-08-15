@@ -12,9 +12,9 @@ module Discerner
           @searchable_parameter_values = {}
           @searchable_parameter_values[@parameter.id] = @parameter_values
           respond_to do |format|
-            format.html { render :layout => false }
-            format.json { render :text => { :type => @parameter.parameter_type.name,
-              :parameter_values => @parameter_values.map { |v| { :parameter_value_id => v.id, :name => v.name } }}.to_json }
+            format.html { render layout: false }
+            format.json { render text: { type: @parameter.parameter_type.name,
+              parameter_values: @parameter_values.map { |v| { parameter_value_id: v.id, name: v.name } }}.to_json }
           end
         end
 

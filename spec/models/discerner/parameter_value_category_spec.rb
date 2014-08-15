@@ -27,13 +27,13 @@ module Discerner
     end
 
     it "validates uniqueness of unique identifier for not-deleted records linked to the same parameter" do
-      c = Discerner::ParameterValueCategory.new(:unique_identifier => parameter_value_category.unique_identifier, :name => parameter_value_category.name, :parameter => parameter_value_category.parameter)
+      c = Discerner::ParameterValueCategory.new(unique_identifier: parameter_value_category.unique_identifier, name: parameter_value_category.name, parameter: parameter_value_category.parameter)
       expect(c).to_not be_valid
       expect(c.errors.full_messages).to include 'Unique identifier for parameter value category has already been taken'
     end
 
     it "allows to reuse unique identifier if record has been deleted" do
-      c = Discerner::ParameterValueCategory.new(:unique_identifier => parameter_value_category.unique_identifier, :name => parameter_value_category.name, :parameter => parameter_value_category.parameter)
+      c = Discerner::ParameterValueCategory.new(unique_identifier: parameter_value_category.unique_identifier, name: parameter_value_category.name, parameter: parameter_value_category.parameter)
       expect(c).to_not be_valid
 
       parameter_value_category.deleted_at = Time.now
@@ -42,7 +42,7 @@ module Discerner
     end
 
     it "allows to reuse unique identifier with different parameter" do
-      c = Discerner::ParameterValueCategory.new(:unique_identifier => parameter_value_category.unique_identifier, :name => parameter_value_category.name, :parameter => FactoryGirl.create(:parameter, :unique_identifier => 'blah'))
+      c = Discerner::ParameterValueCategory.new(unique_identifier: parameter_value_category.unique_identifier, name: parameter_value_category.name, parameter: FactoryGirl.create(:parameter, unique_identifier: 'blah'))
       expect(c).to be_valid
     end
 
@@ -56,7 +56,7 @@ module Discerner
     end
 
     it "does not allow to add value linked to different parameter" do
-      v = FactoryGirl.create(:parameter_value, :parameter => FactoryGirl.create(:parameter, :unique_identifier => 'blah'))
+      v = FactoryGirl.create(:parameter_value, parameter: FactoryGirl.create(:parameter, unique_identifier: 'blah'))
       parameter_value_category.parameter_values << v
       expect(parameter_value_category).to_not be_valid
       expect(parameter_value_category.errors.full_messages).to include "Parameter value #{v.name} does not belong to parameter #{parameter_value_category.parameter.name}"

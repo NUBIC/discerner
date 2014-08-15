@@ -8,27 +8,27 @@ module Discerner
 
           # Associations
           base.send :belongs_to, :dictionary
-          base.send :has_many, :search_parameters,    :inverse_of => :search
-          base.send :has_many, :search_combinations,  :inverse_of => :search
-          base.send :has_many, :combined_searches,    :through => :search_combinations
-          base.send :has_many, :export_parameters,    :inverse_of => :search
+          base.send :has_many, :search_parameters,    inverse_of: :search
+          base.send :has_many, :search_combinations,  inverse_of: :search
+          base.send :has_many, :combined_searches,    through: :search_combinations
+          base.send :has_many, :export_parameters,    inverse_of: :search
 
           # Validations
-          base.send :validates, :dictionary, :presence => { :message => "for search can't be blank" }
+          base.send :validates, :dictionary, presence: { message: "for search can't be blank" }
           base.send :validate, :validate_search_parameters
 
           # Scopes
-          base.send(:scope, :by_user, ->(username) { base.where(:username => username) unless username.blank?})
+          base.send(:scope, :by_user, ->(username) { base.where(username: username) unless username.blank?})
 
           # Nested attributes
-          base.send :accepts_nested_attributes_for, :search_parameters, :allow_destroy => true,
-            :reject_if => proc { |attributes| attributes['parameter_id'].blank? && attributes['parameter'].blank? }
+          base.send :accepts_nested_attributes_for, :search_parameters, allow_destroy: true,
+            reject_if: proc { |attributes| attributes['parameter_id'].blank? && attributes['parameter'].blank? }
 
-          base.send :accepts_nested_attributes_for, :search_combinations, :allow_destroy => true,
-            :reject_if => proc { |attributes| attributes['combined_search_id'].blank? && attributes['combined_search'].blank? }
+          base.send :accepts_nested_attributes_for, :search_combinations, allow_destroy: true,
+            reject_if: proc { |attributes| attributes['combined_search_id'].blank? && attributes['combined_search'].blank? }
 
           # Hooks
-          base.send :after_commit, :update_associations, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
+          base.send :after_commit, :update_associations, on: :update, if: Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
 
         # Instance Methods
@@ -70,7 +70,7 @@ module Discerner
           all_search_parameters.concat(search_parameters).flatten!
 
           all_search_parameters.each do |search_parameter|
-            search_models[search_parameter.parameter.search_model] = { :search_parameters => [], :conditions => nil } unless search_models.has_key?(search_parameter.parameter.search_model)
+            search_models[search_parameter.parameter.search_model] = { search_parameters: [], conditions: nil } unless search_models.has_key?(search_parameter.parameter.search_model)
             search_models[search_parameter.parameter.search_model][:search_parameters] << search_parameter
           end
 

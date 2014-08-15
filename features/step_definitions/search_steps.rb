@@ -11,7 +11,7 @@ Given /^search operators are loaded$/ do
 end
 
 Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
-  s = FactoryGirl.build(:search, :name => name)
+  s = FactoryGirl.build(:search, name: name)
   p = Discerner::Parameter.last || FactoryGirl.build(:parameter)
   p.search_method = 'age'
   p.search_model = 'Person'
@@ -20,32 +20,16 @@ Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
     p.export_method = 'some_method'
   end
   p.save!
-  search_parameter = FactoryGirl.build(:search_parameter, :search => s, :parameter => p)
+  search_parameter = FactoryGirl.build(:search_parameter, search: s, parameter: p)
   s.search_parameters << search_parameter
   s.dictionary = Discerner::Dictionary.last
   s.save!
   o = Discerner::Operator.last || FactoryGirl.create(:operator)
-  FactoryGirl.create(:search_parameter_value, :search_parameter => s.search_parameters.first, :operator => o)
-end
-
-Given /^an executed search should pass the username to dictionary instance$/ do
-  SampleDictionary.any_instance.should_receive(:search).exactly(:once).with do |*args|
-    options = args.pop
-    options.has_key?(:username).should be_true
-    true
-  end
-end
-
-Given /^an exported search should pass the username to dictionary instance$/ do
-  SampleDictionary.any_instance.should_receive(:export).exactly(:once).with do |*args|
-    options = args.pop
-    options.has_key?(:username).should be_true
-    true
-  end
+  FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, operator: o)
 end
 
 Given /^search "([^\"]*)" is disabled$/ do |name|
-  search = Discerner::Search.where(:name => name).first
+  search = Discerner::Search.where(name: name).first
   p = search.search_parameters.first.parameter
   p.deleted_at = Time.now
   p.save
@@ -152,7 +136,7 @@ Then /^the (first|last) search criteria selection additional value should be "([
 end
 
 Then /^the search should have (\d+) criteria$/ do |count|
-  all("tr.search_parameter", :visible => true).count.should == count.to_i
+  all("tr.search_parameter", visible: true).count.should == count.to_i
 end
 
 Given /^only "([^\"]*)" dictionary exists$/ do |name|
@@ -179,26 +163,26 @@ When /^I open combined search dropdown$/ do
 end
 
 Given /^value "([^\"]*)" for parameter "([^\"]*)" is marked as deleted$/ do |value_name, parameter_name|
-  p = Discerner::Parameter.where(:name => parameter_name).first
-  v = p.parameter_values.where(:name => value_name).first
+  p = Discerner::Parameter.where(name: parameter_name).first
+  v = p.parameter_values.where(name: value_name).first
   v.deleted_at = Time.now
   v.save
 end
 
 Given /^parameter "([^\"]*)" is marked as deleted$/ do |name|
-  r = Discerner::Parameter.where(:name => name).first
+  r = Discerner::Parameter.where(name: name).first
   r.deleted_at = Time.now
   r.save
 end
 
 Given /^parameter category "([^\"]*)" is marked as deleted$/ do |name|
-  r = Discerner::ParameterCategory.where(:name => name).first
+  r = Discerner::ParameterCategory.where(name: name).first
   r.deleted_at = Time.now
   r.save
 end
 
 Given /^parameters in category "([^\"]*)" are marked as deleted$/ do |name|
-  r = Discerner::ParameterCategory.where(:name => name).first
+  r = Discerner::ParameterCategory.where(name: name).first
   r.parameters.each do |p|
     p.deleted_at = Time.now
     p.save
@@ -206,22 +190,22 @@ Given /^parameters in category "([^\"]*)" are marked as deleted$/ do |name|
 end
 
 Given /^dictionary "([^\"]*)" is marked as deleted$/ do |name|
-  r = Discerner::Dictionary.where(:name => name).first
+  r = Discerner::Dictionary.where(name: name).first
   r.deleted_at = Time.now
   r.save
 end
 
 Given /^search with name "([^\"]*)" is marked as deleted$/ do |name|
-  r = Discerner::Search.where(:name => name).first
+  r = Discerner::Search.where(name: name).first
   r.deleted_at = Time.now
   r.save
 end
 
 Given /^search with name "([^\"]*)" has exportable parameters "([^\"]*)"$/ do |name, parameter_names|
-  search = Discerner::Search.where(:name => name).first
+  search = Discerner::Search.where(name: name).first
   parameter_names.split(', ').each do |name|
-    p = Discerner::Parameter.where(:name => name).first
-    search.export_parameters.create(:parameter_id => p.id)
+    p = Discerner::Parameter.where(name: name).first
+    search.export_parameters.create(parameter_id: p.id)
   end
 end
 

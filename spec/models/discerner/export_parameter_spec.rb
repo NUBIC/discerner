@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Discerner::ExportParameter do
   let!(:export_parameter) {
     s = FactoryGirl.build(:search)
-    s.export_parameters << FactoryGirl.build(:export_parameter, :search => s)
-    s.search_parameters << FactoryGirl.build(:search_parameter, :search => s, :parameter => Discerner::Parameter.last)
+    s.export_parameters << FactoryGirl.build(:export_parameter, search: s)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: Discerner::Parameter.last)
     s.dictionary = Discerner::Dictionary.last
     s.save!
     s.export_parameters.first
@@ -21,14 +21,14 @@ describe Discerner::ExportParameter do
     expect(ep.errors.full_messages).to include('Parameter for export parameter can\'t be blank')
 
     s = FactoryGirl.build(:search)
-    ep = s.export_parameters.build(:parameter => Discerner::Parameter.last)
+    ep = s.export_parameters.build(parameter: Discerner::Parameter.last)
     expect(ep).to be_valid
     expect(ep.errors).to be_empty
 
-    p = Discerner::Parameter.new(:name => 'new parameter', :unique_identifier => 'new_parameter')
+    p = Discerner::Parameter.new(name: 'new parameter', unique_identifier: 'new_parameter')
     p.valid?
     puts p.errors.full_messages.inspect
-    ep = p.export_parameters.build(:search => Discerner::Search.last)
+    ep = p.export_parameters.build(search: Discerner::Search.last)
     expect(ep).to be_valid
     expect(ep.errors).to be_empty
   end
@@ -51,7 +51,7 @@ describe Discerner::ExportParameter do
     expect(Discerner::ExportParameter.by_parameter_category(pc)).to_not be_blank
     expect(Discerner::ExportParameter.by_parameter_category(pc)).to include(export_parameter)
 
-    pc = FactoryGirl.create(:parameter_category, :name => 'another category')
+    pc = FactoryGirl.create(:parameter_category, name: 'another category')
     expect(pc).to_not be_blank
     expect(Discerner::ExportParameter.by_parameter_category(pc)).to be_blank
   end

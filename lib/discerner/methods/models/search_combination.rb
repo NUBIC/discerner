@@ -7,9 +7,9 @@ module Discerner
           base.send :include, Warning
 
           # Associations
-          base.send :belongs_to, :operator, :inverse_of => :search_combinations
-          base.send :belongs_to, :search,   :inverse_of => :search_combinations,  :foreign_key => :search_id
-          base.send :belongs_to, :combined_search, :foreign_key => :combined_search_id, :class_name => 'Discerner::Search'
+          base.send :belongs_to, :operator, inverse_of: :search_combinations
+          base.send :belongs_to, :search,   inverse_of: :search_combinations,  foreign_key: :search_id
+          base.send :belongs_to, :combined_search, foreign_key: :combined_search_id, class_name: 'Discerner::Search'
 
           # Scopes
           base.send(:scope, :ordered_by_display_order, -> { base.order('discerner_search_combinations.display_order ASC') })
