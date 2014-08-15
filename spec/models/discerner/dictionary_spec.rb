@@ -46,4 +46,10 @@ describe Discerner::Dictionary do
     dictionary.save
     expect(parameter_category.reload).to be_deleted
   end
+
+  it "allows to namespace dictionaries" do
+    d1 = FactoryGirl.create(:dictionary, :namespace_type => 'Encounter', name: 'Encounter')
+    d2 = FactoryGirl.create(:dictionary, :namespace_type => 'EncounterNote', name: 'EncounterNote')
+    expect(Discerner::Dictionary.where(:namespace_type => 'Encounter').length).to eq 1
+  end
 end

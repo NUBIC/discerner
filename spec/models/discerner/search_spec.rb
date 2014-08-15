@@ -189,4 +189,19 @@ describe Discerner::Search do
     s.searched_model?('Patient')
     s.searched_model?('Surgery')
   end
+
+  it "allows to namespace searches" do
+    s1 = FactoryGirl.build(:search, :namespace_type => 'Neurology')
+    s1.search_parameters << FactoryGirl.build(:search_parameter, search: s1, parameter: FactoryGirl.build(:parameter, search_method: 'yet_another_parameter'))
+
+    s1.dictionary = Discerner::Dictionary.last
+    s1.save!
+
+    s2 = FactoryGirl.build(:search, :namespace_type => 'LynnSage')
+    s2.search_parameters << FactoryGirl.build(:search_parameter, search: s2, parameter: FactoryGirl.build(:parameter, search_method: 'and_other_parameter'))
+    s2.dictionary = Discerner::Dictionary.last
+    s2.save!
+
+    expect(Discerner::Search.where(:namespace_type => 'LynnSage').length).to eq 1
+  end
 end
