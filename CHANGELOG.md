@@ -1,9 +1,13 @@
 Discerner History
 ============
+2.0.1
+- Updated hash syntax to 2.1
+- Allow to namespace searches and dictionaries
+- Using Rails 4.1
+
 2.0.0
 -----
 - Rails 4 support
-
 
 1.1.20
 -----
