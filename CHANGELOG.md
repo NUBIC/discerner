@@ -1,6 +1,11 @@
 Discerner History
 ============
+2.0.2
+-----
+- Back to jquery-ui-rails 4.2
+
 2.0.1
+-----
 - Updated hash syntax to 2.1
 - Allow to namespace searches and dictionaries
 - Using Rails 4.1
