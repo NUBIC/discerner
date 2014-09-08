@@ -1,6 +1,8 @@
 # ---- General structure:
 #   :dictionaries:
 #    - :name: string                                                            # has to be unique within not-deleted dictionaries
+#      :namespace_type:                                                         # string to define dictionary namespace type (optional). This can be used to link Discerner::Disctionary with outside entities.
+#      :namespace_id:                                                           # integer to define dictionary namespace id (optional). This can be used to link Discerner::Disctionary with outside entities.
 #      :parameter_categories:
 #       - :name: string                                                         # has to be unique within the dictionary
 #         :parameters:
@@ -33,6 +35,8 @@
 ---
 :dictionaries:
   - :name: Sample dictionary
+    :namespace_type: Cohort
+    :namespace_id: 1
     :parameter_categories:
       - :name: Demographic criteria
         :parameters:

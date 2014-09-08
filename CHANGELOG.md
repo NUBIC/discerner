@@ -1,5 +1,9 @@
 Discerner History
 ============
+2.0.3
+-----
+- Allow to parse dictionary namespace type and namespace id.
+
 2.0.2
 -----
 - Back to jquery-ui-rails 4.2

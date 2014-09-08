@@ -87,7 +87,9 @@ module Discerner
       notification_message "processing dictionary '#{dictionary_name}'"
 
       dictionary = Discerner::Dictionary.find_or_initialize_by(name: dictionary_name)
-      dictionary.deleted_at = nil
+      dictionary.namespace_type = hash[:namespace_type]
+      dictionary.namespace_id   = hash[:namespace_id]
+      dictionary.deleted_at     = nil
 
       if dictionary.new_record?
         notification_message "creating dictionary ..."
