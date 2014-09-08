@@ -1,5 +1,9 @@
 Discerner History
 ============
+2.0.4
+-----
+- Revert previous change. We expect namespaces to be outside entities and storimg IDs that would most likely be domain-specific in a static file is not the best idea.
+
 2.0.3
 -----
 - Allow to parse dictionary namespace type and namespace id.

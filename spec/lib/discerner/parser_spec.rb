@@ -24,8 +24,6 @@ describe Discerner::Parser do
     expect(dictionary.searchable_categories.length).to eq 2
     expect(dictionary.exportable_categories.length).to eq 1
     expect(dictionary).to_not be_deleted
-    expect(dictionary.namespace_type).to eq 'Cohort'
-    expect(dictionary.namespace_id).to eq 1
 
     expect(dictionary.parameter_categories.first.parameters.length).to eq 7
     expect(dictionary.parameter_categories.first.searchable_parameters.length).to eq 6
