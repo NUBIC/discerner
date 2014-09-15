@@ -12,6 +12,7 @@ module Discerner
           base.send :has_many, :search_combinations,  inverse_of: :search
           base.send :has_many, :combined_searches,    through: :search_combinations
           base.send :has_many, :export_parameters,    inverse_of: :search
+          base.send :has_many, :search_namespaces,    inverse_of: :search
 
           # Validations
           base.send :validates, :dictionary, presence: { message: "for search can't be blank" }

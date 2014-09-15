@@ -120,6 +120,7 @@ module Discerner
         copy_file "models/search_combination.rb", "#{path}/search_combination.rb"
         copy_file "models/search_parameter_value.rb", "#{path}/search_parameter_value.rb"
         copy_file "models/search_parameter.rb", "#{path}/search_parameter.rb"
+        copy_file "models/search_namespace.rb", "#{path}/search_namespace.rb"
         copy_file "models/search.rb", "#{path}/search.rb"
       end
 
