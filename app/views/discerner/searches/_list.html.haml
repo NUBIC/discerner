@@ -10,7 +10,7 @@
         %td
           = search.display_name
         %td
-          = format_datetime(search.updated_at)
+          = discerner_format_datetime(search.updated_at)
         %td
           = link_to 'Open', edit_search_path(search), class: 'show_link icon_link'
           = link_to 'Export options', export_parameters_path(search), class: 'options_link icon_link' if export_discerner_results?

@@ -1,4 +1,4 @@
-- search_parameter_value_id = nested_record_id(f, :search_parameter_value)
+- search_parameter_value_id = discerner_nested_record_id(f, :search_parameter_value)
 - if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
@@ -24,7 +24,7 @@
     %td.additional_value
       = f.text_field :additional_value
     %td.remove
-      = link_to_remove_fields 'Remove', f, :search_parameter_values
+      = discerner_link_to_remove_fields 'Remove', f, :search_parameter_values
 
   - else # this part is used for rendering existing parameter values
     - parameter = f.object.search_parameter.parameter
@@ -39,13 +39,13 @@
         %span{ class: 'parameter_value_text' }
           = f.object.parameter_value.name
       %td{class: "remove", class: "invisible"}
-        = link_to_remove_fields 'Remove', f, :search_parameter_values
+        = discerner_link_to_remove_fields 'Remove', f, :search_parameter_values
 
     - when 'combobox'
       %td.parameter_value
         = render partial: 'discerner/parameters/values_autocompleter', locals: {parameter: parameter, f: f, search_parameter_value_id: search_parameter_value_id}
       %td.remove
-        = link_to_remove_fields 'Remove', f, :search_parameter_values
+        = discerner_link_to_remove_fields 'Remove', f, :search_parameter_values
 
     - else
       %td.operator
@@ -58,5 +58,5 @@
       %td{class: "additional_value #{'invisible' unless f.object.operator && f.object.operator.operator_type == 'range'}"}
         = f.text_field :additional_value, class: "#{type == 'date' ? 'datepicker' : nil}"
       %td.remove
-        = link_to_remove_fields 'Remove', f, :search_parameter_values
+        = discerner_link_to_remove_fields 'Remove', f, :search_parameter_values
 

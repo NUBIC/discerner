@@ -6,7 +6,7 @@
         = f.object.warnings.full_messages.join(', ')
 
 - unless f.blank?
-  - search_combination_id = nested_record_id(f, :search_combination)
+  - search_combination_id = discerner_nested_record_id(f, :search_combination)
   %tr{ id: "#{search_combination_id}", class: "search_combination fields #{'error' if f.object.warnings.any?}" }
     %td.combined_search_operator
       %span
@@ -18,5 +18,5 @@
         -#= f.select(:operator_id, operator_options('search'))
         = f.select(:combined_search_id, combined_searches_options(@discerner_search), { include_blank: true },{ class: 'search_combinations_combobox_autocompleter' })
     %td.remove
-      = link_to_remove_fields 'Remove', f, :search_combinations
+      = discerner_link_to_remove_fields 'Remove', f, :search_combinations
     %td

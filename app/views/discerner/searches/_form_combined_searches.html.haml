@@ -11,14 +11,14 @@
       %td{colspan: '4'}
         No qualifying searches found
     - else
-      - @discernerSearchCombinationsTemplate = generate_nested_attributes_template(f, :search_combinations, 'search_combination')
+      - @discernerSearchCombinationsTemplate = discerner_generate_nested_attributes_template(f, :search_combinations, 'search_combination')
       = f.fields_for :search_combinations, f.object.search_combinations.ordered_by_display_order do |search_combination|
         = render partial: 'search_combination_fields', locals: { f: search_combination }
 
       %tfoot
         %tr
           %td{ colspan: '4', class: 'add_search_combinations_link' }
-            = link_to_add_fields "Add search", :search_combinations
+            = discerner_link_to_add_fields "Add search", :search_combinations
 .clear
 
 :javascript
