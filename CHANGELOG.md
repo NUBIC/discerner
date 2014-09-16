@@ -1,5 +1,10 @@
 Discerner History
 ============
+2.0.5
+-----
+- Allow to assign Discerner::Search to multiple namespaces. This change rolls back namespacing on search object itself. Previously set namespaces will be either mapped to new Discerner::Search namespace if they have namespace_id specified, or replaced with ‘label’ if they don’t.
+- Namespace helper methods
+
 2.0.4
 -----
 - Revert previous change. We expect namespaces to be outside entities and storimg IDs that would most likely be domain-specific in a static file is not the best idea.
