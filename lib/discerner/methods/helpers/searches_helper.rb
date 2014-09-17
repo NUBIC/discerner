@@ -19,13 +19,13 @@ module Discerner
 
         def discerner_link_to_add_fields(name, association, html_options={})
           css_class = html_options[:class] || ' '
-          css_class += "add_#{association.to_s} add add_link icon_link"
+          css_class += "add_#{association.to_s} add discerner-add-link discerner-icon-link"
           html_options[:class] = css_class
           link_to(name, 'javascript:void(0);', html_options)
         end
 
         def discerner_link_to_remove_fields(name, f, association)
-          f.hidden_field(:_destroy) + link_to(name, "javascript:void(0);", class: "delete_#{association.to_s} delete_link icon_link")
+          f.hidden_field(:_destroy) + link_to(name, "javascript:void(0);", class: "delete_#{association.to_s} discerner-delete-link discerner-icon-link")
         end
 
         def discerner_nested_record_id(builder, assocation)
