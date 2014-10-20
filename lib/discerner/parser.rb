@@ -410,19 +410,23 @@ module Discerner
       end
 
       def cleanup_dictionaries
-        abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
-        used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
-        not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, dictionaries removed from the definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+        else
+          abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
+          used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
+          not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
 
-        used_dictionaries.each do |r|
-          notification_message("marking dictionary #{r.name} as deleted");
-          r.deleted_at = Time.now
-          error_message "dictionary could not be updated: #{r.errors.full_messages}", r.name unless r.save
-        end
+          used_dictionaries.each do |r|
+            notification_message("marking dictionary #{r.name} as deleted");
+            r.deleted_at = Time.now
+            error_message "dictionary could not be updated: #{r.errors.full_messages}", r.name unless r.save
+          end
 
-        unless not_used_dictionaries.blank?
-          notification_message("permanently deleting dictionaries #{not_used_dictionaries.map{|r| r.name}.join(', ')}");
-          not_used_dictionaries.each{|r| r.destroy}
+          unless not_used_dictionaries.blank?
+            notification_message("permanently deleting dictionaries #{not_used_dictionaries.map{|r| r.name}.join(', ')}");
+            not_used_dictionaries.each{|r| r.destroy}
+          end
         end
       end
 
