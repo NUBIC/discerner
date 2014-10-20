@@ -1,5 +1,9 @@
 Discerner History
 ============
+2.0.6
+-----
+- Added task to delete dictionary by name.
+- Do not delete dictionaries that are not in definition file unless -—prune_dictionaries parameter is specified.
 2.0.5
 -----
 - Allow to assign Discerner::Search to multiple namespaces. This change rolls back namespacing on search object itself. Previously set namespaces will be either mapped to new Discerner::Search namespace if they have namespace_id specified, or replaced with ‘label’ if they don’t.
