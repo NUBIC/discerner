@@ -1,5 +1,9 @@
 Discerner History
 ============
+2.0.7
+-----
+- Do not delete parameters. categories, values for dictionaries that are not defined in parsed file, unless —prune-dictionaries parameter is set.
+
 2.0.6
 -----
 - Added task to delete dictionary by name.
