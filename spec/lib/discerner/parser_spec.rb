@@ -372,7 +372,7 @@ describe Discerner::Parser do
     end
   end
 
-  it "does not add 'None' value if allow_empty_values sat to false" do
+  it "does not add 'None' value if allow_empty_values set to false" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
     :dictionaries:
@@ -551,6 +551,8 @@ describe Discerner::Parser do
     expect(Discerner::ParameterValueCategory.where(unique_identifier: 'adventure').first.parameter_values.first.search_value).to eq 'Robinsonade'
   end
 
+  ## cleanup on dictionaries
+
   it "does not delete dictionaries that are no longer defined in the definition file and are not used in searches if --prune_dictionaries parameter is not specified" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
@@ -603,7 +605,6 @@ describe Discerner::Parser do
     expect(Discerner::Dictionary.where(name: 'Another dictionary')).not_to be_blank
   end
 
-
   it "deletes dictionaries that are no longer defined in the definition file and are not used in searches --prune_dictionaries parameter is set" do
     parser = Discerner::Parser.new(prune_dictionaries: true)
     dictionaries = %Q{
@@ -654,283 +655,6 @@ describe Discerner::Parser do
     expect(Discerner::Dictionary.order(:id).to_a).to_not be_empty
     expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
     expect(Discerner::Dictionary.where(name: 'Another dictionary')).to be_blank
-  end
-
-  it "deletes categories that are no longer defined in the definition file and are not used in searches" do
-    parser = Discerner::Parser.new()
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-
-          - :name: Patient criteria
-            :parameters:
-              - :name: Date of birth
-                :unique_identifier: date_of_birth
-                :search:
-                  :model: Patient
-                  :method: date_of_birth
-                  :parameter_type: date
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_categories.length).to eq 2
-    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
-    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
-
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_categories.length).to eq 1
-    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 1
-    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
-    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to be_blank
-  end
-
-  it "deletes parameters that are no longer defined in the definition file and are not used in searches" do
-    parser = Discerner::Parser.new()
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-
-              - :name: Gender
-                :unique_identifier: gender
-                :search:
-                  :model: Patient
-                  :method: gender
-                  :parameter_type: list
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameters.length).to eq 2
-    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
-    expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
-    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
-    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
-
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameters.length).to eq 1
-    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
-    expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
-    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
-    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to be_blank
-  end
-
-  it "deletes parameter values that are no longer defined in the definition file and are not used in searches" do
-    parser = Discerner::Parser.new()
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-                  :parameter_values:
-                    - :name: Hispanic or Latino
-                      :search_value: hisp_or_latino
-                    - :name: NOT Hispanic or Latino
-                      :search_value: not_hisp_or_latino
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 2
-    expect(parser.blank_parameter_values.length).to eq 1
-    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
-
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-                  :parameter_values:
-                    - :name: Hispanic or Latino
-                      :search_value: hisp_or_latino
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 1
-    expect(parser.blank_parameter_values.length).to eq 1
-    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to be_blank
-    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
-  end
-
-  it "deletes parameter values that are no longer defined in the definition file and used in list searches as not chosen options" do
-    parser = Discerner::Parser.new()
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-                  :parameter_values:
-                    - :name: Hispanic or Latino
-                      :search_value: hisp_or_latino
-                    - :name: NOT Hispanic or Latino
-                      :search_value: not_hisp_or_latino
-                    - :name: Unable to answer
-                      :search_value: unknown
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 3
-    expect(parser.blank_parameter_values.length).to eq 1
-    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
-
-    value = Discerner::ParameterValue.where(search_value: "unknown").first
-    s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
-    s.save!
-    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value)
-
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-                  :parameter_values:
-                    - :name: Hispanic or Latino
-                      :search_value: hisp_or_latino
-                    - :name: NOT Hispanic or Latino
-                      :search_value: not_hisp_or_latino
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 2
-    expect(parser.blank_parameter_values.length).to eq 1
-    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
-    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
-    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to be_blank
-    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
-  end
-
-  it "does not soft-deletes dictionaries that are no longer defined in the definition file but are used in searches and --prune_dictionaries option is not specified" do
-    parser = Discerner::Parser.new()
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-
-      - :name: Another dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_dictionaries.length).to eq 2
-    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(name: 'Another dictionary').first).to_not be_deleted
-
-    dictionary = Discerner::Dictionary.where(name: "Another dictionary").first
-    s = FactoryGirl.build(:search)
-    s.search_parameters << FactoryGirl.build(:search_parameter, search: s)
-    s.dictionary = dictionary
-    s.save!
-
-    dictionaries = %Q{
-    :dictionaries:
-      - :name: Sample dictionary
-        :parameter_categories:
-          - :name: Demographic criteria
-            :parameters:
-              - :name: Ethnic group
-                :unique_identifier: ethnic_grp
-                :search:
-                  :model: Patient
-                  :method: ethnic_grp
-                  :parameter_type: list
-    }
-    parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_dictionaries.length).to eq 1
-    expect(Discerner::Dictionary.order(:id).to_a).to_not be_empty
-    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
-    expect(Discerner::Dictionary.where(name: 'Another dictionary').first).not_to be_deleted
   end
 
   it "soft-deletes dictionaries that are no longer defined in the definition file but are used in searches and --prune_dictionaries option is specified" do
@@ -992,6 +716,119 @@ describe Discerner::Parser do
     expect(Discerner::Dictionary.where(name: 'Another dictionary').first).to be_deleted
   end
 
+  it "does not soft-deletes dictionaries that are no longer defined in the definition file but are used in searches and --prune_dictionaries option is not specified" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+
+      - :name: Another dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_dictionaries.length).to eq 2
+    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary').first).to_not be_deleted
+
+    dictionary = Discerner::Dictionary.where(name: "Another dictionary").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s)
+    s.dictionary = dictionary
+    s.save!
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_dictionaries.length).to eq 1
+    expect(Discerner::Dictionary.order(:id).to_a).to_not be_empty
+    expect(Discerner::Dictionary.where(name: 'Sample dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary')).to_not be_blank
+    expect(Discerner::Dictionary.where(name: 'Another dictionary').first).not_to be_deleted
+  end
+
+  ### cleanup on parameter categories
+
+  it "deletes categories that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+
+          - :name: Patient criteria
+            :parameters:
+              - :name: Date of birth
+                :unique_identifier: date_of_birth
+                :search:
+                  :model: Patient
+                  :method: date_of_birth
+                  :parameter_type: date
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 2
+    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 1
+    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 1
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to be_blank
+  end
+
   it "soft-deletes categories that are no longer defined in the definition file but are used in searches" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
@@ -1047,6 +884,197 @@ describe Discerner::Parser do
     expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
     expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
     expect(Discerner::ParameterCategory.where(name: 'Patient criteria').first).to be_deleted
+  end
+
+  it "does not delete categories that belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is not specified" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+
+          - :name: Patient criteria
+            :parameters:
+              - :name: Date of birth
+                :unique_identifier: date_of_birth
+                :search:
+                  :model: Patient
+                  :method: date_of_birth
+                  :parameter_type: date
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 2
+    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another Sample dictionary
+        :parameter_categories:
+          - :name: Another demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 1
+    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 3
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).not_to be_blank
+  end
+
+  it "soft-deletes categories that belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is specified and category is used in searches" do
+    parser = Discerner::Parser.new(prune_dictionaries: true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Patient criteria
+            :parameters:
+              - :name: Date of birth
+                :unique_identifier: date_of_birth
+                :search:
+                  :model: Patient
+                  :method: date_of_birth
+                  :parameter_type: date
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 1
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 1
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria').first).to_not be_deleted
+
+    category = Discerner::ParameterCategory.where(name: "Patient criteria").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: category.parameters.first)
+    s.save!
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Another demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 1
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 2
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria')).to_not be_blank
+    expect(Discerner::ParameterCategory.where(name: 'Patient criteria').first).to be_deleted
+  end
+
+  it "deletes categories that belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is specified and  are not used in searches" do
+    parser = Discerner::Parser.new(prune_dictionaries: true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 1
+    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 1
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Another demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_categories.length).to eq 1
+    expect(Discerner::ParameterCategory.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterCategory.order(:id).to_a.length).to eq 1
+    expect(Discerner::ParameterCategory.where(name: 'Demographic criteria')).to be_blank
+  end
+
+  ### cleanup on parameters
+
+  it "deletes parameters that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+
+              - :name: Gender
+                :unique_identifier: gender
+                :search:
+                  :model: Patient
+                  :method: gender
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 2
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to be_blank
   end
 
   it "soft-deletes parameters that are no longer defined in the definition file but are used in searches" do
@@ -1105,6 +1133,478 @@ describe Discerner::Parser do
     expect(Discerner::Parameter.where(unique_identifier: 'gender').first).to be_deleted
   end
 
+  it "does not delete parameters that belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is not specified" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another ample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: another_ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+  end
+
+  it "deletes parameters that belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is specified" do
+    parser = Discerner::Parser.new(prune_dictionaries:true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another ample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: another_ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to be_blank
+  end
+
+  it "soft-deletes parameters that are used in searches but belong to a dictionary that is no longer defined in the definition file when --prune_dictionaries parameter is specified" do
+    parser = Discerner::Parser.new(prune_dictionaries: true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Gender
+                :unique_identifier: gender
+                :search:
+                  :model: Patient
+                  :method: gender
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 1
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender').first).to_not be_deleted
+
+    parameter = Discerner::Parameter.where(unique_identifier: "gender").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: parameter)
+    s.save!
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameters.length).to eq 1
+    expect(Discerner::Parameter.order(:id).to_a).to_not be_empty
+    expect(Discerner::Parameter.order(:id).to_a.length).to eq 2
+    expect(Discerner::Parameter.where(unique_identifier: 'ethnic_grp')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender')).to_not be_blank
+    expect(Discerner::Parameter.where(unique_identifier: 'gender').first).to be_deleted
+  end
+
+  ### cleanup on parameter values
+
+  it "deletes parameter values that are no longer defined in the definition file and are not used in searches" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 3 # 2 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "does not delete parameter values that belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is not specified" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 3 # 2 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: another_ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: German
+                      :search_value: german
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).not_to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "deletes parameter values that are not used in searches and belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is specified" do
+    parser = Discerner::Parser.new(prune_dictionaries:true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: another_ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: German
+                      :search_value: german
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "deletes parameter values that are no longer defined in the definition file and used in list searches as not chosen options" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+                    - :name: Unable to answer
+                      :search_value: unknown
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 4 # 3 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
+    s.save!
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value)
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 3 # 2 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "does not deletes parameter values that are used in list searches as not chosen options and belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is not specified" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+                    - :name: Unable to answer
+                      :search_value: unknown
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 4 # 3 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
+    s.save!
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value)
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Anoher sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: another_ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: German
+                      :search_value: german
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).not_to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "deletes parameter values that are used in list searches as not chosen options and belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is specified" do
+    parser = Discerner::Parser.new(prune_dictionaries: true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+                    - :name: Unable to answer
+                      :search_value: unknown
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 4 # 3 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
+    s.save!
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value)
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: German
+                      :search_value: german
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to be_blank
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
   it "soft-deletes parameter values that are no longer defined in the definition file but are used in searches" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
@@ -1128,7 +1628,7 @@ describe Discerner::Parser do
                       :search_value: unknown
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 3
+    expect(parser.updated_parameter_values.length).to eq 4 # 3 + 1 blank
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 4
@@ -1164,11 +1664,139 @@ describe Discerner::Parser do
                       :search_value: not_hisp_or_latino
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 2
+    expect(parser.updated_parameter_values.length).to eq 3 # 2 + 1 blank
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 4
     expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
     expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to be_deleted
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "does not soft-deletes parameter values that are used in searches and belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is not specified" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Hispanic or Latino
+                      :search_value: hisp_or_latino
+                    - :name: NOT Hispanic or Latino
+                      :search_value: not_hisp_or_latino
+                    - :name: Unable to answer
+                      :search_value: unknown
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 4 # 3 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 4
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to_not be_deleted
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
+    s.save!
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, chosen: true)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, operator: Discerner::Operator.last)
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: German
+                      :search_value: german
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 6
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino').first).to_not be_deleted
+    expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino').first).to_not be_deleted
+    expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to_not be_deleted
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+  end
+
+  it "soft-deletes parameter values that are used in searches and belong to a dictionary that is no longer defined in the definition file if --prune_dictionaries parameter is specified" do
+    parser = Discerner::Parser.new(prune_dictionaries:true)
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: Unable to answer
+                      :search_value: unknown
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(parser.blank_parameter_values.length).to eq 1
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 2
+    expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
+    expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to_not be_deleted
+    expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
+
+    value = Discerner::ParameterValue.where(search_value: "unknown").first
+    s = FactoryGirl.build(:search)
+    s.search_parameters << FactoryGirl.build(:search_parameter, search: s, parameter: value.parameter)
+    s.save!
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, chosen: true)
+    FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, parameter_value: value, operator: Discerner::Operator.last)
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Ethnic group
+                :unique_identifier: ethnic_grp
+                :search:
+                  :model: Patient
+                  :method: ethnic_grp
+                  :parameter_type: list
+                  :parameter_values:
+                    - :name: German
+                      :search_value: german
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
+    expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
+    expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 3 # blank value from the frst set should be deleted
     expect(Discerner::ParameterValue.where(search_value: 'unknown')).to_not be_blank
     expect(Discerner::ParameterValue.where(search_value: 'unknown').first).to be_deleted
     expect(Discerner::ParameterValue.where(search_value: '')).to_not be_blank
@@ -1193,7 +1821,7 @@ describe Discerner::Parser do
                       :search_value: not_hisp_or_latino
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 1
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.where(search_value: 'not_hisp_or_latino')).to_not be_blank
@@ -1226,7 +1854,7 @@ describe Discerner::Parser do
                       :search_value: unknown
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 3
+    expect(parser.updated_parameter_values.length).to eq 4 # 3 + 1 blank
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.where(search_value: 'hisp_or_latino')).to_not be_blank
@@ -1258,7 +1886,7 @@ describe Discerner::Parser do
                       :search_value: not_hisp_or_latino
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 2
+    expect(parser.updated_parameter_values.length).to eq 3 # 2 + 1 blank
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 3
@@ -1287,7 +1915,7 @@ describe Discerner::Parser do
                       :search_value: not_hisp_or_latino
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 1
+    expect(parser.updated_parameter_values.length).to eq 2 # 1 + 1 blank
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 3
@@ -1313,7 +1941,7 @@ describe Discerner::Parser do
                       :search_value: not_hisp_or_latino
     }
     parser.parse_dictionaries(dictionaries)
-    expect(parser.updated_parameter_values.length).to eq 2
+    expect(parser.updated_parameter_values.length).to eq 3 # 2 + 1 blank
     expect(parser.blank_parameter_values.length).to eq 1
     expect(Discerner::ParameterValue.order(:id).to_a).to_not be_empty
     expect(Discerner::ParameterValue.order(:id).to_a.length).to eq 3

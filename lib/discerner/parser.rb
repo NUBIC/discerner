@@ -1,6 +1,7 @@
 module Discerner
   class Parser
-    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_value_categories, :updated_parameter_values, :blank_parameter_values
+    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_value_categories, :updated_parameter_values, :blank_parameter_values,
+                  :abandoned_dictionaries
 
     def initialize(options={})
       self.options = options
@@ -15,6 +16,7 @@ module Discerner
       self.updated_parameter_values = []
       self.updated_parameter_value_categories = []
       self.blank_parameter_values = []
+      self.abandoned_dictionaries = []
     end
 
     def parse_dictionaries(str)
@@ -348,7 +350,7 @@ module Discerner
       parameter_value.deleted_at = nil
       error_message "parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
-      updated_parameter_values << parameter_value unless silent
+      updated_parameter_values << parameter_value
       parameter_value
     end
 
@@ -402,6 +404,7 @@ module Discerner
 
     private
       def cleanup
+        self.abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
         cleanup_parameter_value_categories
         cleanup_parameter_values
         cleanup_parameters
@@ -411,9 +414,8 @@ module Discerner
 
       def cleanup_dictionaries
         if self.options[:prune_dictionaries].blank?
-          notification_message "if option --prune_dictionaries is not specified, dictionaries removed from the definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          notification_message "if option --prune_dictionaries is not specified, dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
         else
-          abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
           used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
           not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
 
@@ -432,6 +434,12 @@ module Discerner
 
       def cleanup_categories
         abandoned_categories = Discerner::ParameterCategory.order(:id).to_a - updated_categories
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, caterories for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_categories = abandoned_categories.reject{|c| abandoned_dictionaries.include?(c.dictionary)}
+        end
+
         used_categories      = abandoned_categories.reject{|c| c.parameters.blank? || c.parameters.select{|p| p.used_in_search?}.blank?}
         not_used_categories  = abandoned_categories - used_categories
 
@@ -449,6 +457,12 @@ module Discerner
 
       def cleanup_parameters
         abandoned_parameters = Discerner::Parameter.order(:id).to_a - updated_parameters
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, parameters for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_parameters = abandoned_parameters.reject{|p| abandoned_dictionaries.include?(p.parameter_category.dictionary)}
+        end
+
         used_parameters      = abandoned_parameters.select{|p| p.used_in_search?}
         not_used_parameters  = abandoned_parameters - used_parameters
 
@@ -466,6 +480,12 @@ module Discerner
 
       def cleanup_parameter_value_categories
         abandoned_categories = Discerner::ParameterValueCategory.order(:id).to_a - updated_parameter_value_categories
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, parameter value categories for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_categories = abandoned_categories.reject{|c| abandoned_dictionaries.include?(c.parameter.parameter_category.dictionary)}
+        end
+
         used_categories      = abandoned_categories.reject{|c| c.parameter_values.blank? || c.parameter_values.select{|v| v.used_in_search?}.blank?}
         not_used_categories  = abandoned_categories - used_categories
 
@@ -480,10 +500,17 @@ module Discerner
           not_used_categories.each{|r| r.destroy}
         end
       end
+
       # this also marks search_parameter_values that reference this value and are chosen as deleted
       # and destroys search_parameter_values that reference this value but are not chosen (list options)
       def cleanup_parameter_values
         abandoned_parameter_values = Discerner::ParameterValue.order(:id).to_a - updated_parameter_values - blank_parameter_values
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, parameter values for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_parameter_values = abandoned_parameter_values.reject{|v| abandoned_dictionaries.include?(v.parameter.parameter_category.dictionary)}
+        end
+
         used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
         not_used_parameter_values  = abandoned_parameter_values - used_parameter_values
 
