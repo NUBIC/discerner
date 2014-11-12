@@ -21,7 +21,6 @@ This code has been run and tested on Ruby 1.9. and Ruby 2.1
 * haml
 * sass
 * jquery-rails
-* jquery-ui-rails
 
 # Installation
 

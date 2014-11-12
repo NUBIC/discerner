@@ -12,9 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require jquery.ui.widget
-//= require jquery.ui.autocomplete
-//= require jquery.ui.datepicker
-//= require jquery.ui.button
-//= require discerner/jquery/jquery.blockUI
+//= require jquery-ui
+//= require jquery.blockUI
 //= require_tree .
