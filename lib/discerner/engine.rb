@@ -1,5 +1,6 @@
 require 'haml'
 require 'jquery-rails'
+require 'jquery-ui-rails'
 
 module Discerner
   class Engine < ::Rails::Engine
