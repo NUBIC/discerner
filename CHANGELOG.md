@@ -1,5 +1,10 @@
 Discerner History
 ============
+2.0.8
+-----
+- Use asset_url helper for images.
+- Include jQueryUI assets into discerner assets.
+
 2.0.7
 -----
 - Do not delete parameters. categories, values for dictionaries that are not defined in parsed file, unless —prune-dictionaries parameter is set.
