@@ -1,7 +1,7 @@
 - if f.object.disabled? && f.object.warnings.any?
   %tr.error
     %td
-    %td.warnings{colspan: "4"}
+    %td.warnings{colspan: "3"}
       %span
         = f.object.warnings.full_messages.join(', ')
 
