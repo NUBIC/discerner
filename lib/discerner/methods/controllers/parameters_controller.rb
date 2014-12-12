@@ -7,7 +7,7 @@ module Discerner
         end
 
         def values
-          @parameter_values = @parameter.parameter_values.includes(:parameter_value_category).not_deleted.ordered_by_name
+          @parameter_values = @parameter.parameter_values.joins('LEFT JOIN discerner_parameter_value_categorizations ON discerner_parameter_values.id = discerner_parameter_value_categorizations.parameter_value_id LEFT JOIN discerner_parameter_value_categories ON discerner_parameter_value_categorizations.parameter_value_category_id = discerner_parameter_value_categories.id ').not_deleted.ordered_by_name.select('discerner_parameter_values.*, discerner_parameter_value_categories.name AS category_name')
           @search_parameter_value_id = params[:search_parameter_value_id]
           @searchable_parameter_values = {}
           @searchable_parameter_values[@parameter.id] = @parameter_values

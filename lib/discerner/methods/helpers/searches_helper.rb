@@ -80,15 +80,7 @@ module Discerner
         end
 
         def parameter_value_options(searchable_values, base_id=nil)
-          options = []
-          searchable_values.each do |pv|
-            option = [pv.display_name, pv.id]
-            html_options = {}
-            html_options[:id] = searchable_object_index(pv, base_id) unless base_id.blank?
-            option << html_options
-            options << option
-          end
-          options
+          searchable_values.map { |pv| [(pv.category_name.nil? ? pv.name : "#{pv.category.name} - #{pv.name}"), pv.id, base_id.nil? ? {} : { id: searchable_object_index(pv, base_id) }] }
         end
 
         def searchable_object_index(object, base_id=nil)
