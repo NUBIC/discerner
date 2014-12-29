@@ -186,10 +186,10 @@ module Discerner
             searchable_values = {}
 
             # getting all values at once to save database calls
-            values_available = Discerner::ParameterValue.includes(:parameter_value_category).not_deleted.where(parameter_id: @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.to_a
+            values_available = Discerner::ParameterValue.joins('LEFT JOIN discerner_parameter_value_categorizations ON discerner_parameter_values.id = discerner_parameter_value_categorizations.parameter_value_id LEFT JOIN discerner_parameter_value_categories ON discerner_parameter_value_categorizations.parameter_value_category_id = discerner_parameter_value_categories.id ').not_deleted.where(:parameter_id => @searchable_parameters.map(&:id)).ordered_by_parameter_and_name.select('discerner_parameter_values.*, discerner_parameter_value_categories.name AS category_name').to_a
             values_used = []
             if @discerner_search && @discerner_search.persisted?
-              values_used = Discerner::ParameterValue.includes(:parameter_value_category).joins(search_parameter_values: :search_parameter).where(discerner_search_parameters: {search_id: @discerner_search.id}).ordered_by_parameter_and_name.to_a
+              values_used = Discerner::ParameterValue.joins('LEFT JOIN discerner_parameter_value_categorizations ON discerner_parameter_values.id = discerner_parameter_value_categorizations.parameter_value_id LEFT JOIN discerner_parameter_value_categories ON discerner_parameter_value_categorizations.parameter_value_category_id = discerner_parameter_value_categories.id ').joins(:search_parameter_values => :search_parameter).where(:discerner_search_parameters => {:search_id => @discerner_search.id}).ordered_by_parameter_and_name.select('discerner_parameter_values.*, discerner_parameter_value_categories.name AS category_name').to_a
             end
 
             @searchable_parameters.each do |sp|
