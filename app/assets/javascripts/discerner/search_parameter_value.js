@@ -39,8 +39,12 @@ Discerner.SearchParameterValue.UI = function (config) {
         $(config.container).find('.additional_value').hide();
       } else if ($(selectedParameter).hasClass('combobox')) {                         // combobox parameters
         var input = $(row).find('input.parameter_value_id');
+        var offset = $(row).offset();
         $(config.container).find('.additional_value').hide();
         if (input.length > 0) {
+            $('.discerner-spinner').css({ left: offset.left });
+            $('.discerner-spinner').css({ top: offset.top });
+            $('.discerner-spinner').removeClass('hide');
             $.get( parametersUrl.sub({ question_id: selectedParameter.val(), search_parameter_value_id: input.closest('tr.search_parameter_value').attr('id') }), function( data ) {
               container = $(input).closest('td');
               $(input).detach();
@@ -48,6 +52,7 @@ Discerner.SearchParameterValue.UI = function (config) {
               container.find('select').attr('id', input.attr('id')).attr('name', input.attr('name')).combobox({ watermark:'a value'});
               handleParameterValuelPopupListClick(row);
               handleParameterValueAutocompleterButtonLink(row);
+              $('.discerner-spinner').addClass('hide');
             });
           }
         $(config.container).find('.parameter_value, .remove').show();
