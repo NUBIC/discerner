@@ -1,5 +1,11 @@
 Discerner History
 ============
+
+2.0.9
+-----
+- Show an spinner upon loading of an autocompleting combobox.
+- Improve the performance of the rendering of large lists of values in autocompleting comboboxes.
+
 2.0.8
 -----
 - Use asset_url helper for images.
