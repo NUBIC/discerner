@@ -196,4 +196,26 @@ describe Discerner::SearchParameter do
       expect(search_parameter.warnings).to be_blank
     end
   end
+
+  describe "it marks coddesponding search as updated on change" do
+    it "is not triggered on save with no changes" do
+      updated_datestamp = search_parameter.search.updated_at
+      search_parameter.save
+      expect(search_parameter.search.updated_at).to eq(updated_datestamp)
+    end
+
+    it "detects new search_parameter" do
+      updated_datestamp = search_parameter.search.updated_at
+      search_parameter_1 = FactoryGirl.build(:search_parameter, search: search_parameter.search, parameter: search_parameter.parameter)
+      search_parameter_1.save!
+      expect(search_parameter.search.updated_at).to be > updated_datestamp
+    end
+
+    it "detects search_parameter removal" do
+      search = search_parameter.search
+      updated_datestamp = search.updated_at
+      search_parameter.destroy
+      expect(search.updated_at).to be > updated_datestamp
+    end
+  end
 end

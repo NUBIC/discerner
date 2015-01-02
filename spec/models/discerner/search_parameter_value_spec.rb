@@ -152,4 +152,40 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.save
     expect(search_parameter_value.class).to_not exist(search_parameter_value)
   end
+
+  describe "it marks coddesponding search as updated on change" do
+    it "is not triggered on save with no changes" do
+      updated_datestamp = search_parameter_value.search_parameter.search.updated_at
+      search_parameter_value.save
+      expect(search_parameter_value.search_parameter.search.updated_at).to eq(updated_datestamp)
+    end
+
+    it "detects new search_parameter_value" do
+      updated_datestamp = search_parameter_value.search_parameter.search.updated_at
+      FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter_value.search_parameter, operator: Discerner::Operator.last)
+      expect(search_parameter_value.search_parameter.search.updated_at).to be > updated_datestamp
+    end
+
+    it "detects search_parameter_value value change" do
+      updated_datestamp = search_parameter_value.search_parameter.search.updated_at
+
+      search_parameter_value.value = 'xx'
+      search_parameter_value.save!
+      expect(search_parameter_value.search_parameter.search.updated_at).to be > updated_datestamp
+    end
+
+    it "detects search_parameter_value parameter value change" do
+      updated_datestamp = search_parameter_value.search_parameter.search.updated_at
+      search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, parameter: search_parameter_value.search_parameter.parameter)
+      search_parameter_value.save!
+      expect(search_parameter_value.search_parameter.search.updated_at).to be > updated_datestamp
+    end
+
+    it "detects search_parameter_value removal" do
+      search = search_parameter_value.search_parameter.search
+      updated_datestamp = search.updated_at
+      search_parameter_value.destroy
+      expect(search.updated_at).to be > updated_datestamp
+    end
+  end
 end
