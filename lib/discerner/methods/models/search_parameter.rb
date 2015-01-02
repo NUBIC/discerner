@@ -120,7 +120,7 @@ module Discerner
           end
 
           def mark_search_updated
-            if !previous_changes.empty? && search
+            if (self.destroyed? || !previous_changes.empty?) && search
               search.updated_at = Time.now
               search.save!
             end
