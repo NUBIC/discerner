@@ -1,6 +1,10 @@
 Discerner History
 ============
 
+2.0.10
+-----
+- Do not use asset_path with image_tag.
+
 2.0.9
 -----
 - Show an spinner upon loading of an autocompleting combobox.
