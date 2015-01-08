@@ -22,6 +22,7 @@ module Discerner
           # Hooks
           base.send :before_validation, :cleanup_parameter_values
           base.send :after_commit, :destroy_if_deleted_parameter_value, on: :update
+          base.send :after_commit, :mark_search_updated
         end
 
         # Instance Methods
@@ -119,6 +120,13 @@ module Discerner
               self.operator = nil
             else
               errors.add(:base, "Operator has to be selected for parameter values that do not belong to list or combobox") if operator.blank?
+            end
+          end
+
+          def mark_search_updated
+            if (self.destroyed? || !previous_changes.empty?) && search_parameter && search_parameter.search
+              search_parameter.search.updated_at = Time.now
+              search_parameter.search.save!
             end
           end
       end

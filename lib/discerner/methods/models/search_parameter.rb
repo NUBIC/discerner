@@ -24,6 +24,7 @@ module Discerner
 
           # Hooks
           base.send :after_commit, :update_associations, on: :update, if: Proc.new { |record| record.previous_changes.include?('deleted_at') }
+          base.send :after_commit, :mark_search_updated
         end
 
         # Instance Methods
@@ -110,13 +111,18 @@ module Discerner
           end
         end
 
-
-
         private
           def update_associations
             search_parameter_values.each do |r|
               r.deleted_at = Time.now
               r.save
+            end
+          end
+
+          def mark_search_updated
+            if (self.destroyed? || !previous_changes.empty?) && search
+              search.updated_at = Time.now
+              search.save!
             end
           end
       end
