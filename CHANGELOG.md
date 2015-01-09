@@ -4,11 +4,13 @@ Discerner History
 2.0.10
 -----
 - Do not use asset_path with image_tag.
+- Update search datestamp when search parameters/parameter_values get updated.
 
 2.0.9
 -----
 - Show an spinner upon loading of an autocompleting combobox.
 - Improve the performance of the rendering of large lists of values in autocompleting comboboxes.
+- Remove !important declaration from CSS to allow overriding.
 
 2.0.8
 -----
