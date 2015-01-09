@@ -14,8 +14,8 @@ module Discerner
           base.send :validates, :dictionary, presence: { message: "for parameter category can't be blank" }
 
           # Scopes
-          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model is not null and discerner_parameters.search_method is not null and discerner_parameters.deleted_at is null').references(:discerner_parameters)})
-          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model is not null and discerner_parameters.export_method is not null and discerner_parameters.deleted_at is null').references(:discerner_parameters)})
+          base.send(:scope, :searchable, -> {base.includes(:parameters).where('discerner_parameters.search_model IS NOT NULL AND discerner_parameters.search_method IS NOT NULL AND discerner_parameters.deleted_at IS NULL AND discerner_parameters.hidden_in_search = ?', false).references(:discerner_parameters)})
+          base.send(:scope, :exportable, -> {base.includes(:parameters).where('discerner_parameters.export_model IS NOT NULL AND discerner_parameters.export_method IS NOT NULL AND discerner_parameters.deleted_at IS NULL AND discerner_parameters.hidden_in_export = ?', false).references(:discerner_parameters)})
           base.send(:scope, :ordered_by_name, -> {base.order('discerner_parameter_categories.name ASC')})
 
           # Hooks

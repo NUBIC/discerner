@@ -155,6 +155,7 @@ module Discerner
 
         parameter.search_model      = search_identifiers[:model].to_s
         parameter.search_method     = search_identifiers[:method].to_s
+        parameter.hidden_in_search  = search_identifiers[:hidden].blank? ? false : search_identifiers[:hidden]
         parameter.parameter_type    = find_or_initialize_parameter_type(search_identifiers[:parameter_type])
       end
 
@@ -165,6 +166,7 @@ module Discerner
 
         parameter.export_model      = export_identifiers[:model].to_s
         parameter.export_method     = export_identifiers[:method].to_s
+        parameter.hidden_in_export  = export_identifiers[:hidden].blank? ? false : export_identifiers[:hidden]
       end
 
       if parameter.new_record?

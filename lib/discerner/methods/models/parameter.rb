@@ -20,8 +20,8 @@ module Discerner
           base.send :validate,  :validate_export_attributes
 
           # Scopes
-          base.send(:scope, :searchable, -> {base.not_deleted.where('search_model is not null and search_method is not null')})
-          base.send(:scope, :exportable, -> {base.not_deleted.where('export_model is not null and export_method is not null')})
+          base.send(:scope, :searchable, -> {base.not_deleted.where('search_model is not null and search_method is not null and hidden_in_search = ?', false)})
+          base.send(:scope, :exportable, -> {base.not_deleted.where('export_model is not null and export_method is not null and hidden_in_export = ?', false)})
 
           # Hooks
           base.send :after_commit, :cascade_delete_parameter_values, on: :update, if: Proc.new { |record| record.previous_changes.include?('deleted_at') }

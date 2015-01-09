@@ -398,6 +398,93 @@ describe Discerner::Parser do
     end
   end
 
+  it "parses 'hidden' configuration values" do
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Consented
+                :unique_identifier: consented
+                :export:
+                  :model: Patient
+                  :method: consented
+                :search:
+                  :model: Patient
+                  :method: consented
+                  :parameter_type: list
+                  :allow_empty_values: false
+                  :parameter_values:
+                    - :search_value: yes
+                    - :search_value: no
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(Discerner::Parameter.all.length).to eq 1
+    parameter = Discerner::Parameter.last
+    expect(parameter.hidden_in_export).to eq false
+    expect(parameter.hidden_in_search).to eq false
+
+    parser = Discerner::Parser.new()
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Consented
+                :unique_identifier: consented
+                :export:
+                  :model: Patient
+                  :method: consented
+                  :hidden: true
+                :search:
+                  :model: Patient
+                  :method: consented
+                  :parameter_type: list
+                  :allow_empty_values: false
+                  :hidden: true
+                  :parameter_values:
+                    - :search_value: yes
+                    - :search_value: no
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(Discerner::Parameter.all.length).to eq 2
+    parameter = Discerner::Parameter.last
+    expect(parameter.hidden_in_export).to eq true
+    expect(parameter.hidden_in_search).to eq true
+
+    dictionaries = %Q{
+    :dictionaries:
+      - :name: Another sample dictionary
+        :parameter_categories:
+          - :name: Demographic criteria
+            :parameters:
+              - :name: Consented
+                :unique_identifier: consented
+                :export:
+                  :model: Patient
+                  :method: consented
+                  :hidden: false
+                :search:
+                  :model: Patient
+                  :method: consented
+                  :parameter_type: list
+                  :allow_empty_values: false
+                  :hidden: false
+                  :parameter_values:
+                    - :search_value: yes
+                    - :search_value: no
+    }
+    parser.parse_dictionaries(dictionaries)
+    expect(Discerner::Parameter.all.length).to eq 2
+    parameter = Discerner::Parameter.last
+    expect(parameter.hidden_in_export).to eq false
+    expect(parameter.hidden_in_search).to eq false
+
+  end
+
   it "finds and updates moved parameters" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
