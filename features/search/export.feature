@@ -182,3 +182,11 @@ Feature: Exporting results for existing searches
     And the "Age based on current date" checkbox should be checked
     And the "Gender" checkbox should be checked
 
+  @javascript
+  Scenario: It should not display selected hidden parameters as export options
+    Given I create search for dictionary "Librarian dictionary" with name "Awesome search"
+    And search with name "Awesome search" has exportable parameters "Hidden parameter"
+    When I am on the search export page
+    Then "#discerner_exportable_fields" should not contain text "Hidden parameter"
+    And "#discerner_exportable_fields" should not contain text "Hidden from export parameter"
+    And "#discerner_exportable_fields" should contain text "Hidden from search parameter"

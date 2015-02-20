@@ -26,7 +26,7 @@
                 %a{ class: "select_all_parameters", href: "#"}
                   Select all
 
-              - items = exportable_parameters(@discerner_search, c)
+              - items = exportable_parameters(@discerner_search, c).reject{|p| p.hidden_in_export}
               - columns_count = 3
               - items_rendered_count = 0
               - (0...columns_count).each do |i|
