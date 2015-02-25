@@ -37,6 +37,7 @@ FactoryGirl.define do
 
   factory :search, class: Discerner::Search do |f|
     f.name 'some search'
+    f.last_executed Time.now
     after(:build) do |s|
       s.dictionary = Discerner::Dictionary.last || FactoryGirl.build(:dictionary)
     end

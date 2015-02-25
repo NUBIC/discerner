@@ -46,6 +46,8 @@ module Discerner
               dictionary =  dictionary_model.new(@discerner_search)
               if dictionary.respond_to?('search')
                 @results = dictionary.search(params, dictionary_search_options)
+                @discerner_search.last_executed = Time.now
+                @discerner_search.save!
               else
                 error_message = "Model '#{dictionary_model_name}' instance does not respond to 'search' method. You need to implement it to be able to run search on this dictionary"
               end
@@ -81,7 +83,7 @@ module Discerner
           searches = searches.by_user(username) unless username.blank?
 
           searches = searches.where('discerner_searches.name like ?', '%' + params[:query] + '%') unless params[:query].blank?
-          @discerner_searches = searches.order("discerner_searches.updated_at DESC")
+          @discerner_searches = searches.order("discerner_searches.last_executed DESC")
         end
 
         def destroy

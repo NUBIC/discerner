@@ -23,6 +23,7 @@ Given /^(?:(exportable) )?search "([^\"]*)" exists$/ do |exportable, name|
   search_parameter = FactoryGirl.build(:search_parameter, search: s, parameter: p)
   s.search_parameters << search_parameter
   s.dictionary = Discerner::Dictionary.last
+  s.last_executed = Time.now + (Discerner::Search.count).minutes
   s.save!
   o = Discerner::Operator.last || FactoryGirl.create(:operator)
   FactoryGirl.create(:search_parameter_value, search_parameter: s.search_parameters.first, operator: o)
