@@ -1,6 +1,14 @@
 Discerner History
 ============
 
+2.0.11
+-----
+- Merged rails4 branch into master.
+- Allow to define if parameter should be hidden in search and/or export.
+- Hide selected hidden export parameters from UI.
+- Fixed bug with calculating display order.
+- Added 'last_executed' timestamp to Discerner::Search. This timestamp is ser by controller edit action after executing the search.
+
 2.0.10
 -----
 - Do not use asset_path with image_tag.
