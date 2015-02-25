@@ -1,5 +1,5 @@
 - if @discerner_search.errors.any?
-  $("#messages").html("#{escape_javascript(render :partial => 'shared/error_messages', :locals => {:object => @discerner_search})}")
+  $("#messages").html("#{escape_javascript(render partial: 'shared/error_messages', locals: {object: @discerner_search})}")
 - else
   $("#messages").html('')
   $('span.discerner_search_name_edit_dialog').siblings('span.discerner_search_name').html("#{@discerner_search.display_name}").show();

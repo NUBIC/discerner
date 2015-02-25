@@ -3,47 +3,47 @@
 - parameter_values = parameter_value_options(@searchable_parameter_values[parameter.id], search_parameter_value_id)
 
 - if parameter.parameter_values.categorized.any?
-  %div{:class => 'ui-widget categorized_autocompleter'}
+  %div{class: 'ui-widget categorized_autocompleter'}
 
     - if defined?(f)
-      = f.select(:parameter_value_id, parameter_values, { :include_blank => true }, {:class => 'parameter_values_combobox_autocompleter'})
+      = f.select(:parameter_value_id, parameter_values, { include_blank: true }, {class: 'parameter_values_combobox_autocompleter'})
     - else
-      = select_tag(:parameter_value_id, options_for_select(parameter_values), :include_blank => true, :class => 'parameter_values_combobox_autocompleter')
+      = select_tag(:parameter_value_id, options_for_select(parameter_values), include_blank: true, class: 'parameter_values_combobox_autocompleter')
 
-    %a{ :href => 'javascript:void(0);', :class => 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
+    %a{ href: 'javascript:void(0);', class: 'categorized_autocompleter_link collapsed_categorized_autocompleter_link' }
       Select
-    .div-category-popup{ :style => "display: none;"}
+    .div-category-popup{ style: "display: none;"}
       .div-category-list
         - parameter.parameter_value_categories.ordered_by_display_order_and_name.each do |parameter_value_category|
           - unless parameter_value_category.parameter_values.empty?
-            = div_for parameter_value_category, :class => "#{parameter_value_category.css_class} categorized-parameter-values" do
-              %p{ :class => 'parameter_value_category_name' }
+            = div_for parameter_value_category, class: "#{parameter_value_category.css_class} categorized-parameter-values" do
+              %p{ class: 'parameter_value_category_name' }
                 = parameter_value_category.name
                 - if parameter_value_category.collapse?
-                  %a{ :class => "show-category-items", :href => "#"}
+                  %a{ class: "show-category-items", href: "#"}
                     more
                 - else
-                  %a{ :class => "hide-category-items", :href => "#"}
+                  %a{ class: "hide-category-items", href: "#"}
                     less
-              .category-items{:style => "#{parameter_value_category.collapse ? 'display:none;' : ''}"}
-                - items = parameter_value_category.parameter_values.not_deleted.ordered_by_name.to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
+              .category-items{style: "#{parameter_value_category.collapse ? 'display:none;' : ''}"}
+                - items = parameter_value_category.parameter_values.not_deleted.ordered_by_name.to_a.map{ |pv| {name: pv.name, rel: searchable_object_index(pv, search_parameter_value_id)}}
                 - unless items.empty?
-                  = render :partial => 'discerner/shared/categorized_autocompleter_items', :locals => { :columns_count => 2, :items => items }
+                  = render partial: 'discerner/shared/categorized_autocompleter_items', locals: { columns_count: 2, items: items }
             .clear
 
-        - uncategorized_items = parameter.parameter_values.uncategorized.ordered_by_name.to_a.map{ |pv| {:name => pv.name, :rel => searchable_object_index(pv, search_parameter_value_id)}}
+        - uncategorized_items = parameter.parameter_values.uncategorized.ordered_by_name.to_a.map{ |pv| {name: pv.name, rel: searchable_object_index(pv, search_parameter_value_id)}}
         - unless uncategorized_items.empty?
           .uncategorized-parameter-values.parameter_value_category
-            %p{ :class => 'parameter_value_category_name' }
+            %p{ class: 'parameter_value_category_name' }
               Uncategorized
-              %a{ :class => "hide-category-items", :href => "#"}
+              %a{ class: "hide-category-items", href: "#"}
                 less
             .category-items
-              = render :partial => 'discerner/shared/categorized_autocompleter_items', :locals => { :columns_count => 2, :items => uncategorized_items }
+              = render partial: 'discerner/shared/categorized_autocompleter_items', locals: { columns_count: 2, items: uncategorized_items }
 
       .div-instruction-bar
 - else
   - if defined?(f)
-    = f.select(:parameter_value_id, parameter_values, { :include_blank => true },{ :class => 'parameter_values_combobox_autocompleter' })
+    = f.select(:parameter_value_id, parameter_values, { include_blank: true },{ class: 'parameter_values_combobox_autocompleter' })
   - else
-    = select_tag(:parameter_value_id, options_for_select(parameter_values), :include_blank => true, :class => 'parameter_values_combobox_autocompleter')
+    = select_tag(:parameter_value_id, options_for_select(parameter_values), include_blank: true, class: 'parameter_values_combobox_autocompleter')

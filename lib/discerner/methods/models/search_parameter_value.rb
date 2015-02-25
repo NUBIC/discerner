@@ -7,24 +7,22 @@ module Discerner
           base.send :include, Warning
 
           # Associations
-          base.send :belongs_to, :search_parameter, :inverse_of => :search_parameter_values
-          base.send :belongs_to, :parameter_value,  :inverse_of => :search_parameter_values
-          base.send :belongs_to, :operator,         :inverse_of => :search_parameter_values
+          base.send :belongs_to, :search_parameter, inverse_of: :search_parameter_values
+          base.send :belongs_to, :parameter_value,  inverse_of: :search_parameter_values
+          base.send :belongs_to, :operator,         inverse_of: :search_parameter_values
 
           # Scopes
-          base.send(:scope, :chosen, -> { base.where(:chosen => true) })
+          base.send(:scope, :chosen, -> { base.where(chosen: true) })
           base.send(:scope, :ordered_by_display_order, -> { base.order('discerner_search_parameter_values.display_order ASC') })
 
           #Validations
           base.send :validate,  :validate_operator
-          base.send :validates, :search_parameter, :presence => true
+          base.send :validates, :search_parameter, presence: true
 
           # Hooks
           base.send :before_validation, :cleanup_parameter_values
-          base.send :after_commit, :destroy_if_deleted_parameter_value, :on => :update
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :additional_value, :chosen, :display_order, :operator_id, :parameter_value_id, :search_parameter_id, :value, :parameter_value, :operator, :search_parameter
+          base.send :after_commit, :destroy_if_deleted_parameter_value, on: :update
+          base.send :after_commit, :mark_search_updated
         end
 
         # Instance Methods
@@ -122,6 +120,13 @@ module Discerner
               self.operator = nil
             else
               errors.add(:base, "Operator has to be selected for parameter values that do not belong to list or combobox") if operator.blank?
+            end
+          end
+
+          def mark_search_updated
+            if (self.destroyed? || !previous_changes.empty?) && search_parameter && search_parameter.search
+              search_parameter.search.updated_at = Time.now
+              search_parameter.search.save!
             end
           end
       end

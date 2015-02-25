@@ -60,7 +60,7 @@ end
 # See the DatabaseCleaner documentation for details. Example:
 #
   # Before('@no-txn,@selenium,@culerity,@celerity,@javascript') do
-  #   # { :except => [:widgets] } may not do what you expect here
+  #   # { except: [:widgets] } may not do what you expect here
   #   # as tCucumber::Rails::Database.javascript_strategy overrides
   #   # this setting.
   #   DatabaseCleaner.strategy = :truncation
@@ -80,7 +80,7 @@ Capybara.register_driver :chrome do |app|
   prefs = {"download" => {"default_directory" => DownloadHelpers::PATH.to_s, "directory_upgrade" => true, "extensions_to_open" => ""}}
   caps = Selenium::WebDriver::Remote::Capabilities.chrome
   caps['chromeOptions'] = {'prefs' => prefs}
-  Capybara::Selenium::Driver.new(app, :browser => :chrome, :desired_capabilities => caps)
+  Capybara::Selenium::Driver.new(app, browser: :chrome, desired_capabilities: caps)
 end
 
 Capybara.javascript_driver = :chrome

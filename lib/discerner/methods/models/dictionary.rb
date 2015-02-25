@@ -6,17 +6,14 @@ module Discerner
           base.send :include, SoftDelete
 
           # Associations
-          base.send :has_many, :parameter_categories, :dependent => :destroy
+          base.send :has_many, :parameter_categories, dependent: :destroy
           base.send :has_many, :searches
 
           #Validations
-          base.send :validates, :name, :presence => true, :uniqueness => {:message => "for dictionary has already been taken"}
+          base.send :validates, :name, presence: true, uniqueness: {message: "for dictionary has already been taken"}
 
           # Hooks
-          base.send :after_commit, :cascade_delete_parameter_categories, :on => :update, :if => Proc.new { |record| record.previous_changes.include?('deleted_at') }
-
-          # Whitelisting attributes
-          base.send :attr_accessible, :name, :deleted_at
+          base.send :after_commit, :cascade_delete_parameter_categories, on: :update, if: Proc.new { |record| record.previous_changes.include?('deleted_at') }
         end
 
         # Instance Methods

@@ -1,8 +1,8 @@
 #discerner_search
   %br
   = render 'form'
-    
+
   - if show_discerner_results?
     #discerner_results
-      = render :partial => discerner_results_partial
+      = render partial: discerner_results_partial
       .clear

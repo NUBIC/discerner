@@ -1,14 +1,15 @@
 = image_tag asset_path('discerner/ajax-loader.gif'), class: 'discerner-spinner hide'
+
 - unless @discerner_search.blank?
-  = render 'discerner/shared/error_messages', :object => @discerner_search
+  = render 'discerner/shared/error_messages', object: @discerner_search
 
   #discerner_search_form
-    = form_for @discerner_search, :html => { :id => 'search' } do |f|
-      = render :partial => 'form_header', :locals => { :f => f }
+    = form_for @discerner_search, html: { id: 'search' } do |f|
+      = render partial: 'form_header', locals: { f: f }
       - unless enable_combined_searches?.blank?
-        = render :partial => 'form_combined_searches', :locals => { :f => f }
-      = render :partial => 'form_search_parameters', :locals => { :f => f }
-      = render :partial => 'form_controls', :locals => { :f => f }
+        = render partial: 'form_combined_searches', locals: { f: f }
+      = render partial: 'form_search_parameters', locals: { f: f }
+      = render partial: 'form_controls', locals: { f: f }
   .clear
 
   :javascript

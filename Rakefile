@@ -14,7 +14,7 @@ load 'rails/tasks/engine.rake' if File.exists?(APP_RAKEFILE)
 load 'lib/tasks/discerner_tasks.rake'
 load 'test/lib/tasks/discerner_test_tasks.rake'
 RSpec::Core::RakeTask.new(:spec)
-task :default => :spec
+task default: :spec
 
 namespace :cucumber do
   Cucumber::Rake::Task.new(:wip, 'Run features that are being worked on') do |t|
@@ -26,4 +26,4 @@ namespace :cucumber do
   end
 end
 
-task :cucumber => 'cucumber:features'
+task cucumber: 'cucumber:features'

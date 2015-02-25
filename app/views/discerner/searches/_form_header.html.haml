@@ -4,10 +4,10 @@
 
     .discerner_search_dictionary
       %b Dictionary:
-      %span{ :class => "#{@discerner_search.dictionary.css_class_name}"}
+      %span{ class: "#{@discerner_search.dictionary.css_class_name}"}
         #{@discerner_search.dictionary.name}
       - if @discerner_search.dictionary.deleted?
-        %span{ :style => "color:red;"}
+        %span{ style: "color:red;"}
           %b This dictionary has been deleted. You will not be able to execute or edit this search.
 
     .discerner_search_name
@@ -15,7 +15,7 @@
       %span.discerner_search_name
         = @discerner_search.display_name
       %span.discerner_search_name_edit
-        = link_to 'Edit', '#', :class => "edit_link icon_link"
+        = link_to 'Edit', '#', class: "discerner-edit-link discerner-icon-link"
 
   - else
     .discerner_dictionary_required_message
@@ -25,11 +25,11 @@
     %div.discerner_search_dictionary
       - if @searchable_dictionaries.length > 1
         = f.label :dictionary_id
-        = f.select :dictionary_id, dictionary_options(@searchable_dictionaries), :include_blank => true
+        = f.select :dictionary_id, dictionary_options(@searchable_dictionaries), include_blank: true
       - else
         %b Dictionary:
-        = f.hidden_field :dictionary_id, :value => @searchable_dictionaries.last.id
-        %span{ :class => "#{@searchable_dictionaries.last.css_class_name}"}
+        = f.hidden_field :dictionary_id, value: @searchable_dictionaries.last.id
+        %span{ class: "#{@searchable_dictionaries.last.css_class_name}"}
           = @searchable_dictionaries.last.name
 
     %div.discerner_search_name

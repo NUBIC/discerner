@@ -10,22 +10,22 @@ module NavigationHelpers
 
     when /^the home\s?page$/
       '/'
-    
+
     when /^the searches page/
       '/searches'
-      
+
     when /^the new search page/
       '/searches/new'
-      
+
     when /^the search edit page/
       "/searches/#{Discerner::Search.last.id}/edit"
-      
+
     when /^the search "(.*)" edit page/
-      "/searches/#{Discerner::Search.where(:name => $1).last.id}/edit"
-      
+      "/searches/#{Discerner::Search.where(name: $1).last.id}/edit"
+
     when /^the search export page/
       "/searches/#{Discerner::Search.last.id}/export_parameters"
-      
+
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #

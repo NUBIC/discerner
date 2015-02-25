@@ -1,6 +1,7 @@
 module Discerner
   class Parser
-    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_value_categories, :updated_parameter_values, :blank_parameter_values
+    attr_accessor :options, :errors, :updated_dictionaries, :updated_categories, :updated_parameters, :updated_parameter_value_categories, :updated_parameter_values, :blank_parameter_values,
+                  :abandoned_dictionaries
 
     def initialize(options={})
       self.options = options
@@ -15,6 +16,7 @@ module Discerner
       self.updated_parameter_values = []
       self.updated_parameter_value_categories = []
       self.blank_parameter_values = []
+      self.abandoned_dictionaries = []
     end
 
     def parse_dictionaries(str)
@@ -86,8 +88,8 @@ module Discerner
       error_message 'dictionary name cannot be blank' if dictionary_name.blank?
       notification_message "processing dictionary '#{dictionary_name}'"
 
-      dictionary = Discerner::Dictionary.find_or_initialize_by_name(dictionary_name)
-      dictionary.deleted_at = nil
+      dictionary = Discerner::Dictionary.find_or_initialize_by(name: dictionary_name)
+      dictionary.deleted_at     = nil
 
       if dictionary.new_record?
         notification_message "creating dictionary ..."
@@ -109,7 +111,7 @@ module Discerner
       error_message 'parameter category name cannot be blank' if parameter_category_name.blank?
       notification_message "processing parameter category  '#{parameter_category_name}'"
 
-      parameter_category = Discerner::ParameterCategory.where(:name => parameter_category_name, :dictionary_id => dictionary.id).first_or_initialize
+      parameter_category = Discerner::ParameterCategory.where(name: parameter_category_name, dictionary_id: dictionary.id).first_or_initialize
       parameter_category.deleted_at = nil
 
       if parameter_category.new_record?
@@ -136,9 +138,10 @@ module Discerner
       error_message "unique_identifier cannot be blank", parameter_name if unique_identifier.blank?
 
       existing_parameter    = Discerner::Parameter.
-                              includes({:parameter_category => :dictionary}).
-                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).first
-      parameter             = existing_parameter || Discerner::Parameter.new(:unique_identifier => unique_identifier, :parameter_category => parameter_category)
+                              includes({parameter_category: :dictionary}).
+                              where('discerner_parameters.unique_identifier = ? and discerner_dictionaries.id = ?', unique_identifier, parameter_category.dictionary.id).
+                              references(:discerner_parameters, :discerner_dictionaries).first
+      parameter             = existing_parameter || Discerner::Parameter.new(unique_identifier: unique_identifier, parameter_category: parameter_category)
 
       parameter.name        = parameter_name
       parameter.deleted_at  = nil
@@ -152,6 +155,7 @@ module Discerner
 
         parameter.search_model      = search_identifiers[:model].to_s
         parameter.search_method     = search_identifiers[:method].to_s
+        parameter.hidden_in_search  = search_identifiers[:hidden].blank? ? false : search_identifiers[:hidden]
         parameter.parameter_type    = find_or_initialize_parameter_type(search_identifiers[:parameter_type])
       end
 
@@ -162,6 +166,7 @@ module Discerner
 
         parameter.export_model      = export_identifiers[:model].to_s
         parameter.export_method     = export_identifiers[:method].to_s
+        parameter.hidden_in_export  = export_identifiers[:hidden].blank? ? false : export_identifiers[:hidden]
       end
 
       if parameter.new_record?
@@ -277,7 +282,7 @@ module Discerner
          operators_from_file.each do |operator_from_file|
            error_message 'unique identifier has to be defined' if operator_from_file[:unique_identifier].blank?
 
-           operator = Discerner::Operator.find_or_initialize_by_unique_identifier(operator_from_file[:unique_identifier])
+           operator = Discerner::Operator.find_or_initialize_by(unique_identifier: operator_from_file[:unique_identifier])
            if operator.new_record?
              notification_message "creating operator '#{operator_from_file[:unique_identifier]}'"
              operator.created_at = Time.now
@@ -309,7 +314,7 @@ module Discerner
       error_message "'integer' parameter type has been replaced with 'numeric', please update your dictionary definition" if /integer/.match(name.downcase)
 
       ## find or initialize parameter type
-      parameter_type = Discerner::ParameterType.find_or_initialize_by_name(name.downcase)
+      parameter_type = Discerner::ParameterType.find_or_initialize_by(name: name.downcase)
       if parameter_type.new_record?
         notification_message "Creating parameter type '#{name}'"
         parameter_type.created_at = Time.now
@@ -325,7 +330,7 @@ module Discerner
       search_value = search_value.to_s
       notification_message "processing parameter value '#{search_value}'"
 
-      parameter_value = Discerner::ParameterValue.where(:search_value => search_value, :parameter_id => parameter.id).first_or_initialize
+      parameter_value = Discerner::ParameterValue.where(search_value: search_value, parameter_id: parameter.id).first_or_initialize
       if parameter_value.new_record?
         notification_message "creating parameter value ..."
         parameter_value.created_at = Time.now
@@ -335,7 +340,7 @@ module Discerner
       end
 
       unless parameter_value_category_identifier.blank?
-        parameter_value_category = Discerner::ParameterValueCategory.where(:unique_identifier => parameter_value_category_identifier, :parameter_id => parameter.id).first_or_initialize
+        parameter_value_category = Discerner::ParameterValueCategory.where(unique_identifier: parameter_value_category_identifier, parameter_id: parameter.id).first_or_initialize
         if parameter_value_category.blank?
           error_message "parameter value category with unique identifier #{parameter_value_category_identifier} is not found for parameter #{parameter.name}"
         else
@@ -347,7 +352,7 @@ module Discerner
       parameter_value.deleted_at = nil
       error_message "parameter value #{search_value} could not be saved: #{parameter_value.errors.full_messages}" unless parameter_value.save
       notification_message 'parameter value saved'
-      updated_parameter_values << parameter_value unless silent
+      updated_parameter_values << parameter_value
       parameter_value
     end
 
@@ -358,7 +363,7 @@ module Discerner
       unique_identifier = unique_identifier.to_s
       notification_message "processing parameter value category '#{unique_identifier}'"
 
-      parameter_value_category = Discerner::ParameterValueCategory.where(:unique_identifier => unique_identifier, :parameter_id => parameter.id).first_or_initialize
+      parameter_value_category = Discerner::ParameterValueCategory.where(unique_identifier: unique_identifier, parameter_id: parameter.id).first_or_initialize
       if parameter_value_category.new_record?
         notification_message "creating parameter value category..."
         parameter_value_category.created_at = Time.now
@@ -401,6 +406,7 @@ module Discerner
 
     private
       def cleanup
+        self.abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
         cleanup_parameter_value_categories
         cleanup_parameter_values
         cleanup_parameters
@@ -409,24 +415,33 @@ module Discerner
       end
 
       def cleanup_dictionaries
-        abandoned_dictionaries  = Discerner::Dictionary.order(:id).to_a - updated_dictionaries
-        used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
-        not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+        else
+          used_dictionaries       = abandoned_dictionaries.reject{|d| d.searches.blank?}
+          not_used_dictionaries   = abandoned_dictionaries - used_dictionaries
 
-        used_dictionaries.each do |r|
-          notification_message("marking dictionary #{r.name} as deleted");
-          r.deleted_at = Time.now
-          error_message "dictionary could not be updated: #{r.errors.full_messages}", r.name unless r.save
-        end
+          used_dictionaries.each do |r|
+            notification_message("marking dictionary #{r.name} as deleted");
+            r.deleted_at = Time.now
+            error_message "dictionary could not be updated: #{r.errors.full_messages}", r.name unless r.save
+          end
 
-        unless not_used_dictionaries.blank?
-          notification_message("permanently deleting dictionaries #{not_used_dictionaries.map{|r| r.name}.join(', ')}");
-          not_used_dictionaries.each{|r| r.destroy}
+          unless not_used_dictionaries.blank?
+            notification_message("permanently deleting dictionaries #{not_used_dictionaries.map{|r| r.name}.join(', ')}");
+            not_used_dictionaries.each{|r| r.destroy}
+          end
         end
       end
 
       def cleanup_categories
         abandoned_categories = Discerner::ParameterCategory.order(:id).to_a - updated_categories
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, caterories for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_categories = abandoned_categories.reject{|c| abandoned_dictionaries.include?(c.dictionary)}
+        end
+
         used_categories      = abandoned_categories.reject{|c| c.parameters.blank? || c.parameters.select{|p| p.used_in_search?}.blank?}
         not_used_categories  = abandoned_categories - used_categories
 
@@ -444,6 +459,12 @@ module Discerner
 
       def cleanup_parameters
         abandoned_parameters = Discerner::Parameter.order(:id).to_a - updated_parameters
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, parameters for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_parameters = abandoned_parameters.reject{|p| abandoned_dictionaries.include?(p.parameter_category.dictionary)}
+        end
+
         used_parameters      = abandoned_parameters.select{|p| p.used_in_search?}
         not_used_parameters  = abandoned_parameters - used_parameters
 
@@ -461,6 +482,12 @@ module Discerner
 
       def cleanup_parameter_value_categories
         abandoned_categories = Discerner::ParameterValueCategory.order(:id).to_a - updated_parameter_value_categories
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, parameter value categories for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_categories = abandoned_categories.reject{|c| abandoned_dictionaries.include?(c.parameter.parameter_category.dictionary)}
+        end
+
         used_categories      = abandoned_categories.reject{|c| c.parameter_values.blank? || c.parameter_values.select{|v| v.used_in_search?}.blank?}
         not_used_categories  = abandoned_categories - used_categories
 
@@ -475,10 +502,17 @@ module Discerner
           not_used_categories.each{|r| r.destroy}
         end
       end
+
       # this also marks search_parameter_values that reference this value and are chosen as deleted
       # and destroys search_parameter_values that reference this value but are not chosen (list options)
       def cleanup_parameter_values
         abandoned_parameter_values = Discerner::ParameterValue.order(:id).to_a - updated_parameter_values - blank_parameter_values
+
+        if self.options[:prune_dictionaries].blank?
+          notification_message "if option --prune_dictionaries is not specified, parameter values for dictionaries that are not in parsed definition file should be deleted manually. Use `rake discerner:delete_dictionary' NAME='My dictionary name'"
+          abandoned_parameter_values = abandoned_parameter_values.reject{|v| abandoned_dictionaries.include?(v.parameter.parameter_category.dictionary)}
+        end
+
         used_parameter_values      = abandoned_parameter_values.select{|p| p.used_in_search?}
         not_used_parameter_values  = abandoned_parameter_values - used_parameter_values
 

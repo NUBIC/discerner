@@ -35,9 +35,12 @@ Feature: Viewing existing searches
     Given search dictionaries are loaded
     When I go to the new search page
     And I select dictionary "Sample dictionary"
-    And I open criteria dropdown
     Then ".parameter select" in the first ".search_parameter" should have options "Demographic criteria - Age at case collection date, Demographic criteria - Ethnic group, Demographic criteria - Gender, Demographic criteria - Race, Case criteria - Text search diagnosis"
     And ".parameter select" in the first ".search_parameter" should not have options "Demographic criteria - Age based on current date"
+
+    When I select dictionary "Librarian dictionary"
+    Then ".parameter select" in the first ".search_parameter" should have options "By author - Last name, By author - First name, By author - Country, By author - Type, Book criteria - Type, Book criteria - Genre, Book criteria - Title, Book criteria - Keyword, Book criteria - Hidden from export parameter"
+    And ".parameter select" in the first ".search_parameter" should not have options "Book criteria - Hidden parameter, Book criteria - Hidden from search parameter"
 
   @javascript
   Scenario: It should filter search criteria by selected dictionary

@@ -38,9 +38,11 @@ module Discerner
 
     def test_dummy_models
       copy_file "patient.rb", "#{dummy_path}/app/models/patient.rb", :force => true
-      copy_file "create_patients.rb", "#{dummy_path}/db/migrate/#{2.hours.ago.utc.strftime("%Y%m%d%H%M%S")}_create_patients.rb", :force => true
+      copy_file "create_patients.rb", "#{dummy_path}/db/migrate/#{3.hours.ago.utc.strftime("%Y%m%d%H%M%S")}_create_patients.rb", :force => true
       copy_file "case.rb", "#{dummy_path}/app/models/case.rb", :force => true
-      copy_file "create_cases.rb", "#{dummy_path}/db/migrate/#{1.hour.ago.utc.strftime("%Y%m%d%H%M%S")}_create_cases.rb", :force => true
+      copy_file "create_cases.rb", "#{dummy_path}/db/migrate/#{2.hour.ago.utc.strftime("%Y%m%d%H%M%S")}_create_cases.rb", :force => true
+      copy_file "event.rb", "#{dummy_path}/app/models/event.rb", :force => true
+      copy_file "create_events.rb", "#{dummy_path}/db/migrate/#{1.hour.ago.utc.strftime("%Y%m%d%H%M%S")}_create_events.rb", :force => true
       copy_file "book.rb", "#{dummy_path}/app/models/book.rb", :force => true
     end
 

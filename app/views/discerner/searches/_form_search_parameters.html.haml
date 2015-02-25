@@ -1,4 +1,4 @@
-%table{ :class => 'records search_parameters' }
+%table{ class: 'records search_parameters' }
   %thead
     %tr
       %th.parameter_boolean_operator
@@ -9,17 +9,17 @@
         Selections
   %tbody.nested_records_search_parameters
     = f.fields_for :search_parameters, f.object.search_parameters.ordered_by_display_order do |search_parameter|
-      = render :partial => 'search_parameter_fields', :locals => { :f => search_parameter }
+      = render partial: 'search_parameter_fields', locals: { f: search_parameter }
   %tfoot
     %tr
-      %td{ :colspan => '4', :class => 'add_search_parameters_link' }
-        = link_to_add_fields "Add criteria", :search_parameters
+      %td{ colspan: '4', class: 'add_search_parameters_link' }
+        = discerner_link_to_add_fields "Add criteria", :search_parameters
 .clear
 
 :javascript
   $(function () {
-    var discernerSearchParametersTemplate = '#{generate_nested_attributes_template(f, :search_parameters, 'search_parameter')}',
-    parametersUrl = decodeURIComponent('#{values_parameters_url(:parameter_id => ':question_id', :format => 'json')}'); // used to generate parameter values for list parameters
+    var discernerSearchParametersTemplate = '#{discerner_generate_nested_attributes_template(f, :search_parameters, 'search_parameter')}',
+    parametersUrl = decodeURIComponent('#{values_parameters_url(parameter_id: ':question_id', format: 'json')}'); // used to generate parameter values for list parameters
 
     new Discerner.SearchParameter.UI({
       searchParametersTemplate: discernerSearchParametersTemplate,

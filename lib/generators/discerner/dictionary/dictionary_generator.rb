@@ -1,11 +1,11 @@
 module Discerner
   class DictionaryGenerator < Rails::Generators::Base
-    class_option "no-load",   :type => :boolean
-    class_option "no-models", :type => :boolean
-    class_option "no-views",  :type => :boolean
+    class_option "no-load",   type: :boolean
+    class_option "no-models", type: :boolean
+    class_option "no-views",  type: :boolean
 
     source_root File.expand_path('../templates', __FILE__)
-    argument :dictionary_file_path, :type => :string
+    argument :dictionary_file_path, type: :string
 
     def parse_dictionary_file
       rake("discerner:setup:dictionaries FILE=#{dictionary_file_path}") unless options["no-load"]
@@ -19,7 +19,7 @@ module Discerner
     end
 
     def add_excel_mime_type
-      inject_into_file("#{Rails.root}/config/initializers/mime_types.rb", 'Mime::Type.register "application/xls", :xls', :after => "# Be sure to restart your server when you modify this file.\n")
+      inject_into_file("#{Rails.root}/config/initializers/mime_types.rb", 'Mime::Type.register "application/xls", :xls', after: "# Be sure to restart your server when you modify this file.\n")
     end
 
     private

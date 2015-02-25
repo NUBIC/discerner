@@ -6,47 +6,42 @@ module Discerner
           "discerner/dictionaries/#{@discerner_search.dictionary.parameterized_name}/results"
         end
 
-        def generate_nested_attributes_template(f, association, association_prefix = nil )
+        def discerner_generate_nested_attributes_template(f, association, association_prefix = nil )
           if association_prefix.nil?
             association_prefix = association.to_s.singularize
           end
           new_object = f.object.class.reflect_on_association(association).klass.new
-          fields = f.fields_for(association, new_object, :child_index => "new_#{association}") do |form_builder|
-            render(association_prefix + "_fields", :f => form_builder)
+          fields = f.fields_for(association, new_object, child_index: "new_#{association}") do |form_builder|
+            render(association_prefix + "_fields", f: form_builder)
           end
           escape_javascript(fields)
         end
 
-        def link_to_add_fields(name, association, html_options={})
+        def discerner_link_to_add_fields(name, association, html_options={})
           css_class = html_options[:class] || ' '
-          css_class += "add_#{association.to_s} add add_link icon_link"
+          css_class += "add_#{association.to_s} add discerner-add-link discerner-icon-link"
           html_options[:class] = css_class
           link_to(name, 'javascript:void(0);', html_options)
         end
 
-        def link_to_remove_fields(name, f, association)
-          f.hidden_field(:_destroy) + link_to(name, "javascript:void(0);", :class => "delete_#{association.to_s} delete_link icon_link")
+        def discerner_link_to_remove_fields(name, f, association)
+          f.hidden_field(:_destroy) + link_to(name, "javascript:void(0);", class: "delete_#{association.to_s} discerner-delete-link discerner-icon-link")
         end
 
-        def link_to_soft_delete_fields(name, f, association)
-          f.hidden_field(:soft_delete) + link_to(name, "javascript:void(0);", :class => "delete_#{association.to_s} delete_link icon_link")
-        end
-
-        def nested_record_id(builder, assocation)
+        def discerner_nested_record_id(builder, assocation)
           builder.object.id.nil? ? "new_nested_record" : "#{assocation.to_s.singularize}_#{builder.object.id}"
         end
 
         def operator_options(type=nil)
           operators = Discerner::Operator.not_deleted
           unless type.blank?
-            operators = operators.joins(:parameter_types).where("discerner_parameter_types.name in (?)", type).
-            select('DISTINCT text, discerner_operators.id, discerner_operators.operator_type')
+            operators = operators.joins(:parameter_types).where("discerner_parameter_types.name in (?)", type)
           end
-          operators.includes(:parameter_types).uniq.map {|o| [o.text, o.id, {:class => o.css_class_name}]}
+          operators.includes(:parameter_types).uniq.map {|o| [o.text, o.id, {class: o.css_class_name}]}
         end
 
         def dictionary_options(searchable_dictionaries)
-          searchable_dictionaries.map{|d| [d.name, d.id, {:class => d.css_class_name}]}
+          searchable_dictionaries.map{|d| [d.name, d.id, {class: d.css_class_name}]}
         end
 
         def combined_searches_options(search=nil)
@@ -64,14 +59,14 @@ module Discerner
             searches_used = search.combined_searches
             searches = searches_available | searches_used
           end
-          searches.map {|s| [s.display_name, s.id, {:class => s.dictionary.css_class_name}]}
+          searches.map {|s| [s.display_name, s.id, {class: s.dictionary.css_class_name}]}
         end
 
         def parameter_options(searchable_parameters, base_id=nil)
           options = []
           searchable_parameters.each do |p|
             option = [p.display_name, p.id]
-            html_options = {:class => p.css_class_name}
+            html_options = {class: p.css_class_name}
             html_options[:id] = searchable_object_index(p, base_id) unless base_id.blank?
             option << html_options
             options << option
@@ -121,14 +116,14 @@ module Discerner
         end
 
         def discerner_export_link
-          link_to "Export options", export_parameters_path(@discerner_search), :class => "discerner-button discerner-button-positive"
+          link_to "Export options", export_parameters_path(@discerner_search), class: "discerner-button discerner-button-positive"
         end
 
-        def format_datetime(datetime)
+        def discerner_format_datetime(datetime)
           datetime.strftime("%m/%d/%Y %I:%M %p") if datetime
         end
 
-        def format_date(date)
+        def discerner_format_date(date)
           date.strftime("%m/%d/%Y") if date
         end
       end

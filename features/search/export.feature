@@ -19,6 +19,14 @@ Feature: Exporting results for existing searches
     And "#discerner_exportable_fields" should not contain text "Age based on current date"
 
   @javascript
+  Scenario: It should not display hidden parameters as export options
+    Given I create search for dictionary "Librarian dictionary" with name "Awesome search"
+    When I am on the search export page
+    Then "#discerner_exportable_fields" should not contain text "Hidden parameter"
+    And "#discerner_exportable_fields" should not contain text "Hidden from export parameter"
+    And "#discerner_exportable_fields" should contain text "Hidden from search parameter"
+
+  @javascript
   Scenario: It should display and highlight deleted parameters as export options if they are checked
     Given I create search with name "Awesome search"
     And search with name "Awesome search" has exportable parameters "Gender, Age based on current date"
@@ -104,8 +112,6 @@ Feature: Exporting results for existing searches
   @javascript
   Scenario: It should return an XLS document named after search
     Given exportable search "Awesome search" exists
-    And an executed search should pass the username to dictionary instance
-    And an exported search should pass the username to dictionary instance
     When I am on the search edit page
     And I follow "Export options"
     And I press "Export"
@@ -176,3 +182,11 @@ Feature: Exporting results for existing searches
     And the "Age based on current date" checkbox should be checked
     And the "Gender" checkbox should be checked
 
+  @javascript
+  Scenario: It should not display selected hidden parameters as export options
+    Given I create search for dictionary "Librarian dictionary" with name "Awesome search"
+    And search with name "Awesome search" has exportable parameters "Hidden parameter"
+    When I am on the search export page
+    Then "#discerner_exportable_fields" should not contain text "Hidden parameter"
+    And "#discerner_exportable_fields" should not contain text "Hidden from export parameter"
+    And "#discerner_exportable_fields" should contain text "Hidden from search parameter"

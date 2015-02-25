@@ -1,6 +1,57 @@
 Discerner History
 ============
 
+2.0.10
+-----
+- Do not use asset_path with image_tag.
+- Update search datestamp when search parameters/parameter_values get updated.
+
+2.0.9
+-----
+- Show an spinner upon loading of an autocompleting combobox.
+- Improve the performance of the rendering of large lists of values in autocompleting comboboxes.
+- Remove !important declaration from CSS to allow overriding.
+
+2.0.8
+-----
+- Use asset_url helper for images.
+- Include jQueryUI assets into discerner assets.
+
+2.0.7
+-----
+- Do not delete parameters. categories, values for dictionaries that are not defined in parsed file, unless —prune-dictionaries parameter is set.
+
+2.0.6
+-----
+- Added task to delete dictionary by name.
+- Do not delete dictionaries that are not in definition file unless -—prune_dictionaries parameter is specified.
+2.0.5
+-----
+- Allow to assign Discerner::Search to multiple namespaces. This change rolls back namespacing on search object itself. Previously set namespaces will be either mapped to new Discerner::Search namespace if they have namespace_id specified, or replaced with ‘label’ if they don’t.
+- Namespace helper methods
+
+2.0.4
+-----
+- Revert previous change. We expect namespaces to be outside entities and storimg IDs that would most likely be domain-specific in a static file is not the best idea.
+
+2.0.3
+-----
+- Allow to parse dictionary namespace type and namespace id.
+
+2.0.2
+-----
+- Back to jquery-ui-rails 4.2
+
+2.0.1
+-----
+- Updated hash syntax to 2.1
+- Allow to namespace searches and dictionaries
+- Using Rails 4.1
+
+2.0.0
+-----
+- Rails 4 support
+
 1.2.0
 -----
 - Show an spinner upon loading of an autocompleting combobox.

@@ -1,7 +1,7 @@
 #discerner_search
   = render 'discerner/searches/summary'
   .discerner-buttons
-    = link_to 'Back to search', edit_search_path(@discerner_search), :class => "discerner-button discerner-button-positive"
+    = link_to 'Back to search', edit_search_path(@discerner_search), class: "discerner-button discerner-button-positive"
   .clear
     %hr
 
@@ -17,16 +17,16 @@
         - selected_parameters = @discerner_search.export_parameters.ordered.to_a
         - selected_parameters = @discerner_search.search_parameters.ordered.to_a + @discerner_search.nested_searches.map{|s| s.search_parameters}.flatten if selected_parameters.empty?
 
-        = form_tag assign_export_parameters_path(@discerner_search), :url => {:action => "assign"} do
+        = form_tag assign_export_parameters_path(@discerner_search), url: {action: "assign"} do
           - exportable_parameter_categories.each do |c|
             .clear
-            %div{ :class => "#{c.css_class_name}"}
+            %div{ class: "#{c.css_class_name}"}
               %h4
                 = c.name
-                %a{ :class => "select_all_parameters", :href => "#"}
+                %a{ class: "select_all_parameters", href: "#"}
                   Select all
 
-              - items = exportable_parameters(@discerner_search, c)
+              - items = exportable_parameters(@discerner_search, c).reject{|p| p.hidden_in_export}
               - columns_count = 3
               - items_rendered_count = 0
               - (0...columns_count).each do |i|
@@ -38,17 +38,17 @@
                   - items_rendered_count = to
                   - (from...to).each do |j|
                     - export_parameter = items[j]
-                    %div{ :class => "export_parameter #{'error' if export_parameter.deleted?}"}
+                    %div{ class: "export_parameter #{'error' if export_parameter.deleted?}"}
                       - is_checked = selected_parameters.select{ |cp| cp.parameter_id == export_parameter.id }.blank? ? false : true
-                      = check_box_tag "parameter_ids[]", export_parameter.id, is_checked, :id => "parameter_ids_#{export_parameter.id}"
+                      = check_box_tag "parameter_ids[]", export_parameter.id, is_checked, id: "parameter_ids_#{export_parameter.id}"
                       = label_tag "parameter_ids_#{export_parameter.id}", export_parameter.name
 
           .clear
           .discerner-buttons
             - if @discerner_search.disabled?
-              = submit_tag 'Update and export', :class => "discerner-button discerner-button-positive"
+              = submit_tag 'Update and export', class: "discerner-button discerner-button-positive"
             - else
-              = submit_tag 'Export', :class => "discerner-button discerner-button-positive"
+              = submit_tag 'Export', class: "discerner-button discerner-button-positive"
 :javascript
   $(function () {
     new Discerner.ExportParameters.UI();
