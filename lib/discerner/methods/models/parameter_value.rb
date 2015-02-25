@@ -62,7 +62,8 @@ module Discerner
             if parameter.parameter_type.name == 'list'
               parameter.search_parameters.each do |sp|
                 if sp.search_parameter_values.where(parameter_value_id: id).blank?
-                  max_display_order = sp.search_parameter_values.ordered_by_display_order.last.display_order || -1
+                  last_search_parameter_value = sp.search_parameter_values.ordered_by_display_order.last
+                  max_display_order = last_search_parameter_value ? last_search_parameter_value.display_order : -1
                   sp.search_parameter_values.build(parameter_value_id: id, display_order: max_display_order + 1)
                   sp.save
                 end

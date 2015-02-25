@@ -104,21 +104,21 @@ describe Discerner::SearchParameter do
       expect(search_parameter.to_sql[:values]).to eq [['first_value', 'another_value']]
     end
 
-    # it "should allow to convert 'list' search parameter to sql" do
-    #   parameter = search_parameter.parameter
-    #   parameter.search_model   = 'Patient'
-    #   parameter.search_method  = 'age_at_case_collect'
-    #   parameter.parameter_type = FactoryGirl.build(:parameter_type, name: 'list')
+    it "should allow to convert 'list' search parameter to sql" do
+      parameter = search_parameter.parameter
+      parameter.search_model   = 'Patient'
+      parameter.search_method  = 'age_at_case_collect'
+      parameter.parameter_type = FactoryGirl.build(:parameter_type, name: 'list')
 
-    #   FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: true, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'first value', search_value: 'first_value', parameter: parameter) )
-    #   FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: true, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'another value', search_value: 'another_value', parameter: parameter) )
-    #   FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: false, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'yet another value', search_value: 'yet_another_value', parameter: parameter) )
+      FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: true, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'first value', search_value: 'first_value', parameter: parameter) )
+      FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: true, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'another value', search_value: 'another_value', parameter: parameter) )
+      FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: false, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'yet another value', search_value: 'yet_another_value', parameter: parameter) )
 
-    #   parameter.save!
-    #   expect(search_parameter.to_sql).to_not eq be_empty
-    #   expect(search_parameter.to_sql[:predicates]).to eq "age_at_case_collect in (?)"
-    #   expect(search_parameter.to_sql[:values]).to eq [['first_value', 'another_value']]
-    # end
+      parameter.save!
+      expect(search_parameter.to_sql).to_not eq be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "age_at_case_collect in (?)"
+      expect(search_parameter.to_sql[:values]).to eq [['first_value', 'another_value']]
+    end
   end
 
   describe 'using method-based parameters' do
