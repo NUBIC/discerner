@@ -1,4 +1,4 @@
-= image_tag asset_path('discerner/ajax-loader.gif'), class: 'discerner-spinner hide'
+= image_tag 'discerner/ajax-loader.gif', class: 'discerner-spinner hide'
 
 - unless @discerner_search.blank?
   = render 'discerner/shared/error_messages', object: @discerner_search
