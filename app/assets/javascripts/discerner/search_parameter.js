@@ -110,7 +110,6 @@ Discerner.SearchParameter.UI = function (config) {
     }
     else if ($(selected_option).hasClass('list')){
       $($(predicate).find('.tmp_link')).remove();
-      console.log(parametersUrl.sub({ question_id: this.value }))
       $.get(parametersUrl.sub({ question_id: this.value }), function (data) {
         $.each(data.parameter_values, function() {
           $(add_button).click();
