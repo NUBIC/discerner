@@ -80,7 +80,7 @@ module Discerner
         end
 
         def parameter_value_options(searchable_values, base_id=nil)
-          searchable_values.map { |pv| [(pv.category_name.nil? ? pv.name : "#{pv.category.name} - #{pv.name}"), pv.id, base_id.nil? ? {} : { id: searchable_object_index(pv, base_id) }] }
+          searchable_values.map { |pv| [(pv.category_name.nil? ? pv.name : "#{pv.category_name} - #{pv.name}"), pv.id, base_id.nil? ? {} : { id: searchable_object_index(pv, base_id) }] }
         end
 
         def searchable_object_index(object, base_id=nil)
