@@ -1,6 +1,15 @@
 Discerner History
 ============
 
+2.0.12 3/11/2015
+-----
+
+* Categorized autocompleter is blowing up.
+See https://github.com/NUBIC/discerner/issues/19
+
+* Make compatible with Rails 4.2
+See https://github.com/NUBIC/discerner/issues/18
+
 2.0.11
 -----
 - Merged rails4 branch into master.
