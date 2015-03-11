@@ -1,6 +1,11 @@
 Discerner History
 ============
 
+1.2.2 3/11/2015
+-----
+* Categorized autocompleter is blowing up.
+See https://github.com/NUBIC/discerner/issues/19
+
 1.2.1 3/11/2015
 -----
 * Rendering of checkbox lists does not work on IE9.
