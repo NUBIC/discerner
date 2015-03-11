@@ -13,6 +13,7 @@ rescue LoadError
 end
 
 ENV["RAILS_ROOT"] ||= File.dirname(__FILE__) + "../../../test/dummy"
+ActiveRecord::Migrator.migrations_paths = File.expand_path("../../../test/dummy/db/migrate", __FILE__)
 
 require 'cucumber/rails'
 require 'factory_girl'
