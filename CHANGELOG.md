@@ -1,6 +1,12 @@
 Discerner History
 ============
 
+2.0.13 3/11/2015
+-----
+
+* Rendering of checkbox lists does not work on IE9.
+See https://github.com/NUBIC/discerner/issues/15
+
 2.0.12 3/11/2015
 -----
 
