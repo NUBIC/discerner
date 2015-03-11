@@ -1,5 +1,16 @@
 Discerner History
 ============
+1.2.1 3/11/2015
+-----
+* Rendering of checkbox lists does not work on IE9.
+See https://github.com/NUBIC/discerner/issues/15
+
+* Show an spinner upon loading of an autocompleting combobox.
+See https://github.com/NUBIC/discerner/issues/10
+
+* Improve the performance of the rendering of large lists of values in autocompleters.
+See https://github.com/NUBIC/discerner/issues/9
+
 1.1.20
 -----
 - Added discerner schema image.
