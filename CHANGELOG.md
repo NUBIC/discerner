@@ -3,7 +3,6 @@ Discerner History
 2.0.14
 -----
 - Updated dependency on jquery-rails to support 4.0.x versions
-- Make sure the gem and its test suite are compatible with Rails 4.2.
 
 2.0.13 3/11/2015
 -----
