@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    discerner (2.0.13)
+    discerner (2.0.14)
       haml (~> 4.0, >= 4.0.5)
       jquery-rails (~> 4.0.0, >= 4.0.0)
       rails (~> 4.1, >= 4.1.0)
