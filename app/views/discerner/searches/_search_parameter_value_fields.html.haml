@@ -47,6 +47,12 @@
       %td.remove
         = discerner_link_to_remove_fields 'Remove', f, :search_parameter_values
 
+    - when 'exclusive_list'
+      %td.parameter_value
+        - parameter.parameter_values.each do |parameter_value|
+          .parameter_value_item
+            = f.radio_button :parameter_value_id, parameter_value.id, class: 'parameter_value_id'
+            = f.label :parameter_value_id, parameter_value.name
     - else
       %td.operator
         - selected = f.object.operator.blank? ? nil : f.object.operator.id

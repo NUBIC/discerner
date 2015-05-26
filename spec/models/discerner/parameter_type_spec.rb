@@ -43,6 +43,6 @@ describe Discerner::ParameterType do
   it "validates that parameter type is supported" do
     parameter_type.name = 'some type'
     expect(parameter_type).to_not be_valid
-    expect(parameter_type.errors.full_messages).to include "Parameter type 'some type' is not supported, please use one of the following types: numeric, date, list, combobox, text, string, search"
+    expect(parameter_type.errors.full_messages).to include "Parameter type 'some type' is not supported, please use one of the following types: numeric, date, list, combobox, text, string, search, exclusive_list"
   end
 end

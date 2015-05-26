@@ -152,6 +152,25 @@ describe Discerner::ParameterValue do
     expect(sp.reload.search_parameter_values.length).to eq 2
   end
 
+  it "does not create additional search_parameter_values for exclusive_list parameters" do
+    v = parameter_value
+    p = v.parameter
+    p.parameter_type = FactoryGirl.build(:parameter_type, name: 'exclusive_list')
+    p.save
+
+    s = FactoryGirl.build(:search)
+    sp = FactoryGirl.build(:search_parameter, search: s, parameter: v.parameter)
+    s.search_parameters << sp
+    s.save!
+    spv = FactoryGirl.create(:search_parameter_value, search_parameter: sp, parameter_value: v)
+
+    expect(sp.reload.search_parameter_values.length).to eq 1
+
+    v1 = FactoryGirl.create(:parameter_value, search_value: 'other value', parameter: v.parameter)
+    expect(v1).to be_valid
+    expect(sp.reload.search_parameter_values.length).to eq 1
+  end
+
   it "should allow to assign parameter value category" do
     expect(parameter_value).to respond_to(:parameter_value_category)
     parameter_value_category = FactoryGirl.create(:parameter_value_category, parameter: parameter_value.parameter)

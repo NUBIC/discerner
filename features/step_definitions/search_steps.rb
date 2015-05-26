@@ -236,6 +236,7 @@ end
 
 def set_librarian_dictionary_search_parameters
   steps %Q{
+    And I wait 20 seconds
     And I add "Title" search criteria
     And I enter value "Best book ever" within the last search criteria
     And I add "Keyword" search criteria

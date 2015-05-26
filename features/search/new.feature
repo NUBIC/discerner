@@ -280,6 +280,27 @@ Feature: Viewing existing searches
     And ".parameter input.ui-autocomplete-input" in the last ".search_parameter" should contain "Case criteria - Text search diagnosis"
 
   @javascript
+  Scenario: It should render exclusive radio-buttons for exclusive_list parameters
+    Given search dictionaries are loaded
+    And only "Librarian dictionary" dictionary exists
+    When I go to the new search page
+    And I select "Bestseller" search criteria
+    When I press "Search"
+    Then ".discerner" should contain text "Parameter value has to be selected"
+
+    When I check "input[type='radio']" within the first ".search_parameter .parameter_value .parameter_value_item"
+    And I check "input[type='radio']" within the last ".search_parameter .parameter_value .parameter_value_item"
+    Then the first radiobutton within ".search_parameter .parameter_value" should not be checked
+    And the last radiobutton within ".search_parameter .parameter_value" should be checked
+
+    When I press "Update search"
+    Then I should be on the search edit page
+    And ".search_parameter select" in the first ".search_parameter" should not have "Bestseller" selected
+    And the first radiobutton within ".search_parameter .parameter_value" should not be checked
+    And the last radiobutton within ".search_parameter .parameter_value" should be checked
+
+
+  @javascript
   Scenario: It should pre-select search dictionary if there is only one available
     Given search dictionaries are loaded
     And only "Sample dictionary" dictionary exists

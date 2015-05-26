@@ -21,7 +21,7 @@ module Discerner
 
         def name_supported?
           return if self.name.blank?
-          supported_types = ['numeric', 'date', 'list', 'combobox', 'text', 'string', 'search']
+          supported_types = ['numeric', 'date', 'list', 'combobox', 'text', 'string', 'search', 'exclusive_list']
           errors.add(:base,"Parameter type '#{self.name}' is not supported, please use one of the following types: #{supported_types.join(', ')}") unless supported_types.include?(self.name)
         end
       end

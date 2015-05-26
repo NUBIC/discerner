@@ -100,6 +100,10 @@ describe Discerner::SearchParameterValue do
     search_parameter_value.search_parameter.parameter.parameter_type.name = 'combobox'
     expect(search_parameter_value).to be_disabled
     expect(search_parameter_value.warnings.full_messages).to include('Parameter value has been deleted and has to be removed from the search')
+
+    search_parameter_value.search_parameter.parameter.parameter_type.name = 'exclusive_list'
+    expect(search_parameter_value).to be_disabled
+    expect(search_parameter_value.warnings.full_messages).to include('Parameter value has been deleted and has to be removed from the search')
   end
 
   it "detects if search parameter value is in a wrong format" do
@@ -141,7 +145,7 @@ describe Discerner::SearchParameterValue do
     expect(search_parameter_value).to be_disabled
   end
 
-  it "self-destroyes if belongs to list or combobox parameter and references deleted value and not chosen" do
+  it "self-destroyes if belongs to list parameter and references deleted value and not chosen" do
     search_parameter_value.parameter_value = FactoryGirl.create(:parameter_value, parameter: search_parameter_value.search_parameter.parameter)
     search_parameter_value.parameter_value.deleted_at = Time.now
     search_parameter_value.chosen = false

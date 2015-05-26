@@ -143,7 +143,7 @@ describe Discerner::Parser do
     expect(Set.new(p.parameter_values.map(&:search_value))).to be_empty
   end
 
-  it "raisers an error message with a source model and method that does not conform to the :name, :search_value interface" do
+  it "raises an error message with a source model and method that does not conform to the :name, :search_value interface" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
     :dictionaries:
@@ -803,7 +803,7 @@ describe Discerner::Parser do
     expect(Discerner::Dictionary.where(name: 'Another dictionary').first).to be_deleted
   end
 
-  it "does not soft-deletes dictionaries that are no longer defined in the definition file but are used in searches and --prune_dictionaries option is not specified" do
+  it "does not soft-delete dictionaries that are no longer defined in the definition file but are used in searches and --prune_dictionaries option is not specified" do
     parser = Discerner::Parser.new()
     dictionaries = %Q{
     :dictionaries:

@@ -17,7 +17,7 @@ Feature: Exporting results for existing searches
     When I am on the search export page
     Then ".discerner" should not contain text "There is an issue with the this export that has to be corrected before it can be executed"
     And "#discerner_exportable_fields" should not contain text "Age based on current date"
-
+@wip
   @javascript
   Scenario: It should not display hidden parameters as export options
     Given I create search for dictionary "Librarian dictionary" with name "Awesome search"

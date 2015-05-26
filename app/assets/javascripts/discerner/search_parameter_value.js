@@ -33,7 +33,7 @@ Discerner.SearchParameterValue.UI = function (config) {
       hideValue($(row).find('.additional_value').show());
       row.find('.parameter_values_boolean_operator').show();
 
-      if ($(selectedParameter).hasClass('list')) {                                     // list parameters
+      if ($(selectedParameter).hasClass('list')){                                      // list parameters
         row.find('.chosen, .parameter_value').show();
         $(config.container).find('a.add_search_parameter_values').hide();
         $(config.container).find('.additional_value').hide();
@@ -57,6 +57,10 @@ Discerner.SearchParameterValue.UI = function (config) {
           }
         $(config.container).find('.parameter_value, .remove').show();
         $(config.container).find('a.add_search_parameter_values').show();
+      } else if ($(selectedParameter).hasClass('exclusive_list')) {                   // exclusive parameter values list
+        $(config.container).find('a.add_search_parameter_values').hide();
+        $(config.container).find('.additional_value', '.chosen').hide();
+        $(config.container).find('.parameter_value').show();
       } else {                                                                        // date, text and numeric parameters
         var parameter_classes = ['date', 'numeric', 'text', 'string'];
         for (var i in parameter_classes) {
@@ -164,7 +168,7 @@ Discerner.SearchParameterValue.UI = function (config) {
     $(this).closest('.categorized-parameter-values, .uncategorized-parameter-values').find('.category-items').show();
     $(this).addClass('hide-category-items');
     $(this).removeClass('show-category-items');
-    $(this).html('less')
+    $(this).html('less');
   });
 
   $(document).on('click', '.hide-category-items', function(e) {
@@ -172,6 +176,6 @@ Discerner.SearchParameterValue.UI = function (config) {
     $(this).closest('.categorized-parameter-values, .uncategorized-parameter-values').find('.category-items').hide();
     $(this).addClass('show-category-items');
     $(this).removeClass('hide-category-items');
-    $(this).html('more')
+    $(this).html('more');
   });
 };

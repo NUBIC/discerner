@@ -8,6 +8,7 @@
       - numeric
       - date
       - string
+      - exclusive_list
   - :unique_identifier: is_not_equal_to
     :type: comparison
     :symbol: '!='
@@ -16,6 +17,7 @@
       - numeric
       - date
       - string
+      - exclusive_list
   - :unique_identifier: is_less_than
     :type: comparison
     :symbol: '<'

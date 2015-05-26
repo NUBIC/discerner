@@ -126,7 +126,7 @@ Then /^the "([^\"]*)" field(?: within (.*))? should not contain "([^\"]*)"$/ do 
   end
 end
 
-Then /^the "([^\"]*)" checkbox(?: within (.*))? should be checked$/ do |label, parent|
+Then /^the "([^\"]*)" (?:checkbox|radiobutton)(?: within (.*))? should be checked$/ do |label, parent|
   with_scope(parent) do
     field_checked = find_field(label)['checked']
     if field_checked.respond_to? :should
@@ -137,7 +137,7 @@ Then /^the "([^\"]*)" checkbox(?: within (.*))? should be checked$/ do |label, p
   end
 end
 
-Then /^the "([^\"]*)" checkbox(?: within (.*))? should not be checked$/ do |label, parent|
+Then /^the "([^\"]*)" (?:checkbox|radiobutton)(?: within (.*))? should not be checked$/ do |label, parent|
   with_scope(parent) do
     field_checked = find_field(label)['checked']
     if field_checked.respond_to? :should
@@ -145,6 +145,38 @@ Then /^the "([^\"]*)" checkbox(?: within (.*))? should not be checked$/ do |labe
     else
       assert !field_checked
     end
+  end
+end
+
+Then /^the (first|last) radiobutton(?: within "([^\"]*)")? should be checked$/ do |position, parent|
+  within_scope(parent) do
+    selector = 'input[type="radio"]'
+    elements = all(selector)
+    case position
+    when 'first'
+      element = elements.first
+    when 'last'
+      element = elements.last
+    else
+      element = elements.last
+    end
+    element.should be_checked
+  end
+end
+
+Then /^the (first|last) radiobutton(?: within "([^\"]*)")? should not be checked$/ do |position, parent|
+  within_scope(parent) do
+    selector = 'input[type="radio"]'
+    elements = all(selector)
+    case position
+    when 'first'
+      element = elements.first
+    when 'last'
+      element = elements.last
+    else
+      element = elements.last
+    end
+    element.should_not be_checked
   end
 end
 

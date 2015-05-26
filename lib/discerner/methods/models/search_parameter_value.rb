@@ -75,7 +75,7 @@ module Discerner
             warnings.add(:base, "Provided date is not valid")
             return true
           end
-          if parameter_value.blank? && search_parameter.parameter.parameter_type.name == 'combobox'
+          if parameter_value.blank? && ['combobox', 'exclusive_list'].include?(search_parameter.parameter.parameter_type.name)
             warnings.add(:base, "Parameter value has to be selected")
             return true
           end
@@ -116,7 +116,7 @@ module Discerner
           end
 
           def validate_operator
-            if search_parameter && search_parameter.parameter && search_parameter.parameter.parameter_type && ['list', 'combobox'].include?(search_parameter.parameter.parameter_type.name)
+            if search_parameter && search_parameter.parameter && search_parameter.parameter.parameter_type && ['list', 'combobox', 'exclusive_list'].include?(search_parameter.parameter.parameter_type.name)
               self.operator = nil
             else
               errors.add(:base, "Operator has to be selected for parameter values that do not belong to list or combobox") if operator.blank?

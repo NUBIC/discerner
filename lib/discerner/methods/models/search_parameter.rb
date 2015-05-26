@@ -52,6 +52,9 @@ module Discerner
           when 'combobox'
             values    = [search_parameter_values.map { |spv| spv.parameter_value.search_value unless spv.parameter_value.nil? }.compact]
             predicate = "#{parameter.search_method} in (?)" unless values.blank?
+          when 'exclusive_list'
+            values    = [search_parameter_values.map { |spv| spv.parameter_value.search_value unless spv.parameter_value.nil? }.compact.first]
+            predicate = "#{parameter.search_method} = ?" unless values.blank?
           else # 'numeric','date', 'text', 'string
             spvs = []
             values = []

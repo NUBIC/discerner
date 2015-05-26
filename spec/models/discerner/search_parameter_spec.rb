@@ -119,6 +119,20 @@ describe Discerner::SearchParameter do
       expect(search_parameter.to_sql[:predicates]).to eq "age_at_case_collect in (?)"
       expect(search_parameter.to_sql[:values]).to eq [['first_value', 'another_value']]
     end
+
+    it "should allow to convert 'exclusive_list' search parameter to sql" do
+      parameter = search_parameter.parameter
+      parameter.search_model   = 'Patient'
+      parameter.search_method  = 'age_at_case_collect'
+      parameter.parameter_type = FactoryGirl.build(:parameter_type, name: 'exclusive_list')
+
+      FactoryGirl.create(:search_parameter_value, search_parameter: search_parameter, chosen: nil, operator: nil, parameter_value: FactoryGirl.create(:parameter_value, name: 'first value', search_value: 'first_value', parameter: parameter) )
+
+      parameter.save!
+      expect(search_parameter.to_sql).to_not eq be_empty
+      expect(search_parameter.to_sql[:predicates]).to eq "age_at_case_collect = ?"
+      expect(search_parameter.to_sql[:values]).to eq ['first_value']
+    end
   end
 
   describe 'using method-based parameters' do
@@ -176,9 +190,21 @@ describe Discerner::SearchParameter do
       expect(search_parameter.warnings.full_messages).to include("Parameter value has to be selected")
     end
 
-    it "disables list and combobox search parameters without chosen search parameter value" do
+    it "disables list search parameters without chosen search parameter value" do
       expect(search_parameter).to_not be_disabled
       search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, name: 'list')
+      expect(search_parameter).to be_disabled
+    end
+
+    it "disables combobox search parameters without chosen search parameter value" do
+      expect(search_parameter).to_not be_disabled
+      search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, name: 'combobox')
+      expect(search_parameter).to be_disabled
+    end
+
+    it "disables exclusive_list search parameters without chosen search parameter value" do
+      expect(search_parameter).to_not be_disabled
+      search_parameter.parameter.parameter_type = FactoryGirl.build(:parameter_type, name: 'exclusive_list')
       expect(search_parameter).to be_disabled
     end
 
