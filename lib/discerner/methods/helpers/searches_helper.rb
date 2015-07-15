@@ -90,7 +90,7 @@ module Discerner
             parameter_categories_used      = search.export_parameters.map{ |ep| ep.parameter.parameter_category }.flatten
             parameter_categories           = parameter_categories_available | parameter_categories_used
           end
-          parameter_categories.sort{|a,b| a.parameters.length <=> b.parameters.length}
+          parameter_categories
         end
 
         def exportable_parameters(search, category)
