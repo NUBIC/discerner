@@ -53,6 +53,8 @@
           .parameter_value_item
             = f.radio_button :parameter_value_id, parameter_value.id, class: 'parameter_value_id'
             = f.label :parameter_value_id, parameter_value.name
+      %td{class: "remove", class: "invisible"}
+        = discerner_link_to_remove_fields 'Remove', f, :search_parameter_values
     - else
       %td.operator
         - selected = f.object.operator.blank? ? nil : f.object.operator.id
