@@ -1,5 +1,12 @@
 Discerner History
 ============
+2.0.15 07/14/2015
+-----
+- Exclusive lists of parameter values UI: values not removed on parameter change
+See https://github.com/NUBIC/discerner/issues/23
+- Remove default sorting on list of export parameters
+See https://github.com/NUBIC/discerner/issues/24
+
 2.0.14
 -----
 - Updated dependency on jquery-rails to support 4.0.x versions
