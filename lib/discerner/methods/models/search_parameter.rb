@@ -91,8 +91,7 @@ module Discerner
 
         def to_sql
           sql = prepare_sql
-          if search_model_class && !search_model_attribute_method?
-            raise "Search model #{parameter.search_model} does not respond to search method #{parameter.search_method}" unless search_model_class.respond_to?(parameter.search_method)
+          if search_model_class && !search_model_attribute_method? && search_model_class.respond_to?(parameter.search_method)
             sql = search_model_class.send(parameter.search_method, sql)
           end
           sql

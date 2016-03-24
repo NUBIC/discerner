@@ -136,10 +136,10 @@ describe Discerner::SearchParameter do
   end
 
   describe 'using method-based parameters' do
-    it "should throw error if 'to_sql' if method does not exist for selected model" do
+    it "should not throw error if 'to_sql' if method does not exist for selected model", focus: false do
       search_parameter.parameter.search_model   = 'Patient'
       search_parameter.parameter.search_method  = 'blah'
-      expect{search_parameter.to_sql}.to raise_error(RuntimeError, /does not respond to search method/)
+      expect{search_parameter.to_sql}.to_not raise_error
     end
 
     it "should allow to convert search parameter to sql" do
