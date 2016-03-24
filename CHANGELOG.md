@@ -1,5 +1,11 @@
 Discerner History
 ============
+
+2.0.16 03/24/2016
+-----
+- Do not enforce that a Search model needs to respond to parameter search method.
+See https://github.com/NUBIC/discerner/issues/29
+
 2.0.15 07/14/2015
 -----
 - Exclusive lists of parameter values UI: values not removed on parameter change
